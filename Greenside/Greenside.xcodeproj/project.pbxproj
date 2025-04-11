@@ -7,19 +7,32 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		75B9517C2DA4E9CC000DC797 /* Greenside.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Greenside.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		75F6C2B52DA8F10C00D0658B /* Greenside.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Greenside.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		75F6C3122DA8F2B300D0658B /* Exceptions for "Greenside" folder in "Greenside" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 75F6C2B42DA8F10C00D0658B /* Greenside */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		75B9517E2DA4E9CC000DC797 /* Greenside */ = {
+		75F6C2B72DA8F10C00D0658B /* Greenside */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				75F6C3122DA8F2B300D0658B /* Exceptions for "Greenside" folder in "Greenside" target */,
+			);
 			path = Greenside;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		75B951792DA4E9CC000DC797 /* Frameworks */ = {
+		75F6C2B22DA8F10C00D0658B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -29,18 +42,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		75B951732DA4E9CC000DC797 = {
+		75F6C2AC2DA8F10C00D0658B = {
 			isa = PBXGroup;
 			children = (
-				75B9517E2DA4E9CC000DC797 /* Greenside */,
-				75B9517D2DA4E9CC000DC797 /* Products */,
+				75F6C2B72DA8F10C00D0658B /* Greenside */,
+				75F6C2B62DA8F10C00D0658B /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		75B9517D2DA4E9CC000DC797 /* Products */ = {
+		75F6C2B62DA8F10C00D0658B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				75B9517C2DA4E9CC000DC797 /* Greenside.app */,
+				75F6C2B52DA8F10C00D0658B /* Greenside.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,64 +61,64 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		75B9517B2DA4E9CC000DC797 /* Greenside */ = {
+		75F6C2B42DA8F10C00D0658B /* Greenside */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 75B951872DA4E9CD000DC797 /* Build configuration list for PBXNativeTarget "Greenside" */;
+			buildConfigurationList = 75F6C2C02DA8F10D00D0658B /* Build configuration list for PBXNativeTarget "Greenside" */;
 			buildPhases = (
-				75B951782DA4E9CC000DC797 /* Sources */,
-				75B951792DA4E9CC000DC797 /* Frameworks */,
-				75B9517A2DA4E9CC000DC797 /* Resources */,
+				75F6C2B12DA8F10C00D0658B /* Sources */,
+				75F6C2B22DA8F10C00D0658B /* Frameworks */,
+				75F6C2B32DA8F10C00D0658B /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				75B9517E2DA4E9CC000DC797 /* Greenside */,
+				75F6C2B72DA8F10C00D0658B /* Greenside */,
 			);
 			name = Greenside;
 			packageProductDependencies = (
 			);
 			productName = Greenside;
-			productReference = 75B9517C2DA4E9CC000DC797 /* Greenside.app */;
+			productReference = 75F6C2B52DA8F10C00D0658B /* Greenside.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		75B951742DA4E9CC000DC797 /* Project object */ = {
+		75F6C2AD2DA8F10C00D0658B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1630;
 				TargetAttributes = {
-					75B9517B2DA4E9CC000DC797 = {
+					75F6C2B42DA8F10C00D0658B = {
 						CreatedOnToolsVersion = 16.3;
 					};
 				};
 			};
-			buildConfigurationList = 75B951772DA4E9CC000DC797 /* Build configuration list for PBXProject "Greenside" */;
+			buildConfigurationList = 75F6C2B02DA8F10C00D0658B /* Build configuration list for PBXProject "Greenside" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 75B951732DA4E9CC000DC797;
+			mainGroup = 75F6C2AC2DA8F10C00D0658B;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 75B9517D2DA4E9CC000DC797 /* Products */;
+			productRefGroup = 75F6C2B62DA8F10C00D0658B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				75B9517B2DA4E9CC000DC797 /* Greenside */,
+				75F6C2B42DA8F10C00D0658B /* Greenside */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		75B9517A2DA4E9CC000DC797 /* Resources */ = {
+		75F6C2B32DA8F10C00D0658B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -115,7 +128,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		75B951782DA4E9CC000DC797 /* Sources */ = {
+		75F6C2B12DA8F10C00D0658B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -125,8 +138,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		75B951852DA4E9CD000DC797 /* Debug */ = {
+		75F6C2BE2DA8F10D00D0658B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 75F6C2B72DA8F10C00D0658B /* Greenside */;
+			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -189,7 +204,7 @@
 			};
 			name = Debug;
 		};
-		75B951862DA4E9CD000DC797 /* Release */ = {
+		75F6C2BF2DA8F10D00D0658B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -246,8 +261,10 @@
 			};
 			name = Release;
 		};
-		75B951882DA4E9CD000DC797 /* Debug */ = {
+		75F6C2C12DA8F10D00D0658B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 75F6C2B72DA8F10C00D0658B /* Greenside */;
+			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -256,6 +273,7 @@
 				DEVELOPMENT_TEAM = 6TW9C7C78N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Greenside/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -274,7 +292,7 @@
 			};
 			name = Debug;
 		};
-		75B951892DA4E9CD000DC797 /* Release */ = {
+		75F6C2C22DA8F10D00D0658B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -284,6 +302,7 @@
 				DEVELOPMENT_TEAM = 6TW9C7C78N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Greenside/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -305,25 +324,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		75B951772DA4E9CC000DC797 /* Build configuration list for PBXProject "Greenside" */ = {
+		75F6C2B02DA8F10C00D0658B /* Build configuration list for PBXProject "Greenside" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				75B951852DA4E9CD000DC797 /* Debug */,
-				75B951862DA4E9CD000DC797 /* Release */,
+				75F6C2BE2DA8F10D00D0658B /* Debug */,
+				75F6C2BF2DA8F10D00D0658B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		75B951872DA4E9CD000DC797 /* Build configuration list for PBXNativeTarget "Greenside" */ = {
+		75F6C2C02DA8F10D00D0658B /* Build configuration list for PBXNativeTarget "Greenside" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				75B951882DA4E9CD000DC797 /* Debug */,
-				75B951892DA4E9CD000DC797 /* Release */,
+				75F6C2C12DA8F10D00D0658B /* Debug */,
+				75F6C2C22DA8F10D00D0658B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 75B951742DA4E9CC000DC797 /* Project object */;
+	rootObject = 75F6C2AD2DA8F10C00D0658B /* Project object */;
 }

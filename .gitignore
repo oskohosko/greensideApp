@@ -62,5 +62,8 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 
 Config.xcconfig
-*.xcconfig
+**/*.xcconfig
 Info.plist
+*.pbxproj
+
+
