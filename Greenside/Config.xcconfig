@@ -1,0 +1,8 @@
+//
+//  Config.xcconfig
+//  Greenside
+//
+//  Created by Oskar Hosken on 11/4/2025.
+//
+
+API_BASE_URL = http://115.129.47.54:5000/api/auth
