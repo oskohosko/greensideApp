@@ -1,5 +1,5 @@
 //
-//  LoginView.swift
+//  SignupView.swift
 //  Greenside
 //
 //  Created by Oskar Hosken on 11/4/2025.
@@ -7,20 +7,25 @@
 
 import SwiftUI
 
-private func handleLogin() {
-  // TODO - Handle login action
+private func handleSignUp() {
 
 }
 
-struct LoginView: View {
+struct SignUpView: View {
 
   enum Field: Hashable {
+    case firstName
+    case lastName
     case email
     case password
+    case confirmPassword
   }
 
+  @State private var firstName: String = ""
+  @State private var lastName: String = ""
   @State private var email: String = ""
   @State private var password: String = ""
+  @State private var confirmPassword: String = ""
   @FocusState private var focusedField: Field?
 
   var body: some View {
@@ -29,7 +34,7 @@ struct LoginView: View {
         // Background colour
         Color.base200.ignoresSafeArea()
         ScrollView {
-          Spacer().frame(height: 80)
+
           VStack {
             // Logo
             //          Spacer().frame(height: 50)
@@ -37,7 +42,7 @@ struct LoginView: View {
               .resizable()
               .frame(width: 72, height: 72)
             // Welcome text
-            Text("Welcome back.")
+            Text("Welcome to Greenside.")
               .font(
                 .system(size: 28)
                   .weight(.bold)
@@ -45,14 +50,41 @@ struct LoginView: View {
               .padding(.top, 8)
             Spacer().frame(height: 4)
             // Description text
-            Text("Please log in below to continue.")
+            Text("Create an account to get started.")
               .font(
                 .system(size: 18)
                   .weight(.medium)
               ).foregroundStyle(Color.base600)
+            // Text fields and labels for the form
 
-            Spacer().frame(height: 16)
-
+            // First name text field
+            Text("First Name")
+              .font(.system(size: 18).weight(.medium))
+              .foregroundStyle(Color.content)
+              .padding(.top, 4)
+            TextField("First name", text: $firstName)
+              .focused($focusedField, equals: .firstName)
+              .frame(height: 38)
+              .padding(.leading, 10)
+              .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                  .stroke(Color.accentGreen, lineWidth: 2)
+                  .opacity(1.0)
+              )
+            // Last name text field
+            Text("Last Name")
+              .font(.system(size: 18).weight(.medium))
+              .foregroundStyle(Color.content)
+              .padding(.top, 4)
+            TextField("Last name", text: $lastName)
+              .focused($focusedField, equals: .lastName)
+              .frame(height: 38)
+              .padding(.leading, 10)
+              .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                  .stroke(Color.accentGreen, lineWidth: 2)
+                  .opacity(1.0)
+              )
             // Email text field
             Text("Email Address")
               .font(.system(size: 18).weight(.medium))
@@ -81,19 +113,39 @@ struct LoginView: View {
                   .stroke(Color.accentGreen, lineWidth: 2)
                   .opacity(1.0)
               )
-            Spacer().frame(height: 16)
+            // Confirm Password text field
+            Text("Confirm Password")
+              .font(.system(size: 18).weight(.medium))
+              .foregroundStyle(Color.content)
+              .padding(.top, 4)
+            SecureField("Confirm password", text: $confirmPassword)
+              .focused($focusedField, equals: .confirmPassword)
+              .frame(height: 38)
+              .padding(.leading, 10)
+              .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                  .stroke(Color.accentGreen, lineWidth: 2)
+                  .opacity(1.0)
+              )
+
             // Sign up button
             Button {
-              if email.isEmpty {
+              if firstName.isEmpty {
+                focusedField = .firstName
+              } else if lastName.isEmpty {
+                focusedField = .lastName
+              } else if email.isEmpty {
                 focusedField = .email
               } else if password.isEmpty {
                 focusedField = .password
+              } else if confirmPassword.isEmpty {
+                focusedField = .confirmPassword
               } else {
                 // Handling sign up action
-                handleLogin()
+                handleSignUp()
               }
             } label: {
-              Text("Login")
+              Text("Sign Up")
                 .font(.system(size: 18, weight: .medium))
                 .foregroundStyle(Color.content)
                 .opacity(0.8)
@@ -103,15 +155,15 @@ struct LoginView: View {
               .cornerRadius(16)
               .padding(.top, 12)
             // Already have an account text
-            Text("Don't have an account?")
+            Text("Already have an account?")
               .font(.system(size: 16).weight(.medium))
               .foregroundStyle(Color.content)
               .padding(.top, 8)
             // Navigate to login screen
             NavigationLink {
-              SignUpView()
+              LoginView()
             } label: {
-              Text("Sign Up")
+              Text("Log in")
                 .font(.system(size: 18, weight: .medium))
                 .foregroundStyle(Color.content)
                 .opacity(0.8)
@@ -123,17 +175,17 @@ struct LoginView: View {
                   .opacity(1.0)
               )
 
+            Spacer()
           }.padding(.horizontal, 30)
 
         }
       }.navigationTitle("")
         .navigationBarHidden(true)
-        
-    }
 
+    }
   }
 }
 
 #Preview {
-  LoginView()
+  SignUpView()
 }
