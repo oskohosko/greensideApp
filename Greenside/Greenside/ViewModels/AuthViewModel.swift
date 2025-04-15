@@ -22,23 +22,47 @@ class AuthViewModel: ObservableObject {
   @Published var password: String = ""
   @Published var confirmPassword: String = ""
 
-  func handleLogin(email: String, password: String) {
-    Task {
-      do {
-        let user = try await AuthService.shared.login(
-          email: email,
-          password: password
-        )
-        if let token = user.token {
-          KeychainHelper.shared.saveToken(token)
-        }
-        self.user = user
-        self.isLoggedIn = true
-        self.loginError = nil
-      } catch {
-        self.loginError = error.localizedDescription
-        self.isLoggedIn = false
+  func handleSignUp(
+    firstName: String,
+    lastName: String,
+    email: String,
+    password: String,
+    confirmPassword: String
+  ) async {
+    do {
+      let user = try await AuthService.shared.signup(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+        confirmPassword: password
+      )
+      if let token = user.token {
+        KeychainHelper.shared.saveToken(token)
       }
+      self.user = user
+      self.isLoggedIn = true
+    } catch {
+      self.loginError = error.localizedDescription
+      self.isLoggedIn = false
+    }
+  }
+
+  func handleLogin(email: String, password: String) async {
+    do {
+      let user = try await AuthService.shared.login(
+        email: email,
+        password: password
+      )
+      if let token = user.token {
+        KeychainHelper.shared.saveToken(token)
+      }
+      self.user = user
+      self.isLoggedIn = true
+
+    } catch {
+      self.loginError = error.localizedDescription
+      self.isLoggedIn = false
     }
   }
 
@@ -48,27 +72,32 @@ class AuthViewModel: ObservableObject {
     if let token = KeychainHelper.shared.readToken() {
       do {
         let user = try await AuthService.shared.verifyToken(token: token)
+        print(user)
         self.user = user
         self.isLoggedIn = true
         isCheckingAuth = false
       } catch {
+        print("Token validation failed: \(error.localizedDescription)")
         isLoggedIn = false
-        isCheckingAuth = false
       }
+
     } else {
+      print("No token found")
+      isLoggedIn = false
+
+    }
+    isCheckingAuth = false
+  }
+
+  func logout() async {
+    do {
+      await self.verify()
+      KeychainHelper.shared.deleteToken()
+      user = nil
       isLoggedIn = false
       isCheckingAuth = false
     }
-  }
-
-  func logout() {
-    KeychainHelper.shared.deleteToken()
-    user = nil
-    isLoggedIn = false
-    isCheckingAuth = false
-    print("Logged out")
-    print(isLoggedIn)
-    print(user)
+    
   }
 
 }

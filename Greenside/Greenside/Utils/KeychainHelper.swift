@@ -51,14 +51,18 @@ class KeychainHelper {
 
   func saveToken(_ token: String) {
     if let data = token.data(using: .utf8) {
+      print("Saving token: \(token)")
       save(data, service: "auth", account: "jwt")
     }
   }
 
   func readToken() -> String? {
     guard let data = read(service: "auth", account: "jwt") else {
+      print("No token found")
       return nil
     }
+    let token = String(data: data, encoding: .utf8)
+    print("Token read: \(token ?? "nil")")
     return String(data: data, encoding: .utf8)
   }
   

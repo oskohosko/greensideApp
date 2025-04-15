@@ -60,17 +60,58 @@ class AuthService {
   }
 
   // Signup method
-  func signup(email: String, password: String) async throws {
+  func signup(
+    firstName: String,
+    lastName: String,
+    email: String,
+    password: String,
+    confirmPassword: String
+  ) async throws -> User {
     // TODO Sign up
-  }
+    if let apiBaseURL = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL")
+      as? String
+    {
+      guard let url = URL(string: "http://\(apiBaseURL)/signup") else {
+        print("url error")
+        throw URLError(.badURL)
+      }
 
-  // Logout method
-  func logout() async throws {
-    // TODO Log out
-    
+      var request = URLRequest(url: url)
+      request.httpMethod = "POST"
+      request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+      request.setValue("mobile", forHTTPHeaderField: "X-Client-Type")
+
+      let body = [
+        "firstName": firstName,
+        "lastName": lastName,
+        "email": email,
+        "password": password,
+        "confirmPassword": confirmPassword,
+      ]
+      request.httpBody = try JSONEncoder().encode(body)
+
+      let (data, response) = try await URLSession.shared.data(for: request)
+
+      guard let httpResponse = response as? HTTPURLResponse,
+        (200..<300).contains(httpResponse.statusCode)
+      else {
+        print(response)
+        throw URLError(.badServerResponse)
+      }
+
+      let user = try JSONDecoder().decode(User.self, from: data)
+      print(user)
+      return user
+
+    } else {
+      print("Bad url")
+      throw URLError(.badURL)
+    }
+
   }
 
   func verifyToken(token: String) async throws -> User {
+    print("Verifying token: \(token)")
     if let apiBaseURL = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL")
       as? String
     {
@@ -89,6 +130,10 @@ class AuthService {
       else {
         print(response)
         throw URLError(.badServerResponse)
+      }
+
+      if let jsonString = String(data: data, encoding: .utf8) {
+        print("Raw response: \(jsonString)")
       }
 
       let user = try JSONDecoder().decode(User.self, from: data)

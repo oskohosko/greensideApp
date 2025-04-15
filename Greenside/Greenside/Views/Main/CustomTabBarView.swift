@@ -30,7 +30,9 @@ struct CustomTabBarView: View {
           Button(action: {
             // Handle user icon tap
             print("Logging out")
-            authViewModel.logout()
+            Task {
+              await authViewModel.logout()
+            }
             
           }) {
             Image(systemName: "person.crop.circle")

@@ -96,10 +96,13 @@ struct LoginView: View {
               focusedField = .password
             } else {
               // Handling sign up action
-              authViewModel.handleLogin(
-                email: authViewModel.email,
-                password: authViewModel.password
-              )
+              Task {
+                await authViewModel.handleLogin(
+                  email: authViewModel.email,
+                  password: authViewModel.password
+                )
+              }
+              
             }
           } label: {
             Text("Login")

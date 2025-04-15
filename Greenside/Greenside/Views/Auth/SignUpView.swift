@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-private func handleSignUp() {
-  
-}
-
 struct SignUpView: View {
 
   enum Field: Hashable {
@@ -22,8 +18,10 @@ struct SignUpView: View {
   }
 
   @StateObject var authViewModel = AuthViewModel()
-  
+
   @FocusState private var focusedField: Field?
+  @State private var navigateToLogin = false
+  @State private var showAlert  = false
 
   var body: some View {
     NavigationStack {
@@ -34,7 +32,7 @@ struct SignUpView: View {
 
           VStack {
             // Logo
-            //          Spacer().frame(height: 50)
+
             Image("Greenside")
               .resizable()
               .frame(width: 72, height: 72)
@@ -115,9 +113,9 @@ struct SignUpView: View {
               .padding(.top, 4)
             SecureField("", text: $authViewModel.password)
               .placeholder(
-              show: authViewModel.password.isEmpty,
-              text: "Password"
-            )
+                show: authViewModel.password.isEmpty,
+                text: "Password"
+              )
               .focused($focusedField, equals: .password)
               .frame(height: 38)
               .padding(.leading, 10)
@@ -159,7 +157,15 @@ struct SignUpView: View {
                 focusedField = .confirmPassword
               } else {
                 // Handling sign up action
-                handleSignUp()
+                Task {
+                  await authViewModel.handleSignUp(
+                    firstName: authViewModel.firstName,
+                    lastName: authViewModel.lastName,
+                    email: authViewModel.email,
+                    password: authViewModel.password,
+                    confirmPassword: authViewModel.confirmPassword
+                  )
+                }
               }
             } label: {
               Text("Sign Up")
@@ -196,6 +202,9 @@ struct SignUpView: View {
           }.padding(.horizontal, 30)
 
         }
+        .navigationDestination(isPresented: $navigateToLogin) {
+          LoginView()
+        }
       }.navigationTitle("")
         .navigationBarHidden(true)
         .toolbar {
@@ -209,10 +218,13 @@ struct SignUpView: View {
           }
         }
         .onAppear {
-          focusedField = .email
+          focusedField = .firstName
         }
-      
-
+        .onChange(of: authViewModel.isLoggedIn) { isLoggedIn in
+          if isLoggedIn {
+            navigateToLogin = true
+          }
+        }
     }
   }
 }
