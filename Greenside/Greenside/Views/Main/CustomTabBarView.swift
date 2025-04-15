@@ -9,12 +9,41 @@ import SwiftUI
 
 struct CustomTabBarView: View {
   @State private var selectedTab: Tab = .home
+  @EnvironmentObject var authViewModel: AuthViewModel
 
   var body: some View {
     ZStack {
       Color(.base100).ignoresSafeArea()
 
       VStack(spacing: 0) {
+        HStack {
+          HStack(spacing: 8) {
+            Image("Greenside")
+              .resizable()
+              .scaledToFit()
+              .frame(width: 48, height: 48)
+            Text("Greenside")
+              .font(.title.bold())
+              .foregroundStyle(Color.content)
+          }
+          Spacer()
+          Button(action: {
+            // Handle user icon tap
+            print("Logging out")
+            authViewModel.logout()
+            
+          }) {
+            Image(systemName: "person.crop.circle")
+              .font(
+                .system(size: 32)
+              )
+              .foregroundStyle(Color.primaryGreen)
+
+          }
+        }
+        .padding()
+        .background(Color.base100)
+        Divider()
         // Main content
         switch selectedTab {
         case .home:
@@ -125,5 +154,5 @@ struct TabBarButton: View {
 }
 
 #Preview {
-  CustomTabBarView()
+  CustomTabBarView().environmentObject(AuthViewModel())
 }

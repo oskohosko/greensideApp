@@ -8,7 +8,7 @@
 import SwiftUI
 
 private func handleSignUp() {
-
+  
 }
 
 struct SignUpView: View {
@@ -21,11 +21,8 @@ struct SignUpView: View {
     case confirmPassword
   }
 
-  @State private var firstName: String = ""
-  @State private var lastName: String = ""
-  @State private var email: String = ""
-  @State private var password: String = ""
-  @State private var confirmPassword: String = ""
+  @StateObject var authViewModel = AuthViewModel()
+  
   @FocusState private var focusedField: Field?
 
   var body: some View {
@@ -62,7 +59,11 @@ struct SignUpView: View {
               .font(.system(size: 18).weight(.medium))
               .foregroundStyle(Color.content)
               .padding(.top, 4)
-            TextField("First name", text: $firstName)
+            TextField("", text: $authViewModel.firstName)
+              .placeholder(
+                show: authViewModel.firstName.isEmpty,
+                text: "First Name"
+              )
               .focused($focusedField, equals: .firstName)
               .frame(height: 38)
               .padding(.leading, 10)
@@ -76,7 +77,11 @@ struct SignUpView: View {
               .font(.system(size: 18).weight(.medium))
               .foregroundStyle(Color.content)
               .padding(.top, 4)
-            TextField("Last name", text: $lastName)
+            TextField("", text: $authViewModel.lastName)
+              .placeholder(
+                show: authViewModel.lastName.isEmpty,
+                text: "Last Name"
+              )
               .focused($focusedField, equals: .lastName)
               .frame(height: 38)
               .padding(.leading, 10)
@@ -90,7 +95,11 @@ struct SignUpView: View {
               .font(.system(size: 18).weight(.medium))
               .foregroundStyle(Color.content)
               .padding(.top, 4)
-            TextField("Email Address", text: $email)
+            TextField("", text: $authViewModel.email)
+              .placeholder(
+                show: authViewModel.email.isEmpty,
+                text: "Email Address"
+              )
               .focused($focusedField, equals: .email)
               .frame(height: 38)
               .padding(.leading, 10)
@@ -104,7 +113,11 @@ struct SignUpView: View {
               .font(.system(size: 18).weight(.medium))
               .foregroundStyle(Color.content)
               .padding(.top, 4)
-            SecureField("Password", text: $password)
+            SecureField("", text: $authViewModel.password)
+              .placeholder(
+              show: authViewModel.password.isEmpty,
+              text: "Password"
+            )
               .focused($focusedField, equals: .password)
               .frame(height: 38)
               .padding(.leading, 10)
@@ -118,7 +131,11 @@ struct SignUpView: View {
               .font(.system(size: 18).weight(.medium))
               .foregroundStyle(Color.content)
               .padding(.top, 4)
-            SecureField("Confirm password", text: $confirmPassword)
+            SecureField("", text: $authViewModel.confirmPassword)
+              .placeholder(
+                show: authViewModel.confirmPassword.isEmpty,
+                text: "Confirm Password"
+              )
               .focused($focusedField, equals: .confirmPassword)
               .frame(height: 38)
               .padding(.leading, 10)
@@ -130,15 +147,15 @@ struct SignUpView: View {
 
             // Sign up button
             Button {
-              if firstName.isEmpty {
+              if authViewModel.firstName.isEmpty {
                 focusedField = .firstName
-              } else if lastName.isEmpty {
+              } else if authViewModel.lastName.isEmpty {
                 focusedField = .lastName
-              } else if email.isEmpty {
+              } else if authViewModel.email.isEmpty {
                 focusedField = .email
-              } else if password.isEmpty {
+              } else if authViewModel.password.isEmpty {
                 focusedField = .password
-              } else if confirmPassword.isEmpty {
+              } else if authViewModel.confirmPassword.isEmpty {
                 focusedField = .confirmPassword
               } else {
                 // Handling sign up action
@@ -181,6 +198,20 @@ struct SignUpView: View {
         }
       }.navigationTitle("")
         .navigationBarHidden(true)
+        .toolbar {
+          ToolbarItemGroup(placement: .keyboard) {
+            HStack {
+              Spacer()
+              Button("Done") {
+                focusedField = nil
+              }
+            }
+          }
+        }
+        .onAppear {
+          focusedField = .email
+        }
+      
 
     }
   }

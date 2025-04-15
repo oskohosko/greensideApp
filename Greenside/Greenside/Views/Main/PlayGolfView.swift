@@ -13,33 +13,6 @@ struct PlayGolfView: View {
       ZStack {
         Color.base200.ignoresSafeArea()
         VStack(spacing: 0) {
-          // Header
-          HStack {
-            HStack(spacing: 8) {
-              Image("Greenside")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 48, height: 48)
-              Text("Greenside")
-                .font(.title.bold())
-            }
-            Spacer()
-            Button(action: {
-              // Handle user icon tap
-            }) {
-              Image(systemName: "person.crop.circle")
-                .font(
-                  .system(size: 32)
-                )
-                .foregroundStyle(Color.primaryGreen)
-
-            }
-          }
-          .padding()
-          .background(Color.base100)
-
-          Divider()
-
           // Main content area
           VStack {
             Spacer()

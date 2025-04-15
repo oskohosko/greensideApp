@@ -14,31 +14,32 @@ struct HomeView: View {
         Color.base200.ignoresSafeArea()
         VStack(spacing: 0) {
           // Header
-          HStack {
-            HStack(spacing: 8) {
-              Image("Greenside")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 48, height: 48)
-              Text("Greenside")
-                .font(.title.bold())
-            }
-            Spacer()
-            Button(action: {
-              // Handle user icon tap
-            }) {
-              Image(systemName: "person.crop.circle")
-                .font(
-                  .system(size: 32)
-                )
-                .foregroundStyle(Color.primaryGreen)
-
-            }
-          }
-          .padding()
-          .background(Color.base100)
-
-          Divider()
+//          HStack {
+//            HStack(spacing: 8) {
+//              Image("Greenside")
+//                .resizable()
+//                .scaledToFit()
+//                .frame(width: 48, height: 48)
+//              Text("Greenside")
+//                .font(.title.bold())
+//                .foregroundStyle(Color.content)
+//            }
+//            Spacer()
+//            Button(action: {
+//              // Handle user icon tap
+//            }) {
+//              Image(systemName: "person.crop.circle")
+//                .font(
+//                  .system(size: 32)
+//                )
+//                .foregroundStyle(Color.primaryGreen)
+//
+//            }
+//          }
+//          .padding()
+//          .background(Color.base100)
+//
+//          Divider()
 
           // Main content area
           VStack {

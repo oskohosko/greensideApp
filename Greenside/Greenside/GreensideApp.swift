@@ -2,6 +2,9 @@ import SwiftUI
 
 @main
 struct GreensideApp: App {
+  
+  @StateObject private var authViewModel = AuthViewModel()
+  
   init() {
     let appearance = UINavigationBarAppearance()
     appearance.configureWithOpaqueBackground()
@@ -26,7 +29,11 @@ struct GreensideApp: App {
   }
   var body: some Scene {
     WindowGroup {
-      ContentView()
+      RootView()
+        .environmentObject(authViewModel)
+        .task {
+          await authViewModel.verify()
+        }
     }
   }
 }
