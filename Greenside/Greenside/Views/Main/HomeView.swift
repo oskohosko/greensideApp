@@ -12,42 +12,17 @@ struct HomeView: View {
     NavigationStack {
       ZStack {
         Color.base200.ignoresSafeArea()
-        VStack(spacing: 0) {
-          // Header
-//          HStack {
-//            HStack(spacing: 8) {
-//              Image("Greenside")
-//                .resizable()
-//                .scaledToFit()
-//                .frame(width: 48, height: 48)
-//              Text("Greenside")
-//                .font(.title.bold())
-//                .foregroundStyle(Color.content)
-//            }
-//            Spacer()
-//            Button(action: {
-//              // Handle user icon tap
-//            }) {
-//              Image(systemName: "person.crop.circle")
-//                .font(
-//                  .system(size: 32)
-//                )
-//                .foregroundStyle(Color.primaryGreen)
-//
-//            }
-//          }
-//          .padding()
-//          .background(Color.base100)
-//
-//          Divider()
+        ScrollView {
+          VStack(spacing: 8) {
+            Text("Play")
+              .font(.system(size: 36, weight: .bold))
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .foregroundStyle(.content)
+              .padding(.leading, 16)
 
-          // Main content area
-          VStack {
-            Spacer()
-            Text("Main Content Goes Here")
-            Spacer()
-          }
-          .padding()
+            // Now a horizontal scroll view with cards
+            RoundsListView()
+          }.padding(.top, 12)
 
         }
         .navigationTitle("")

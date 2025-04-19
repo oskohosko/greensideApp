@@ -22,7 +22,7 @@ struct CustomTabBarView: View {
               .resizable()
               .scaledToFit()
               .frame(width: 48, height: 48)
-            Text("Greenside")
+            Text("Greenside.")
               .font(.title.bold())
               .foregroundStyle(Color.content)
           }
@@ -39,13 +39,13 @@ struct CustomTabBarView: View {
               .font(
                 .system(size: 32)
               )
-              .foregroundStyle(Color.primaryGreen)
+              .foregroundStyle(Color.accentGreen)
 
           }
         }
         .padding()
         .background(Color.base100)
-        Divider()
+        
         // Main content
         switch selectedTab {
         case .home:
@@ -56,15 +56,13 @@ struct CustomTabBarView: View {
           CoursesView()
         case .analysis:
           AnalysisView()
-        case .settings:
-          SettingsView()
+        case .menu:
+          MenuView()
           
         }
 
-        Divider()
-
         // Custom Tab Bar
-        HStack(spacing: 30) {
+        HStack {
           TabBarButton(
             icon: "house",
             selectedIcon: "house.fill",
@@ -72,7 +70,6 @@ struct CustomTabBarView: View {
             title: "Home",
             selectedTab: $selectedTab
           )
-
           TabBarButton(
             icon: "flag.circle",
             selectedIcon: "flag.circle.fill",
@@ -80,7 +77,6 @@ struct CustomTabBarView: View {
             title: "Play",
             selectedTab: $selectedTab
           )
-
           TabBarButton(
             icon: "mappin.circle",
             selectedIcon: "mappin.circle.fill",
@@ -96,24 +92,25 @@ struct CustomTabBarView: View {
             selectedTab: $selectedTab
           )
           TabBarButton(
-            icon: "slider.horizontal.2.square",
-            selectedIcon: "slider.horizontal.2.square",
-            tab: .settings,
-            title: "Settings",
+            icon: "text.justify",
+            selectedIcon: "text.justify",
+            tab: .menu,
+            title: "Menu",
             selectedTab: $selectedTab
           )
         }
-        .padding(.horizontal, 30)
+        .padding(.horizontal, 10)
         .padding(.top, 20)
-        .padding(.bottom, 20)
+        .padding(.bottom, 10)
         .background(Color.base100)
+        
       }
     }
   }
 }
 
 enum Tab {
-  case home, play, courses, analysis, settings
+  case home, play, courses, analysis, menu
 }
 
 struct TabBarButton: View {
@@ -127,20 +124,18 @@ struct TabBarButton: View {
     Button(action: {
       selectedTab = tab
     }) {
-      VStack {
+      VStack(spacing: 4) {
         Image(
           systemName: selectedTab == tab ? selectedIcon : icon
         )
           .font(.system(
-            size: tab == .home ? 28 : 32,
+            size: (tab == .home || tab == .menu) ? 28 : 32,
             weight: .medium))
           .foregroundColor(
-            selectedTab == tab ? .primaryGreen : .base400
+            selectedTab == tab ? .accentGreen : .base400
           )
           .frame(width: 32, height: 32)
           
-          
-        Spacer(minLength: 3)
         Text(title)
           .font(
             .system(size: 12, weight: .medium)
@@ -150,7 +145,7 @@ struct TabBarButton: View {
           )
 
       }
-      .frame(height: 32)
+      .frame(maxWidth: .infinity)
     }
   }
 }

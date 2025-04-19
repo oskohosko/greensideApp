@@ -27,15 +27,13 @@ class AuthViewModel: ObservableObject {
     lastName: String,
     email: String,
     password: String,
-    confirmPassword: String
   ) async {
     do {
       let user = try await AuthService.shared.signup(
         firstName: firstName,
         lastName: lastName,
         email: email,
-        password: password,
-        confirmPassword: password
+        password: password
       )
       if let token = user.token {
         KeychainHelper.shared.saveToken(token)

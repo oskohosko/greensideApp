@@ -64,8 +64,7 @@ class AuthService {
     firstName: String,
     lastName: String,
     email: String,
-    password: String,
-    confirmPassword: String
+    password: String
   ) async throws -> User {
     // TODO Sign up
     if let apiBaseURL = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL")
@@ -85,8 +84,7 @@ class AuthService {
         "firstName": firstName,
         "lastName": lastName,
         "email": email,
-        "password": password,
-        "confirmPassword": confirmPassword,
+        "password": password
       ]
       request.httpBody = try JSONEncoder().encode(body)
 

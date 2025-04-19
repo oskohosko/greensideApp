@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SettingsView: View {
+struct MenuView: View {
   var body: some View {
     NavigationStack {
       ZStack {
@@ -32,5 +32,5 @@ struct SettingsView: View {
 }
 
 #Preview {
-  SettingsView()
+  MenuView()
 }
