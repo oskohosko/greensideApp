@@ -13,13 +13,13 @@ let sampleRound: [String: Any] = [
   "date": "Mar 21",
 ]
 
-struct RoundCardView: View {
+struct RoundCard: View {
   var body: some View {
     HStack {
       VStack {
         Text(sampleRound["name"] as? String ?? "")
           .font(.headline)
-          .lineLimit(3)
+          .lineLimit(2)
           .foregroundColor(.content)
           .frame(maxWidth: .infinity, alignment: .leading)
         Spacer()
@@ -31,6 +31,7 @@ struct RoundCardView: View {
           Text(sampleRound["date"] as? String ?? "")
             .font(.subheadline)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundStyle(.content)
         }
         
       }
@@ -50,12 +51,13 @@ struct RoundCardView: View {
       
         
     }.padding()
-      .frame(width: 200, height: 100)
+      .frame(width: 200, height: 110)
+      .fixedSize(horizontal: false, vertical: true)
       .background(Color.base100)
       .cornerRadius(20)
   }
 }
 
 #Preview {
-  RoundCardView()
+  RoundCard()
 }

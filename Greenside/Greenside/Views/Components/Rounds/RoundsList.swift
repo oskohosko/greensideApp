@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct RoundsListView: View {
+struct RoundsList: View {
   var body: some View {
     ScrollView(.horizontal, showsIndicators: false) {
       HStack(spacing: 16) {
         ForEach(0..<10) { _ in
-          RoundCardView()
+          RoundCard()
         }
       }
       .padding(.horizontal)
@@ -21,5 +21,5 @@ struct RoundsListView: View {
 }
 
 #Preview {
-  RoundsListView()
+  RoundsList()
 }

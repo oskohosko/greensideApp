@@ -10,6 +10,7 @@ import SwiftUI
 struct CustomTabBarView: View {
   @State private var selectedTab: Tab = .home
   @EnvironmentObject var authViewModel: AuthViewModel
+  @StateObject var globalViewModel = GlobalViewModel()
 
   var body: some View {
     ZStack {
@@ -23,7 +24,7 @@ struct CustomTabBarView: View {
               .scaledToFit()
               .frame(width: 48, height: 48)
             Text("Greenside.")
-              .font(.title.bold())
+              .font(.system(size: 32, weight: .bold))
               .foregroundStyle(Color.content)
           }
           Spacer()
@@ -33,7 +34,7 @@ struct CustomTabBarView: View {
             Task {
               await authViewModel.logout()
             }
-            
+
           }) {
             Image(systemName: "person.crop.circle")
               .font(
@@ -45,11 +46,11 @@ struct CustomTabBarView: View {
         }
         .padding()
         .background(Color.base100)
-        
+
         // Main content
         switch selectedTab {
         case .home:
-          HomeView()
+          HomeView().environmentObject(globalViewModel)
         case .play:
           PlayGolfView()
         case .courses:
@@ -58,7 +59,7 @@ struct CustomTabBarView: View {
           AnalysisView()
         case .menu:
           MenuView()
-          
+
         }
 
         // Custom Tab Bar
@@ -103,8 +104,12 @@ struct CustomTabBarView: View {
         .padding(.top, 20)
         .padding(.bottom, 10)
         .background(Color.base100)
-        
+
       }
+    }
+    .onAppear {
+      print("Tab bar appeared, triggering location access")
+      _ = globalViewModel.locationManager.currentLocation
     }
   }
 }
@@ -128,14 +133,17 @@ struct TabBarButton: View {
         Image(
           systemName: selectedTab == tab ? selectedIcon : icon
         )
-          .font(.system(
+        .font(
+          .system(
             size: (tab == .home || tab == .menu) ? 28 : 32,
-            weight: .medium))
-          .foregroundColor(
-            selectedTab == tab ? .accentGreen : .base400
+            weight: .medium
           )
-          .frame(width: 32, height: 32)
-          
+        )
+        .foregroundColor(
+          selectedTab == tab ? .accentGreen : .base400
+        )
+        .frame(width: 32, height: 32)
+
         Text(title)
           .font(
             .system(size: 12, weight: .medium)
@@ -151,5 +159,7 @@ struct TabBarButton: View {
 }
 
 #Preview {
-  CustomTabBarView().environmentObject(AuthViewModel())
+  CustomTabBarView().environmentObject(AuthViewModel()).environmentObject(
+    GlobalViewModel()
+  )
 }

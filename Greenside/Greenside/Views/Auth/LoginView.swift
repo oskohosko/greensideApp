@@ -13,7 +13,6 @@ struct LoginView: View {
     case email
     case password
   }
-
   @StateObject private var authViewModel = AuthViewModel()
   @FocusState private var focusedField: Field?
   @State private var navigateToHome = false

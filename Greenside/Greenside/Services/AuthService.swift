@@ -66,7 +66,7 @@ class AuthService {
     email: String,
     password: String
   ) async throws -> User {
-    // TODO Sign up
+    // URL
     if let apiBaseURL = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL")
       as? String
     {
@@ -74,12 +74,14 @@ class AuthService {
         print("url error")
         throw URLError(.badURL)
       }
-
+      
+      // Setting headers and notifying this is a mobile request
       var request = URLRequest(url: url)
       request.httpMethod = "POST"
       request.setValue("application/json", forHTTPHeaderField: "Content-Type")
       request.setValue("mobile", forHTTPHeaderField: "X-Client-Type")
-
+      
+      // Adding signup info to body
       let body = [
         "firstName": firstName,
         "lastName": lastName,
@@ -87,7 +89,8 @@ class AuthService {
         "password": password
       ]
       request.httpBody = try JSONEncoder().encode(body)
-
+      
+      // Getting response
       let (data, response) = try await URLSession.shared.data(for: request)
 
       guard let httpResponse = response as? HTTPURLResponse,
@@ -96,7 +99,8 @@ class AuthService {
         print(response)
         throw URLError(.badServerResponse)
       }
-
+      
+      // returning user from response
       let user = try JSONDecoder().decode(User.self, from: data)
       print(user)
       return user
