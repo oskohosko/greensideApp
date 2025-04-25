@@ -17,43 +17,50 @@ struct CourseCard: View {
     guard let userLocation = locationManager.currentLocation else {
       return "Loading..."
     }
-    return String(format: "%.2f",
+    return String(
+      format: "%.2f",
       distanceBetweenPoints(
         first: CLLocationCoordinate2D(
           latitude: course.lat,
           longitude: course.lng
         ),
         second: userLocation.coordinate
-      ) / 1000)
+      ) / 1000
+    )
   }
 
   var body: some View {
-    VStack {
-      Text(course.name)
-        .font(.system(size: 16, weight: .medium))
-        .foregroundStyle(.content)
-        .lineLimit(2)
-
-      Divider()
-        .frame(height: 1)
-        .overlay(
-          Rectangle()
-            .frame(height: 3)
-            .foregroundColor(Color.base200)
-            .cornerRadius(10)
-        )
-      HStack(spacing: 4) {
-        Image(systemName: "mappin.circle.fill")
-          .foregroundColor(.accentGreen)
-          .fontWeight(.bold)
-          .font(.subheadline)
-        Text(distance + "km")
-          .font(.system(size: 14, weight: .medium))
+    NavigationLink {
+      CourseDetailView(course: course)
+    } label: {
+      VStack {
+        Text(course.name)
+          .font(.system(size: 16, weight: .medium))
           .foregroundStyle(.content)
-          .lineLimit(1)
-      }
+          .lineLimit(3)
 
+        Divider()
+          .frame(height: 1)
+          .overlay(
+            Rectangle()
+              .frame(height: 3)
+              .foregroundColor(Color.base200)
+              .cornerRadius(10)
+          )
+        HStack(spacing: 4) {
+          Image(systemName: "mappin.circle.fill")
+            .foregroundColor(.accentGreen)
+            .fontWeight(.bold)
+            .font(.subheadline)
+          Text(distance + "km")
+            .font(.system(size: 14, weight: .medium))
+            .foregroundStyle(.content)
+            .lineLimit(1)
+        }.padding(.top, 4)
+
+      }
     }
+
     .padding()
     .frame(width: 120)
     .background(.base100)

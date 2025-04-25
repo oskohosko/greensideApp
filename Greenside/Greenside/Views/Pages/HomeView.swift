@@ -9,8 +9,10 @@ import SwiftUI
 
 struct HomeView: View {
 
+  @State private var searchText: String = ""
+
   @EnvironmentObject private var viewModel: GlobalViewModel
-//  @State private var courses: [Course] = []
+  //  @State private var courses: [Course] = []
 
   var body: some View {
     NavigationStack {
@@ -43,7 +45,23 @@ struct HomeView: View {
               .foregroundStyle(.content)
               .padding(.leading, 16)
               .padding(.top, 10)
-            
+
+            HStack {
+              SearchBar(text: $searchText)
+                .onChange(of: searchText) {
+                  viewModel.filterCourses(by: searchText)
+                }
+              Button {
+                viewModel.sortCoursesByLocation()
+              } label: {
+                Image(systemName: "location.magnifyingglass")
+                  .foregroundStyle(Color(.accentGreen))
+                  .font(.system(size: 32, weight: .medium))
+                  .padding(.leading, 4)
+              }
+
+            }.padding(.horizontal, 16)
+
             CourseList().environmentObject(viewModel)
 
           }
@@ -57,12 +75,19 @@ struct HomeView: View {
         .onAppear {
           Task {
             do {
-              try await viewModel.loadCourses()
+              _ = try await viewModel.loadCourses()
             } catch {
               print("Failed to load courses")
             }
           }
-
+        }
+      }
+    }
+    .toolbar {
+      ToolbarItemGroup(placement: .keyboard) {
+        Spacer()
+        Button("Done") {
+          hideKeyboard()
         }
       }
     }

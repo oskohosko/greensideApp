@@ -27,7 +27,6 @@ class KeychainHelper {
 
   // Read from Keychain
   func read(service: String, account: String) -> Data? {
-    // TODO - Read from Keychain
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,

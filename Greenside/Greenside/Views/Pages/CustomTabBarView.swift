@@ -13,55 +13,57 @@ struct CustomTabBarView: View {
   @StateObject var globalViewModel = GlobalViewModel()
 
   var body: some View {
-    ZStack {
-      Color(.base100).ignoresSafeArea()
+    GeometryReader { geometry in
+      ZStack(alignment: .bottom) {
+        Color(.base100).ignoresSafeArea()
 
-      VStack(spacing: 0) {
-        HStack {
-          HStack(spacing: 8) {
-            Image("Greenside")
-              .resizable()
-              .scaledToFit()
-              .frame(width: 48, height: 48)
-            Text("Greenside.")
-              .font(.system(size: 32, weight: .bold))
-              .foregroundStyle(Color.content)
-          }
-          Spacer()
-          Button(action: {
-            // Handle user icon tap
-            print("Logging out")
-            Task {
-              await authViewModel.logout()
+        VStack(spacing: 0) {
+          HStack {
+            HStack(spacing: 8) {
+              Image("Greenside")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 48, height: 48)
+              Text("Greenside.")
+                .font(.system(size: 32, weight: .bold))
+                .foregroundStyle(Color.content)
             }
+            Spacer()
+            Button(action: {
+              // Handle user icon tap
+              print("Logging out")
+              Task {
+                await authViewModel.logout()
+              }
 
-          }) {
-            Image(systemName: "person.crop.circle")
-              .font(
-                .system(size: 32)
-              )
-              .foregroundStyle(Color.accentGreen)
+            }) {
+              Image(systemName: "person.crop.circle")
+                .font(
+                  .system(size: 32)
+                )
+                .foregroundStyle(Color.accentGreen)
+
+            }
+          }
+          .padding()
+          .background(Color.base100)
+
+          // Main content
+          switch selectedTab {
+          case .home:
+            HomeView().environmentObject(globalViewModel)
+          case .play:
+            PlayGolfView()
+          case .courses:
+            CoursesView()
+          case .analysis:
+            AnalysisView()
+          case .menu:
+            MenuView()
 
           }
-        }
-        .padding()
-        .background(Color.base100)
-
-        // Main content
-        switch selectedTab {
-        case .home:
-          HomeView().environmentObject(globalViewModel)
-        case .play:
-          PlayGolfView()
-        case .courses:
-          CoursesView()
-        case .analysis:
-          AnalysisView()
-        case .menu:
-          MenuView()
 
         }
-
         // Custom Tab Bar
         HStack {
           TabBarButton(
@@ -104,13 +106,14 @@ struct CustomTabBarView: View {
         .padding(.top, 20)
         .padding(.bottom, 10)
         .background(Color.base100)
-
       }
+
     }
     .onAppear {
       print("Tab bar appeared, triggering location access")
       _ = globalViewModel.locationManager.currentLocation
     }
+    .ignoresSafeArea(.keyboard, edges: .bottom)
   }
 }
 
