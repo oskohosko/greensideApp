@@ -13,7 +13,7 @@ class AuthService {
   init() {}
 
   // Login method
-  func login(email: String, password: String) async throws -> User {
+  func login(email: String, password: String) async throws -> UserDTO {
     if let apiBaseURL = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL")
       as? String
     {
@@ -47,7 +47,7 @@ class AuthService {
         throw URLError(.badServerResponse)
       }
 
-      let user = try JSONDecoder().decode(User.self, from: data)
+      let user = try JSONDecoder().decode(UserDTO.self, from: data)
 
       print(user)
       print("Success!")
@@ -65,7 +65,7 @@ class AuthService {
     lastName: String,
     email: String,
     password: String
-  ) async throws -> User {
+  ) async throws -> UserDTO {
     // URL
     if let apiBaseURL = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL")
       as? String
@@ -101,7 +101,7 @@ class AuthService {
       }
       
       // returning user from response
-      let user = try JSONDecoder().decode(User.self, from: data)
+      let user = try JSONDecoder().decode(UserDTO.self, from: data)
       print(user)
       return user
 
@@ -112,7 +112,7 @@ class AuthService {
 
   }
 
-  func verifyToken(token: String) async throws -> User {
+  func verifyToken(token: String) async throws -> UserDTO {
     print("Verifying token: \(token)")
     if let apiBaseURL = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL")
       as? String
@@ -138,7 +138,7 @@ class AuthService {
         print("Raw response: \(jsonString)")
       }
 
-      let user = try JSONDecoder().decode(User.self, from: data)
+      let user = try JSONDecoder().decode(UserDTO.self, from: data)
       print(user)
       return user
     } else {

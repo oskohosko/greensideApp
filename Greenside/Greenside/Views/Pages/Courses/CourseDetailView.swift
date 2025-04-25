@@ -11,7 +11,6 @@ struct CourseDetailView: View {
 
   // The course we are displaying info for
   let course: Course
-  @EnvironmentObject var 
 
   var body: some View {
     NavigationStack {

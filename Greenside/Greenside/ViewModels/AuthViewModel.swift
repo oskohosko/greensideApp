@@ -9,7 +9,7 @@ import Foundation
 
 @MainActor
 class AuthViewModel: ObservableObject {
-  @Published var user: User?
+  @Published var user: UserDTO?
   @Published var isAuthenticated: Bool = false
   @Published var isLoading = false
   @Published var loginError: String? = nil
