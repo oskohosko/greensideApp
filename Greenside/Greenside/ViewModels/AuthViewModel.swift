@@ -7,14 +7,16 @@
 
 import Foundation
 
+enum AuthPhase: Equatable {
+  case checking
+  case unauthenticated
+  case authenticated(User)
+  case error(String)
+}
+
 @MainActor
 class AuthViewModel: ObservableObject {
   @Published var user: UserDTO?
-  @Published var isAuthenticated: Bool = false
-  @Published var isLoading = false
-  @Published var loginError: String? = nil
-  @Published var isLoggedIn: Bool = false
-  @Published var isCheckingAuth: Bool = true
 
   @Published var firstName: String = ""
   @Published var lastName: String = ""
@@ -22,80 +24,59 @@ class AuthViewModel: ObservableObject {
   @Published var password: String = ""
   @Published var confirmPassword: String = ""
 
-  func handleSignUp(
-    firstName: String,
-    lastName: String,
-    email: String,
-    password: String,
-  ) async {
+  @Published var phase: AuthPhase = .checking
+
+  private let repo: AuthRepository
+
+  init(repo: AuthRepository = .shared) {
+    self.repo = repo
+  }
+
+  func handleSignUp() async {
     do {
-      let user = try await AuthService.shared.signup(
+      try await repo.signup(
         firstName: firstName,
         lastName: lastName,
         email: email,
-        password: password
+        pw: password
       )
-      if let token = user.token {
-        KeychainHelper.shared.saveToken(token)
+      if let user = await repo.currentUser {
+        phase = .authenticated(user)
       }
-      self.user = user
-      self.isLoggedIn = true
     } catch {
-      self.loginError = error.localizedDescription
-      self.isLoggedIn = false
+      phase = .error(error.localizedDescription)
     }
+
   }
 
-  func handleLogin(email: String, password: String) async {
+  func handleLogin() async {
     do {
-      let user = try await AuthService.shared.login(
-        email: email,
-        password: password
-      )
-      if let token = user.token {
-        KeychainHelper.shared.saveToken(token)
+      try await repo.login(email: email, pw: password)
+      if let user = await repo.currentUser {
+        phase = .authenticated(user)
       }
-      self.user = user
-      self.isLoggedIn = true
-
     } catch {
-      self.loginError = error.localizedDescription
-      self.isLoggedIn = false
+      phase = .error(error.localizedDescription)
     }
+
   }
 
-  func verify() async {
-    isCheckingAuth = true
+  func handleLogout() {
+    Task {
+      await repo.logout()
+      await MainActor.run { phase = .unauthenticated }
+    }
 
-    if let token = KeychainHelper.shared.readToken() {
-      do {
-        let user = try await AuthService.shared.verifyToken(token: token)
-        print(user)
-        self.user = user
-        self.isLoggedIn = true
-        isCheckingAuth = false
-      } catch {
-        print("Token validation failed: \(error.localizedDescription)")
-        isLoggedIn = false
-      }
+  }
+}
 
+extension AuthViewModel {
+  func bootstrap() async {
+    phase = .checking
+    if await repo.verify() {
+      phase = .authenticated(await repo.currentUser!)
     } else {
-      print("No token found")
-      isLoggedIn = false
-
+      phase = .unauthenticated
     }
-    isCheckingAuth = false
   }
-
-  func logout() async {
-    do {
-      await self.verify()
-      KeychainHelper.shared.deleteToken()
-      user = nil
-      isLoggedIn = false
-      isCheckingAuth = false
-    }
-    
-  }
-
 }

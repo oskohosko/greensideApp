@@ -12,3 +12,9 @@ struct UserDTO: Codable {
   let email: String
   let token: String?
 }
+
+extension UserDTO {
+  var asDomain: User {
+    User(_id: _id, firstName: firstName, lastName: lastName, email: email, token: token)
+  }
+}

@@ -11,21 +11,16 @@ struct RootView: View {
   @EnvironmentObject var authViewModel: AuthViewModel
   var body: some View {
     Group {
-      if authViewModel.isCheckingAuth {
+      switch authViewModel.phase {
+      case .checking:
         LoadingView()
-          
-      } else if authViewModel.isLoggedIn {
+      case .authenticated:
         CustomTabBarView()
           .environmentObject(authViewModel)
-      } else {
+      default:
         WelcomeView()
       }
-//      CustomTabBarView()
-//        .environmentObject(authViewModel)
     }
-    .animation(.easeInOut, value: authViewModel.isLoggedIn)
-    .transition(.opacity)
-
   }
 }
 

@@ -13,9 +13,8 @@ struct LoginView: View {
     case email
     case password
   }
-  @StateObject private var authViewModel = AuthViewModel()
+  @EnvironmentObject private var authViewModel: AuthViewModel
   @FocusState private var focusedField: Field?
-  @State private var navigateToHome = false
 
   var body: some View {
     NavigationStack {
@@ -96,10 +95,7 @@ struct LoginView: View {
             } else {
               // Handling sign up action
               Task {
-                await authViewModel.handleLogin(
-                  email: authViewModel.email,
-                  password: authViewModel.password
-                )
+                try await authViewModel.handleLogin()
               }
               
             }
@@ -120,7 +116,7 @@ struct LoginView: View {
             .padding(.top, 8)
           // Navigate to login screen
           NavigationLink {
-            SignUpView()
+            SignUpView().environmentObject(authViewModel)
           } label: {
             Text("Sign Up")
               .font(.system(size: 18, weight: .medium))
@@ -136,9 +132,7 @@ struct LoginView: View {
 
         }.padding(.horizontal, 30)
       }
-      .navigationDestination(isPresented: $navigateToHome) {
-        CustomTabBarView()
-      }
+      
     }.navigationTitle("")
       .navigationBarHidden(true)
       .toolbar {
@@ -154,15 +148,10 @@ struct LoginView: View {
       .onAppear {
         focusedField = .email
       }
-      .onChange(of: authViewModel.isLoggedIn) { isLoggedIn in
-        if isLoggedIn {
-          navigateToHome = true
-        }
-      }
   }
 
 }
 
 #Preview {
-  LoginView()
+  LoginView().environmentObject(AuthViewModel())
 }

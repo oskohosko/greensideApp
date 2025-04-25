@@ -33,7 +33,7 @@ struct CustomTabBarView: View {
               // Handle user icon tap
               print("Logging out")
               Task {
-                await authViewModel.logout()
+                await authViewModel.handleLogout()
               }
 
             }) {

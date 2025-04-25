@@ -3,8 +3,6 @@ import SwiftUI
 @main
 struct GreensideApp: App {
   
-  @StateObject private var authViewModel = AuthViewModel()
-  
   init() {
     let appearance = UINavigationBarAppearance()
     appearance.configureWithOpaqueBackground()
@@ -27,12 +25,15 @@ struct GreensideApp: App {
     UINavigationBar.appearance().standardAppearance = appearance
     UINavigationBar.appearance().scrollEdgeAppearance = appearance
   }
+  
+  @StateObject private var authViewModel = AuthViewModel(repo: .shared)
+  
   var body: some Scene {
     WindowGroup {
       RootView()
         .environmentObject(authViewModel)
         .task {
-          await authViewModel.verify()
+          await authViewModel.bootstrap()
         }
     }
   }

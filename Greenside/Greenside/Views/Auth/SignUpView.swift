@@ -8,30 +8,29 @@
 import SwiftUI
 
 struct SignUpView: View {
-  
+
   enum Field: Hashable {
     case firstName
     case lastName
     case email
     case password
   }
-  
-  @StateObject var authViewModel = AuthViewModel()
-  
+
+  @EnvironmentObject private var authViewModel: AuthViewModel
+
   @FocusState private var focusedField: Field?
-  @State private var navigateToLogin = false
   @State private var showAlert = false
-  
+
   var body: some View {
     NavigationStack {
       ZStack {
         // Background colour
         Color.base200.ignoresSafeArea()
         ScrollView {
-          
+
           VStack {
             // Logo
-            
+
             Image("Greenside")
               .resizable()
               .frame(width: 72, height: 72)
@@ -40,7 +39,7 @@ struct SignUpView: View {
             Text("Welcome to Greenside.")
               .font(
                 .system(size: 28)
-                .weight(.bold)
+                  .weight(.bold)
               ).foregroundStyle(Color.content)
               .padding(.top, 8)
             Spacer().frame(height: 4)
@@ -48,10 +47,10 @@ struct SignUpView: View {
             Text("Create an account to get started.")
               .font(
                 .system(size: 18)
-                .weight(.medium)
+                  .weight(.medium)
               ).foregroundStyle(Color.base600)
             // Text fields and labels for the form
-            
+
             // First name text field
             Text("First Name")
               .font(.system(size: 18).weight(.medium))
@@ -124,7 +123,7 @@ struct SignUpView: View {
                   .stroke(Color.accentGreen, lineWidth: 2)
                   .opacity(1.0)
               )
-            
+
             // Sign up button
             Button {
               if authViewModel.firstName.isEmpty {
@@ -138,12 +137,7 @@ struct SignUpView: View {
               } else {
                 // Handling sign up action
                 Task {
-                  await authViewModel.handleSignUp(
-                    firstName: authViewModel.firstName,
-                    lastName: authViewModel.lastName,
-                    email: authViewModel.email,
-                    password: authViewModel.password
-                  )
+                  try await authViewModel.handleSignUp()
                 }
               }
             } label: {
@@ -176,12 +170,9 @@ struct SignUpView: View {
                   .stroke(Color.accentGreen, lineWidth: 3)
                   .opacity(1.0)
               )
-            
+
           }.padding(.horizontal, 30)
-          
-        }
-        .navigationDestination(isPresented: $navigateToLogin) {
-          LoginView()
+
         }
       }.navigationTitle("")
         .navigationBarHidden(true)
@@ -198,15 +189,10 @@ struct SignUpView: View {
         .onAppear {
           focusedField = .firstName
         }
-        .onChange(of: authViewModel.isLoggedIn) { isLoggedIn in
-          if isLoggedIn {
-            navigateToLogin = true
-          }
-        }
     }
   }
 }
 
 #Preview {
-  SignUpView()
+  SignUpView().environmentObject(AuthViewModel())
 }

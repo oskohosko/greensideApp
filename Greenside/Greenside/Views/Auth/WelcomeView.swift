@@ -10,6 +10,7 @@ import SwiftUI
 struct WelcomeView: View {
 
   @State private var animate = false
+  @EnvironmentObject private var authViewModel: AuthViewModel
 
   var body: some View {
     NavigationStack {
@@ -63,7 +64,7 @@ struct WelcomeView: View {
           Spacer().frame(height: 24)
           // Navigate to login screen
           NavigationLink {
-            LoginView()
+            LoginView().environmentObject(authViewModel)
           } label: {
             Text("Log in")
               .font(.system(size: 18, weight: .medium))
@@ -80,7 +81,7 @@ struct WelcomeView: View {
           Spacer().frame(height: 16)
           // Sign in button
           NavigationLink {
-            SignUpView()
+            SignUpView().environmentObject(authViewModel)
           } label: {
             Text("Sign up")
               .font(.system(size: 18, weight: .medium))
@@ -103,5 +104,5 @@ struct WelcomeView: View {
 }
 
 #Preview {
-  WelcomeView()
+  WelcomeView().environmentObject(AuthViewModel())
 }
