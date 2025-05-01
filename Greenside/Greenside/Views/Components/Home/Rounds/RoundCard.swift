@@ -55,6 +55,7 @@ struct RoundCard: View {
       .fixedSize(horizontal: false, vertical: true)
       .background(Color.base100)
       .cornerRadius(20)
+      .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
   }
 }
 

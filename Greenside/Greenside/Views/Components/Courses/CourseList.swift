@@ -2,24 +2,23 @@
 //  CourseList.swift
 //  Greenside
 //
-//  Created by Oskar Hosken on 20/4/2025.
+//  Created by Oskar Hosken on 1/5/2025.
 //
 
 import SwiftUI
-import CoreLocation
 
 struct CourseList: View {
-
   @EnvironmentObject private var viewModel: GlobalViewModel
-
   var body: some View {
-    ScrollView(.horizontal, showsIndicators: false) {
-      LazyHStack(spacing: 16) {
+    ScrollView(.vertical) {
+      LazyVStack(spacing: 4) {
         ForEach(viewModel.filteredCourses) { course in
-          CourseCard(course: course).environmentObject(viewModel.locationManager)
+          CourseListItem(
+            course: course
+          ).environmentObject(viewModel.locationManager)
         }
       }
-      .padding(.horizontal)
+      .padding(.horizontal, 8)
     }
   }
 }

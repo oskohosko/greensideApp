@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CustomTabBarView: View {
-  @State private var selectedTab: Tab = .home
+  @StateObject private var router = Router()
   @EnvironmentObject var authViewModel: AuthViewModel
   @StateObject var globalViewModel = GlobalViewModel()
 
@@ -18,44 +18,20 @@ struct CustomTabBarView: View {
         Color(.base100).ignoresSafeArea()
 
         VStack(spacing: 0) {
-          HStack {
-            HStack(spacing: 8) {
-              Image("Greenside")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 48, height: 48)
-              Text("Greenside.")
-                .font(.system(size: 32, weight: .bold))
-                .foregroundStyle(Color.content)
-            }
-            Spacer()
-            Button(action: {
-              // Handle user icon tap
-              print("Logging out")
-              Task {
-                await authViewModel.handleLogout()
-              }
-
-            }) {
-              Image(systemName: "person.crop.circle")
-                .font(
-                  .system(size: 32)
-                )
-                .foregroundStyle(Color.accentGreen)
-
-            }
-          }
-          .padding()
-          .background(Color.base100)
 
           // Main content
-          switch selectedTab {
+          switch router.tab {
           case .home:
-            HomeView().environmentObject(globalViewModel)
+              HomeView()
+                .environmentObject(router)
+              .environmentObject(globalViewModel)
+              .environmentObject(authViewModel)
           case .play:
             PlayGolfView()
           case .courses:
             CoursesView()
+                .environmentObject(router)
+                .environmentObject(globalViewModel)
           case .analysis:
             AnalysisView()
           case .menu:
@@ -71,35 +47,35 @@ struct CustomTabBarView: View {
             selectedIcon: "house.fill",
             tab: .home,
             title: "Home",
-            selectedTab: $selectedTab
+            selectedTab: $router.tab
           )
           TabBarButton(
             icon: "flag.circle",
             selectedIcon: "flag.circle.fill",
             tab: .play,
             title: "Play",
-            selectedTab: $selectedTab
+            selectedTab: $router.tab
           )
           TabBarButton(
             icon: "mappin.circle",
             selectedIcon: "mappin.circle.fill",
             tab: .courses,
             title: "Courses",
-            selectedTab: $selectedTab
+            selectedTab: $router.tab
           )
           TabBarButton(
             icon: "chart.pie",
             selectedIcon: "chart.pie.fill",
             tab: .analysis,
             title: "Analysis",
-            selectedTab: $selectedTab
+            selectedTab: $router.tab
           )
           TabBarButton(
             icon: "text.justify",
             selectedIcon: "text.justify",
             tab: .menu,
             title: "Menu",
-            selectedTab: $selectedTab
+            selectedTab: $router.tab
           )
         }
         .padding(.horizontal, 10)

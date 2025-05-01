@@ -8,29 +8,53 @@
 import SwiftUI
 
 struct CoursesView: View {
+
+  @State private var searchText: String = ""
+
+  @EnvironmentObject private var router: Router
+  @EnvironmentObject private var viewModel: GlobalViewModel
+
+  @State private var path = NavigationPath()
+
   var body: some View {
-    NavigationStack {
+    NavigationStack(path: $path) {
       ZStack {
         Color.base200.ignoresSafeArea()
-        VStack(spacing: 0) {
-          // Main content area
-          VStack {
-            Spacer()
-            Text("Main Content Goes Here")
-            Spacer()
+        VStack(spacing: 12) {
+          Text("Courses")
+            .font(.system(size: 36, weight: .bold))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundStyle(.content)
+            .padding(.leading, 16)
+            .padding(.top, 8)
+          HStack {
+            SearchBar(text: $searchText)
+              .onChange(of: searchText) {
+                viewModel.filterCourses(by: searchText)
+              }
+            Button {
+              viewModel.sortCoursesByLocation()
+            } label: {
+              Image(systemName: "location.magnifyingglass")
+                .foregroundStyle(Color(.accentGreen))
+                .font(.system(size: 32, weight: .medium))
+                .padding(.leading, 4)
+            }
+
           }
-          .padding()
+          .padding(.horizontal, 8)
+          .padding(.bottom, 2)
+          CourseList()
+            .environmentObject(viewModel)
 
         }
-        .navigationTitle("")
-        .navigationBarHidden(true)
-        .toolbarBackground(Color(.base100), for: .tabBar)
-        .toolbarBackground(.visible, for: .tabBar)
+
       }
+
     }
   }
 }
 
 #Preview {
-  CoursesView()
+  CoursesView().environmentObject(GlobalViewModel())
 }

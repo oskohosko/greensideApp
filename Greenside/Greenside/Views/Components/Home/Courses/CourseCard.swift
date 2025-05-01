@@ -12,6 +12,7 @@ struct CourseCard: View {
 
   let course: Course
   @EnvironmentObject var locationManager: LocationManager
+  @EnvironmentObject private var router: Router
 
   private var distance: String {
     guard let userLocation = locationManager.currentLocation else {
@@ -30,8 +31,9 @@ struct CourseCard: View {
   }
 
   var body: some View {
-    NavigationLink {
-      CourseDetailView(course: course)
+    Button {
+      router.deepLinkCourse = course
+      router.tab = .courses
     } label: {
       VStack {
         Text(course.name)
@@ -65,6 +67,7 @@ struct CourseCard: View {
     .frame(width: 120)
     .background(.base100)
     .cornerRadius(20)
+    .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
 
   }
 }

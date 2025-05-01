@@ -27,11 +27,11 @@ struct CourseDetailView: View {
         }
       }
     }
-    // This ensures navbar stays
-    .navigationTitle("")
-    .navigationBarHidden(true)
-    .toolbarBackground(Color(.base100), for: .tabBar)
-    .toolbarBackground(.visible, for: .tabBar)
+//    // This ensures navbar stays
+//    .navigationTitle("")
+//    .navigationBarHidden(true)
+//    .toolbarBackground(Color(.base100), for: .tabBar)
+//    .toolbarBackground(.visible, for: .tabBar)
   }
 }
 

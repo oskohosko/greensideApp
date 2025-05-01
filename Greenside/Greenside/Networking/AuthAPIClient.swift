@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct APIClient {
-  static let shared = APIClient()
+struct AuthAPIClient {
+  static let shared = AuthAPIClient()
   private let baseURL: URL
 
   private init() {
