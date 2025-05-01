@@ -10,7 +10,7 @@ import SwiftUI
 struct RoundsList: View {
   var body: some View {
     ScrollView(.horizontal, showsIndicators: false) {
-      HStack(spacing: 16) {
+      HStack(spacing: 12) {
         ForEach(0..<10) { _ in
           RoundCard()
         }

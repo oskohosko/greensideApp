@@ -15,7 +15,7 @@ struct CourseCardList: View {
 
   var body: some View {
     ScrollView(.horizontal, showsIndicators: false) {
-      LazyHStack(spacing: 16) {
+      LazyHStack(spacing: 12) {
         ForEach(viewModel.filteredCourses) { course in
           CourseCard(
             course: course

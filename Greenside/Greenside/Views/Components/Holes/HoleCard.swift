@@ -5,23 +5,24 @@
 //  Created by Oskar Hosken on 1/5/2025.
 //
 
-import SwiftUI
 import CoreLocation
+import SwiftUI
 
 struct HoleCard: View {
   @EnvironmentObject private var viewModel: CoursesViewModel
   private let mapManager = MapManager()
 
   let hole: Hole
-  
+
   private var distance: String {
-    
+
     return String(
       format: "%.0f",
       distanceBetweenPoints(
         first: CLLocationCoordinate2D(
           latitude: hole.tee_lat,
-          longitude: hole.tee_lng),
+          longitude: hole.tee_lng
+        ),
         second: CLLocationCoordinate2D(
           latitude: hole.green_lat,
           longitude: hole.green_lng
@@ -29,25 +30,55 @@ struct HoleCard: View {
       )
     )
   }
-  
 
   var body: some View {
     // Using our mapManager to get the region and camera
-    let region = mapManager.fitRegion(tee: hole.teeLocation, green: hole.greenLocation)
-    let camera = mapManager.setCamera(tee: hole.teeLocation, green: hole.greenLocation)
-    
+    let region = mapManager.fitRegion(
+      tee: hole.teeLocation,
+      green: hole.greenLocation
+    )
+    let camera = mapManager.setCamera(
+      tee: hole.teeLocation,
+      green: hole.greenLocation
+    )
+
     NavigationLink(
       destination: HoleDetailView(hole: hole).environmentObject(viewModel)
     ) {
-      MapView(region: region, camera: camera)
-        .clipShape(RoundedRectangle(cornerRadius: 15))
+      VStack(alignment: .leading, spacing: 2) {
+        Text("Hole \(hole.num)")
+          .font(.system(size: 20, weight: .bold))
+          .foregroundStyle(.content)
+        HStack {
+          HStack(spacing: 2) {
+            Image(systemName: "mappin.circle.fill")
+              .foregroundStyle(.accentGreen)
+            Text("Par \(hole.par)")
+              .font(.system(size: 16, weight: .medium))
+              .foregroundStyle(.content)
+          }
+          Spacer()
+          HStack(spacing: 2) {
+            Image(systemName: "flag.circle.fill")
+              .foregroundStyle(.lightRed)
+            Text("\(distance)m")
+              .font(.system(size: 16, weight: .medium))
+              .foregroundStyle(.content)
+          }
+        }.padding(.bottom, 4)
+        
+        
+
+        MapView(region: region, camera: camera, interactive: false)
+          .clipShape(RoundedRectangle(cornerRadius: 15))
+      }
+
     }
     .padding(.horizontal)
     .padding(.vertical, 8)
     .frame(width: 180, height: 320)
     .background(.base100)
-    .cornerRadius(15)
-    .shadow(radius: 5)
+    .cornerRadius(20)
   }
 }
 

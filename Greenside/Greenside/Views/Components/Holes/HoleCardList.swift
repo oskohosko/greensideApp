@@ -8,11 +8,21 @@
 import SwiftUI
 
 struct HoleCardList: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+  @EnvironmentObject private var viewModel: CoursesViewModel
+  var body: some View {
+    ScrollView(.horizontal) {
+      LazyHStack(spacing: 8) {
+        ForEach(viewModel.courseHoles) { hole in
+          HoleCard(
+            hole: hole
+          ).environmentObject(viewModel)
+        }
+      }
+      .padding(.horizontal)
     }
+  }
 }
 
 #Preview {
-    HoleCardList()
+  HoleCardList().environmentObject(CoursesViewModel())
 }

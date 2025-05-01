@@ -20,11 +20,12 @@ struct CourseDetailView: View {
       VStack(alignment: .leading, spacing: 2) {
         // Course title
         Text(viewModel.selectedCourse?.name ?? "Loading...")
-          .font(.system(size: 42, weight: .bold))
+          .font(.system(size: 38, weight: .bold))
           .frame(maxWidth: .infinity, alignment: .leading)
           .foregroundStyle(.content)
           .padding(.top, 8)
-        
+          .padding(.horizontal, 16)
+
         HStack(spacing: 12) {
           // Badges for par and state
           Badge(
@@ -36,16 +37,20 @@ struct CourseDetailView: View {
             colour: .lightRed
           )
         }
-        Text("Holes")
-          .font(.system(size: 32, weight: .bold))
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .foregroundStyle(.content)
-          .padding(.top, 8)
-        
-        
-        
+        .padding(.horizontal, 16)
+        ScrollView {
+          VStack(spacing: 4) {
+            Text("Holes")
+              .font(.system(size: 32, weight: .bold))
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .foregroundStyle(.content)
+              .padding(.top, 8)
+              .padding(.horizontal, 16)
+            HoleCardList().environmentObject(viewModel)
+          }
+        }
+
       }
-      .padding(.horizontal)
     }
     .onAppear {
       Task {
