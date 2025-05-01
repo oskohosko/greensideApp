@@ -10,7 +10,7 @@ import SwiftUI
 
 struct CourseCardList: View {
 
-  @EnvironmentObject private var viewModel: GlobalViewModel
+  @EnvironmentObject private var viewModel: CoursesViewModel
   @EnvironmentObject private var router: Router
 
   var body: some View {
@@ -28,6 +28,6 @@ struct CourseCardList: View {
 }
 
 #Preview {
-  CourseCardList().environmentObject(GlobalViewModel())
+  CourseCardList().environmentObject(CoursesViewModel())
     .environmentObject(Router())
 }

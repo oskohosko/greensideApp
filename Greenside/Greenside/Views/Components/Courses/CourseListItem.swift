@@ -11,10 +11,10 @@ import SwiftUI
 struct CourseListItem: View {
 
   let course: Course
-  @EnvironmentObject var locationManager: LocationManager
+  @EnvironmentObject private var viewModel: CoursesViewModel
 
   private var distance: String {
-    guard let userLocation = locationManager.currentLocation else {
+    guard let userLocation = viewModel.locationManager.currentLocation else {
       return "Loading..."
     }
     return String(
@@ -30,9 +30,7 @@ struct CourseListItem: View {
   }
 
   var body: some View {
-    Button {
-
-    } label: {
+    NavigationLink(destination: CourseDetailView(course: course).environmentObject(viewModel)) {
       HStack {
         VStack(alignment: .leading, spacing: 3) {
           Text(course.name)
@@ -48,7 +46,7 @@ struct CourseListItem: View {
               .foregroundStyle(.content)
               .lineLimit(1)
           }
-          
+
         }
         Spacer()
         Image(systemName: "info.circle")
@@ -66,5 +64,5 @@ struct CourseListItem: View {
 #Preview {
   CourseListItem(
     course: testCourse,
-  ).environmentObject(GlobalViewModel().locationManager)
+  ).environmentObject(CoursesViewModel())
 }

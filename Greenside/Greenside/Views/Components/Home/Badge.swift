@@ -11,16 +11,23 @@ struct Badge: View {
 
   var text: String = ""
   var colour: Color = .secondary
+  var image: String?
   var size: CGFloat = 16
 
   var body: some View {
     HStack(spacing: 6) {
-      Image(systemName: "arrow.counterclockwise")
-        .font(.system(size: size, weight: .medium))
-        .foregroundStyle(.content)
-      Text(text)
-        .foregroundStyle(.content)
-        .font(.system(size: (size + 2), weight: .regular))
+      if let image = image {
+        Image(systemName: image)
+          .font(.system(size: size, weight: .medium))
+          .foregroundStyle(.content)
+        Text(text)
+          .foregroundStyle(.content)
+          .font(.system(size: (size + 2), weight: .medium))
+      } else {
+        Text(text)
+          .foregroundStyle(.content)
+          .font(.system(size: (size + 2), weight: .medium))
+      }
     }
     .padding(6)
     .padding(.horizontal, 8)
@@ -32,5 +39,8 @@ struct Badge: View {
 }
 
 #Preview {
-  Badge(text: "Play again?", colour: Color((.secondary)))
+  Badge(
+    text: "Play again?",
+    colour: Color((.secondary))
+  )
 }

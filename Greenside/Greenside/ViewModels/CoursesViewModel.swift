@@ -1,5 +1,5 @@
 //
-//  GlobalViewModel.swift
+//  CoursesViewModel.swift
 //  Greenside
 //
 //  Created by Oskar Hosken on 20/4/2025.
@@ -14,7 +14,7 @@ enum ListError: Error {
 }
 
 @MainActor
-class GlobalViewModel: ObservableObject {
+class CoursesViewModel: ObservableObject {
   // Global Location Manager
   @Published var locationManager = LocationManager()
   // Loading flag
@@ -24,8 +24,9 @@ class GlobalViewModel: ObservableObject {
   @Published var allCourses: [Course] = []
   @Published var filteredCourses: [Course] = []
   @Published var courseHoles: [Hole] = []
+  @Published var filteredHoles: [Hole] = []
   
-  @Published var selectedCourse: Course?
+  @Published var selectedCourse: CourseData?
   @Published var selectedHole: Hole?
   
   private let repo = CourseRepository.shared
@@ -46,10 +47,12 @@ class GlobalViewModel: ObservableObject {
   }
   
   func loadHoles(for course: Course) async {
-    selectedCourse = course
     isLoading = true
     do {
-      courseHoles = try await repo.loadHoles(for: course.id)
+      let courseData = try await repo.loadHoles(for: course.id)
+      selectedCourse = courseData
+      courseHoles = courseData.holes
+      filteredHoles = courseHoles
       selectedHole = courseHoles.first
     } catch {
       print("Holes loading failed:", error)
@@ -64,6 +67,16 @@ class GlobalViewModel: ObservableObject {
     } else {
       filteredCourses = allCourses.filter {
         $0.name.lowercased().contains(keyword.lowercased())
+      }
+    }
+  }
+  
+  func filterHoles(by keyword: String) {
+    if keyword.isEmpty {
+      filteredHoles = courseHoles
+    } else {
+      filteredHoles = courseHoles.filter {
+        "hole \($0.num)".contains(keyword.lowercased())
       }
     }
   }

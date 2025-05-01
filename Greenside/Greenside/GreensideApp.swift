@@ -2,32 +2,44 @@ import SwiftUI
 
 @main
 struct GreensideApp: App {
-  
+
   init() {
     let appearance = UINavigationBarAppearance()
     appearance.configureWithOpaqueBackground()
     appearance.backgroundColor = .base200
     appearance.shadowColor = .clear
-
-    // Custom back button image with hierarchical rendering style
-    let backImage = UIImage(
-      systemName: "arrow.left.square.fill",
-      withConfiguration: UIImage.SymbolConfiguration(
-        hierarchicalColor: .accentGreen
+    let config = UIImage.SymbolConfiguration(
+      pointSize: 22,
+      weight: .bold,
+      scale: .large
+    )
+    let backImage = UIImage(systemName: "arrow.left", withConfiguration: config)!
+      .withTintColor(
+        UIColor(Color.content),
+        renderingMode: .alwaysOriginal
       )
-    )?.withRenderingMode(.alwaysTemplate)
 
     appearance.setBackIndicatorImage(
       backImage,
       transitionMaskImage: backImage
     )
+    let backButtonAppearance = UIBarButtonItemAppearance()
+    backButtonAppearance.normal.titleTextAttributes = [
+      .foregroundColor: UIColor.clear
+    ]
+    backButtonAppearance.highlighted.titleTextAttributes = [
+      .foregroundColor: UIColor.clear
+    ]
+    appearance.backButtonAppearance = backButtonAppearance
 
     UINavigationBar.appearance().standardAppearance = appearance
     UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    UINavigationBar.appearance().compactAppearance = appearance
+    UINavigationBar.appearance().tintColor = UIColor(Color.content)
   }
-  
+
   @StateObject private var authViewModel = AuthViewModel(repo: .shared)
-  
+
   var body: some Scene {
     WindowGroup {
       RootView()

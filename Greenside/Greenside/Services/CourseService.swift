@@ -13,10 +13,10 @@ class CourseService {
   init() {}
   
   func fetchCourses() async throws -> [Course] {
-    try await CourseAPIClient.shared.get()
+    try await CourseAPIClient.shared.getCourses()
   }
   
-  func fetchHoles(for courseId: Int) async throws -> [Hole] {
-    try await CourseAPIClient.shared.get(courseId: courseId)
+  func fetchHoles(for courseId: Int) async throws -> CourseData {
+    try await CourseAPIClient.shared.getHoles(for: courseId)
   }
 }

@@ -11,7 +11,7 @@ actor CourseRepository {
   
   // UI State
   private var coursesCache: [Course] = []
-  private var holesCache: [Int: [Hole]] = [:]
+  private var holesCache: [Int: CourseData] = [:]
   
   // Fetching courses
   func loadCourses() async throws -> [Course] {
@@ -25,15 +25,15 @@ actor CourseRepository {
   }
   
   // Fetching holes for course
-  func loadHoles(for courseId: Int) async throws -> [Hole] {
+  func loadHoles(for courseId: Int) async throws -> CourseData {
     // Checking if holes already loaded
     if let cached = holesCache[courseId] {
       return cached
     }
     // If not, laod them
-    let fetchedHoles: [Hole] = try await courseService.fetchHoles(for: courseId)
-    holesCache[courseId] = fetchedHoles
-    return fetchedHoles
+    let courseData  = try await courseService.fetchHoles(for: courseId)
+    holesCache[courseId] = courseData
+    return courseData
     
   }
   

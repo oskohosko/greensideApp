@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 class Course: Identifiable, Decodable {
   var id: Int
@@ -18,5 +19,12 @@ class Course: Identifiable, Decodable {
     self.name = name
     self.lat = lat
     self.lng = lng
+  }
+
+  var locationCoordinate: CLLocationCoordinate2D {
+    CLLocationCoordinate2D(
+      latitude: lat,
+      longitude: lng
+    )
   }
 }

@@ -10,7 +10,7 @@ import SwiftUI
 struct CustomTabBarView: View {
   @StateObject private var router = Router()
   @EnvironmentObject var authViewModel: AuthViewModel
-  @EnvironmentObject var globalViewModel: GlobalViewModel
+  @EnvironmentObject var globalViewModel: CoursesViewModel
 
   var body: some View {
     GeometryReader { geometry in
@@ -139,6 +139,6 @@ struct TabBarButton: View {
 
 #Preview {
   CustomTabBarView().environmentObject(AuthViewModel()).environmentObject(
-    GlobalViewModel()
+    CoursesViewModel()
   )
 }

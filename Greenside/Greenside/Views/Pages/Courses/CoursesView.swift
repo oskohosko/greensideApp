@@ -12,7 +12,7 @@ struct CoursesView: View {
   @State private var searchText: String = ""
 
   @EnvironmentObject private var router: Router
-  @EnvironmentObject private var viewModel: GlobalViewModel
+  @EnvironmentObject private var viewModel: CoursesViewModel
 
   @State private var path = NavigationPath()
 
@@ -56,5 +56,5 @@ struct CoursesView: View {
 }
 
 #Preview {
-  CoursesView().environmentObject(GlobalViewModel())
+  CoursesView().environmentObject(CoursesViewModel())
 }

@@ -12,7 +12,7 @@ struct HomeView: View {
   @State private var searchText: String = ""
   
   @EnvironmentObject private var router: Router
-  @EnvironmentObject private var viewModel: GlobalViewModel
+  @EnvironmentObject private var viewModel: CoursesViewModel
   @EnvironmentObject private var authViewModel: AuthViewModel
   //  @State private var courses: [Course] = []
 
@@ -111,9 +111,7 @@ struct HomeView: View {
         .onAppear {
           Task {
             do {
-              _ = try await viewModel.loadCourses()
-            } catch {
-              print("Failed to load courses")
+              _ = await viewModel.loadCourses()
             }
           }
         }
@@ -123,5 +121,5 @@ struct HomeView: View {
 }
 
 #Preview {
-  HomeView().environmentObject(GlobalViewModel()).environmentObject(Router())
+  HomeView().environmentObject(CoursesViewModel()).environmentObject(Router())
 }

@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct CourseList: View {
-  @EnvironmentObject private var viewModel: GlobalViewModel
+  @EnvironmentObject private var viewModel: CoursesViewModel
   var body: some View {
     ScrollView(.vertical) {
       LazyVStack(spacing: 4) {
         ForEach(viewModel.filteredCourses) { course in
           CourseListItem(
             course: course
-          ).environmentObject(viewModel.locationManager)
+          ).environmentObject(viewModel)
         }
       }
       .padding(.horizontal, 8)
@@ -24,5 +24,5 @@ struct CourseList: View {
 }
 
 #Preview {
-  CourseList().environmentObject(GlobalViewModel())
+  CourseList().environmentObject(CoursesViewModel())
 }

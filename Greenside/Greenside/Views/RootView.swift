@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RootView: View {
   @EnvironmentObject var authViewModel: AuthViewModel
-  @StateObject var globalViewModel = GlobalViewModel()
+  @StateObject var globalViewModel = CoursesViewModel()
   var body: some View {
     Group {
       switch authViewModel.phase {

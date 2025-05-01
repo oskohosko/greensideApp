@@ -105,5 +105,5 @@ let testLocation = CLLocation(
 #Preview {
   CourseCard(
     course: testCourse,
-  ).environmentObject(GlobalViewModel().locationManager)
+  ).environmentObject(CoursesViewModel().locationManager)
 }
