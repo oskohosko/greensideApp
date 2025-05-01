@@ -11,7 +11,6 @@ struct HomeView: View {
 
   @State private var searchText: String = ""
   
-  
   @EnvironmentObject private var router: Router
   @EnvironmentObject private var viewModel: GlobalViewModel
   @EnvironmentObject private var authViewModel: AuthViewModel

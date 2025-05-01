@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RootView: View {
   @EnvironmentObject var authViewModel: AuthViewModel
+  @StateObject var globalViewModel = GlobalViewModel()
   var body: some View {
     Group {
       switch authViewModel.phase {
@@ -17,6 +18,7 @@ struct RootView: View {
       case .authenticated:
         CustomTabBarView()
           .environmentObject(authViewModel)
+          .environmentObject(globalViewModel)
       default:
         WelcomeView()
       }

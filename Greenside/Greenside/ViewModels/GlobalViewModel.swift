@@ -14,57 +14,47 @@ enum ListError: Error {
 }
 
 @MainActor
-class GlobalViewModel: NSObject, ObservableObject, Observable {
+class GlobalViewModel: ObservableObject {
   // Global Location Manager
   @Published var locationManager = LocationManager()
   // Loading flag
   @Published var isLoading: Bool = false
-
-  // Courses
+  
+  // UI Lists
   @Published var allCourses: [Course] = []
   @Published var filteredCourses: [Course] = []
-
-  // Holes
-  @Published var selectedCourse: Course?
   @Published var courseHoles: [Hole] = []
+  
+  @Published var selectedCourse: Course?
   @Published var selectedHole: Hole?
-
-  override init() {
-    super.init()
-
-    filteredCourses = allCourses
-  }
+  
+  private let repo = CourseRepository.shared
 
   // This function loads courses from our API
-  func loadCourses() async throws -> [Course] {
-    isLoading = true
-    // Getting API url
-    if let coursesURL = Bundle.main.object(
-      forInfoDictionaryKey: "COURSES_URL"
-    ) as? String {
-
-      // Ensuring its a valid url
-      guard let url = URL(string: "https://\(coursesURL)") else {
-        print("url error")
-        throw URLError(.badURL)
-      }
-
-      // Making the request
-      let request = URLRequest(url: url)
-
-      let (data, _) = try await URLSession.shared.data(for: request)
-      // Decoding into list of courses
-      let courses = try JSONDecoder().decode([Course].self, from: data)
-      // Updating published variable
-      self.allCourses = courses
-      self.filteredCourses = courses
-
-      //      print(courses)
-      isLoading = false
-      return courses
-    } else {
-      throw URLError(.badURL)
+  func loadCourses() async {
+    guard allCourses.isEmpty else {
+      return
     }
+    isLoading = true
+    do {
+      allCourses = try await repo.loadCourses()
+      filteredCourses = allCourses
+    } catch {
+      print("Course loading failed:", error)
+    }
+    isLoading = false
+  }
+  
+  func loadHoles(for course: Course) async {
+    selectedCourse = course
+    isLoading = true
+    do {
+      courseHoles = try await repo.loadHoles(for: course.id)
+      selectedHole = courseHoles.first
+    } catch {
+      print("Holes loading failed:", error)
+    }
+    isLoading = false
   }
 
   func filterCourses(by keyword: String) {
@@ -94,35 +84,4 @@ class GlobalViewModel: NSObject, ObservableObject, Observable {
       return distance1 < distance2
     }
   }
-
-  func loadHoles(courseId: Int) async throws -> [Hole] {
-    isLoading = true
-    // Getting API url
-    if let holesURL = Bundle.main.object(
-      forInfoDictionaryKey: "HOLES_URL"
-    ) as? String {
-
-      // Ensuring its a valid url
-      guard let url = URL(string: "https://\(holesURL)\(courseId).json") else {
-        print("url error")
-        throw URLError(.badURL)
-      }
-
-      // Making the request
-      let request = URLRequest(url: url)
-
-      let (data, _) = try await URLSession.shared.data(for: request)
-      // Decoding into list of holes
-      let holes = try JSONDecoder().decode([Hole].self, from: data)
-      // Updating published variable
-      self.courseHoles = holes
-
-      print(holes)
-      isLoading = false
-      return holes
-    } else {
-      throw URLError(.badURL)
-    }
-  }
-
 }

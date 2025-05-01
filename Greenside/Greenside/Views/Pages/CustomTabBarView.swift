@@ -10,7 +10,7 @@ import SwiftUI
 struct CustomTabBarView: View {
   @StateObject private var router = Router()
   @EnvironmentObject var authViewModel: AuthViewModel
-  @StateObject var globalViewModel = GlobalViewModel()
+  @EnvironmentObject var globalViewModel: GlobalViewModel
 
   var body: some View {
     GeometryReader { geometry in

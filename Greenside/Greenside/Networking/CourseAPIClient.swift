@@ -17,8 +17,8 @@ struct CourseAPIClient {
       let rawCourseURL = Bundle.main.object(forInfoDictionaryKey: "COURSES_URL")
         as? String,
       let rawHolesURL = Bundle.main.object(forInfoDictionaryKey: "HOLES_URL") as? String,
-      let holeUrl = URL(string: "http://\(rawHolesURL)"),
-      let courseUrl = URL(string: "http://\(rawCourseURL)")
+      let holeUrl = URL(string: "https://\(rawHolesURL)"),
+      let courseUrl = URL(string: "https://\(rawCourseURL)")
     else {
       fatalError("API_BASE_URL not set in Info.plist")
     }
@@ -30,7 +30,7 @@ struct CourseAPIClient {
   func get<T: Decodable>(courseId: Int? = nil) async throws -> T {
     var req = URLRequest(url: coursesURL)
     if let courseId = courseId {
-      var req = URLRequest(url: holesURL.appendingPathComponent("\(courseId).json"))
+      req = URLRequest(url: holesURL.appendingPathComponent("\(courseId).json"))
     }
     let (data, _) = try await URLSession.shared.data(for: req)
     return try JSONDecoder().decode(T.self, from: data)
