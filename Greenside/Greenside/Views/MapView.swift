@@ -13,7 +13,8 @@ import SwiftUI
 struct MapView: UIViewRepresentable {
   var region: MKCoordinateRegion
   var camera: MKMapCamera
-  var interactive: Bool
+  let interactive: Bool
+  let mapType: MapType
 
   // Doing it this way allows us to alter the camera position and more
   func makeUIView(context: Context) -> MKMapView {
@@ -31,5 +32,6 @@ struct MapView: UIViewRepresentable {
   func updateUIView(_ mapView: MKMapView, context: Context) {
     mapView.setRegion(region, animated: true)
     mapView.camera = camera
+    mapView.mapType = mapType == .standard ? .standard : .satellite
   }
 }

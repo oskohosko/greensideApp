@@ -9,20 +9,50 @@ import SwiftUI
 
 struct HoleCardList: View {
   @EnvironmentObject private var viewModel: CoursesViewModel
+
+  let mapType: MapType
+
   var body: some View {
-    ScrollView(.horizontal) {
-      LazyHStack(spacing: 8) {
-        ForEach(viewModel.courseHoles) { hole in
-          HoleCard(
-            hole: hole
-          ).environmentObject(viewModel)
+    ScrollView(.vertical, showsIndicators: false) {
+      if viewModel.selectedCourse?.holes.count == 18 {
+        ForEach(0..<2) { index in
+          VStack(alignment: .leading, spacing: 4) {
+            Text(index == 0 ? "Front Nine" : "Back Nine")
+              .font(.caption)
+              .foregroundColor(.base500)
+              .padding(.horizontal)
+            ScrollView(.horizontal, showsIndicators: false) {
+              LazyHStack(spacing: 8) {
+                ForEach(viewModel.courseHoles[index * 9..<(index + 1) * 9]) {
+                  hole in
+                  HoleCard(
+                    hole: hole,
+                    mapType: mapType
+                  ).environmentObject(viewModel)
+                }
+              }
+              .padding(.horizontal)
+            }
+          }
+        }
+      } else {
+        ScrollView(.horizontal, showsIndicators: false) {
+          LazyHStack(spacing: 8) {
+            ForEach(viewModel.courseHoles) { hole in
+              HoleCard(
+                hole: hole,
+                mapType: mapType
+              ).environmentObject(viewModel)
+            }
+          }
+          .padding(.horizontal)
         }
       }
-      .padding(.horizontal)
     }
+    Spacer().frame(height: 200)
   }
 }
 
 #Preview {
-  HoleCardList().environmentObject(CoursesViewModel())
+  HoleCardList(mapType: .standard).environmentObject(CoursesViewModel())
 }

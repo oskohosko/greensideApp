@@ -19,16 +19,18 @@ class CoursesViewModel: ObservableObject {
   @Published var locationManager = LocationManager()
   // Loading flag
   @Published var isLoading: Bool = false
-  
+
   // UI Lists
   @Published var allCourses: [Course] = []
   @Published var filteredCourses: [Course] = []
   @Published var courseHoles: [Hole] = []
   @Published var filteredHoles: [Hole] = []
-  
+
   @Published var selectedCourse: CourseData?
   @Published var selectedHole: Hole?
-  
+
+  @Published var isTabBarHidden: Bool = false
+
   private let repo = CourseRepository.shared
 
   // This function loads courses from our API
@@ -45,7 +47,7 @@ class CoursesViewModel: ObservableObject {
     }
     isLoading = false
   }
-  
+
   func loadHoles(for course: Course) async {
     isLoading = true
     do {
@@ -70,7 +72,7 @@ class CoursesViewModel: ObservableObject {
       }
     }
   }
-  
+
   func filterHoles(by keyword: String) {
     if keyword.isEmpty {
       filteredHoles = courseHoles
@@ -97,4 +99,19 @@ class CoursesViewModel: ObservableObject {
       return distance1 < distance2
     }
   }
+  
+  func previousHole(current: Hole) -> Hole? {
+    guard let idx = courseHoles.firstIndex(where: { $0.id == current.id }),
+      idx > 0
+    else { return nil }
+    return courseHoles[idx - 1]
+  }
+
+  func nextHole(current: Hole) -> Hole? {
+    guard let idx = courseHoles.firstIndex(where: { $0.id == current.id }),
+      idx < courseHoles.count - 1
+    else { return nil }
+    return courseHoles[idx + 1]
+  }
 }
+

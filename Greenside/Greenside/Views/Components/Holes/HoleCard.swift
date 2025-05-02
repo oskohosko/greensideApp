@@ -13,6 +13,7 @@ struct HoleCard: View {
   private let mapManager = MapManager()
 
   let hole: Hole
+  let mapType: MapType
 
   private var distance: String {
 
@@ -47,38 +48,41 @@ struct HoleCard: View {
     ) {
       VStack(alignment: .leading, spacing: 2) {
         Text("Hole \(hole.num)")
-          .font(.system(size: 20, weight: .bold))
+          .font(.system(size: 16, weight: .bold))
           .foregroundStyle(.content)
         HStack {
           HStack(spacing: 2) {
             Image(systemName: "mappin.circle.fill")
               .foregroundStyle(.accentGreen)
+              .font(.system(size: 10))
             Text("Par \(hole.par)")
-              .font(.system(size: 16, weight: .medium))
+              .font(.system(size: 10, weight: .medium))
               .foregroundStyle(.content)
           }
           Spacer()
           HStack(spacing: 2) {
             Image(systemName: "flag.circle.fill")
               .foregroundStyle(.lightRed)
+              .font(.system(size: 10))
             Text("\(distance)m")
-              .font(.system(size: 16, weight: .medium))
+              .font(.system(size: 10, weight: .medium))
               .foregroundStyle(.content)
+            
           }
-        }.padding(.bottom, 4)
+        }
+        .padding(.bottom, 4)
         
-        
-
-        MapView(region: region, camera: camera, interactive: false)
-          .clipShape(RoundedRectangle(cornerRadius: 15))
+        MapView(region: region, camera: camera, interactive: false, mapType: mapType)
+          .clipShape(RoundedRectangle(cornerRadius: 12))
       }
 
     }
-    .padding(.horizontal)
-    .padding(.vertical, 8)
-    .frame(width: 180, height: 320)
+    .padding(.horizontal, 6)
+    .padding(.vertical, 4)
+    .padding(.bottom, 2)
+    .frame(width: 120, height: 180)
     .background(.base100)
-    .cornerRadius(20)
+    .cornerRadius(15)
   }
 }
 
@@ -91,5 +95,5 @@ struct HoleCard: View {
     num: 6,
     par: 4
   )
-  HoleCard(hole: testHole).environmentObject(CoursesViewModel())
+  HoleCard(hole: testHole, mapType: .standard).environmentObject(CoursesViewModel())
 }

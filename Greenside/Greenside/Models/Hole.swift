@@ -5,8 +5,8 @@
 //  Created by Oskar Hosken on 20/4/2025.
 //
 
-import Foundation
 import CoreLocation
+import Foundation
 
 class Hole: Identifiable, Decodable {
   var tee_lat: Double
@@ -49,6 +49,19 @@ class Hole: Identifiable, Decodable {
     CLLocationCoordinate2D(
       latitude: green_lat,
       longitude: green_lng
+    )
+  }
+
+  var distance: Double {
+    distanceBetweenPoints(
+      first: CLLocationCoordinate2D(
+        latitude: tee_lat,
+        longitude: tee_lng
+      ),
+      second: CLLocationCoordinate2D(
+        latitude: green_lat,
+        longitude: green_lng
+      ),
     )
   }
 }

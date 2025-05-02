@@ -31,9 +31,8 @@ struct CourseCard: View {
   }
 
   var body: some View {
-    Button {
-      router.deepLinkCourse = course
-      router.tab = .courses
+    NavigationLink {
+      CourseDetailView(course: course)
     } label: {
       VStack {
         Text(course.name)
@@ -59,16 +58,13 @@ struct CourseCard: View {
             .foregroundStyle(.content)
             .lineLimit(1)
         }.padding(.top, 4)
-
       }
     }
-
     .padding()
     .frame(width: 120)
     .background(.base100)
     .cornerRadius(20)
     .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
-
   }
 }
 

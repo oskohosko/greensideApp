@@ -11,13 +11,10 @@ struct CoursesView: View {
 
   @State private var searchText: String = ""
 
-  @EnvironmentObject private var router: Router
   @EnvironmentObject private var viewModel: CoursesViewModel
 
-  @State private var path = NavigationPath()
-
   var body: some View {
-    NavigationStack(path: $path) {
+    NavigationStack {
       ZStack {
         Color.base200.ignoresSafeArea()
         VStack(spacing: 12) {
@@ -46,11 +43,14 @@ struct CoursesView: View {
           .padding(.bottom, 2)
           CourseList()
             .environmentObject(viewModel)
-
         }
-
       }
 
+    }
+    .onAppear {
+      // Resetting filter and sorting by location
+      viewModel.filterCourses(by: "")
+      viewModel.sortCoursesByLocation()
     }
   }
 }

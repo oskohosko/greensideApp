@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeView: View {
 
   @State private var searchText: String = ""
-  
+
   @EnvironmentObject private var router: Router
   @EnvironmentObject private var viewModel: CoursesViewModel
   @EnvironmentObject private var authViewModel: AuthViewModel
@@ -115,6 +115,10 @@ struct HomeView: View {
             }
           }
         }
+      }
+      .onAppear {
+        viewModel.filterCourses(by: "")
+        viewModel.sortCoursesByLocation()
       }
     }
   }

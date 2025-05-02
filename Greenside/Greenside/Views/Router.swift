@@ -9,5 +9,4 @@ import Combine
 
 final class Router: ObservableObject {
   @Published var tab: Tab = .home
-  @Published var deepLinkCourse: Course?
 }
