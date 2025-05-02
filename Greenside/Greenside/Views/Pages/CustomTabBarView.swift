@@ -41,51 +41,48 @@ struct CustomTabBarView: View {
 
         }
         // Custom Tab Bar
-        if !globalViewModel.isTabBarHidden {
-          HStack {
-            TabBarButton(
-              icon: "house",
-              selectedIcon: "house.fill",
-              tab: .home,
-              title: "Home",
-              selectedTab: $router.tab
-            )
-            TabBarButton(
-              icon: "flag.circle",
-              selectedIcon: "flag.circle.fill",
-              tab: .play,
-              title: "Play",
-              selectedTab: $router.tab
-            )
-            TabBarButton(
-              icon: "mappin.circle",
-              selectedIcon: "mappin.circle.fill",
-              tab: .courses,
-              title: "Courses",
-              selectedTab: $router.tab
-            )
-            TabBarButton(
-              icon: "chart.pie",
-              selectedIcon: "chart.pie.fill",
-              tab: .analysis,
-              title: "Analysis",
-              selectedTab: $router.tab
-            )
-            TabBarButton(
-              icon: "text.justify",
-              selectedIcon: "text.justify",
-              tab: .menu,
-              title: "Menu",
-              selectedTab: $router.tab
-            )
-          }
-          .padding(.horizontal, 10)
-          .padding(.top, 20)
-          .padding(.bottom, 10)
-          .background(Color.base100)
-          .transition(.move(edge: .bottom).combined(with: .opacity))
-          .animation(.easeInOut(duration: 0.2), value: globalViewModel.isTabBarHidden)
+
+        HStack {
+          TabBarButton(
+            icon: "house",
+            selectedIcon: "house.fill",
+            tab: .home,
+            title: "Home",
+            selectedTab: $router.tab
+          )
+          TabBarButton(
+            icon: "flag.circle",
+            selectedIcon: "flag.circle.fill",
+            tab: .play,
+            title: "Play",
+            selectedTab: $router.tab
+          )
+          TabBarButton(
+            icon: "mappin.circle",
+            selectedIcon: "mappin.circle.fill",
+            tab: .courses,
+            title: "Courses",
+            selectedTab: $router.tab
+          )
+          TabBarButton(
+            icon: "chart.pie",
+            selectedIcon: "chart.pie.fill",
+            tab: .analysis,
+            title: "Analysis",
+            selectedTab: $router.tab
+          )
+          TabBarButton(
+            icon: "text.justify",
+            selectedIcon: "text.justify",
+            tab: .menu,
+            title: "Menu",
+            selectedTab: $router.tab
+          )
         }
+        .padding(.horizontal, 10)
+        .padding(.top, 20)
+        .padding(.bottom, 10)
+        .background(Color.base100)
       }
     }
     .onAppear {

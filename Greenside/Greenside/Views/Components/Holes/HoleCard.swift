@@ -32,6 +32,8 @@ struct HoleCard: View {
     )
   }
 
+  @State private var isHolePresented = false
+
   var body: some View {
     // Using our mapManager to get the region and camera
     let region = mapManager.fitRegion(
@@ -43,9 +45,9 @@ struct HoleCard: View {
       green: hole.greenLocation
     )
 
-    NavigationLink(
-      destination: HoleDetailView(hole: hole).environmentObject(viewModel)
-    ) {
+    Button {
+      isHolePresented.toggle()
+    } label: {
       VStack(alignment: .leading, spacing: 2) {
         Text("Hole \(hole.num)")
           .font(.system(size: 16, weight: .bold))
@@ -67,13 +69,22 @@ struct HoleCard: View {
             Text("\(distance)m")
               .font(.system(size: 10, weight: .medium))
               .foregroundStyle(.content)
-            
+
           }
         }
         .padding(.bottom, 4)
-        
-        MapView(region: region, camera: camera, interactive: false, mapType: mapType)
-          .clipShape(RoundedRectangle(cornerRadius: 12))
+        .fullScreenCover(isPresented: $isHolePresented) {
+          HoleDetailFullScreen(hole: hole)
+            .environmentObject(viewModel)
+        }
+
+        MapView(
+          region: region,
+          camera: camera,
+          interactive: false,
+          mapType: mapType
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 12))
       }
 
     }
@@ -83,6 +94,7 @@ struct HoleCard: View {
     .frame(width: 120, height: 180)
     .background(.base100)
     .cornerRadius(15)
+    
   }
 }
 
@@ -95,5 +107,7 @@ struct HoleCard: View {
     num: 6,
     par: 4
   )
-  HoleCard(hole: testHole, mapType: .standard).environmentObject(CoursesViewModel())
+  HoleCard(hole: testHole, mapType: .standard).environmentObject(
+    CoursesViewModel()
+  )
 }

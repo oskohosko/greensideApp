@@ -29,8 +29,6 @@ class CoursesViewModel: ObservableObject {
   @Published var selectedCourse: CourseData?
   @Published var selectedHole: Hole?
 
-  @Published var isTabBarHidden: Bool = false
-
   private let repo = CourseRepository.shared
 
   // This function loads courses from our API

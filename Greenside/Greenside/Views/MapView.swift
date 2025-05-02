@@ -25,6 +25,7 @@ struct MapView: UIViewRepresentable {
     mapView.isUserInteractionEnabled = interactive
     mapView.pointOfInterestFilter = .excludingAll
     mapView.overrideUserInterfaceStyle = .light
+    mapView.showsCompass = false
 
     return mapView
   }
