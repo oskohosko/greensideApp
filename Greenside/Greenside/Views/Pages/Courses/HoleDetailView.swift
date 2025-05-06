@@ -5,7 +5,7 @@
 //  Created by Oskar Hosken on 1/5/2025.
 //
 
-import MapKit  // ← only if MapView lives here
+import MapKit
 import SwiftUI
 
 struct HoleDetailView: View {
@@ -58,7 +58,7 @@ struct HoleDetailView: View {
 
         bottomBar
           .padding(.vertical, 8)
-        Spacer().frame(height: 40)
+        Spacer().frame(height: 20)
       }
     }
     .toolbar {
@@ -77,6 +77,7 @@ struct HoleDetailView: View {
     .toolbarBackground(.hidden, for: .navigationBar)
     .toolbarColorScheme(.dark, for: .navigationBar)
   }
+
   private var bottomBar: some View {
     let hasPrev = viewModel.previousHole(current: hole) != nil
     let hasNext = viewModel.nextHole(current: hole) != nil
@@ -100,7 +101,7 @@ struct HoleDetailView: View {
       .disabled(!hasPrev)
       .frame(maxWidth: .infinity)
 
-      // Add-shot button
+      // Add shot button
       Button {
         // Action goes here
       } label: {

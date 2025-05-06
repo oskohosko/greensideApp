@@ -12,7 +12,6 @@ struct CourseCard: View {
 
   let course: Course
   @EnvironmentObject var locationManager: LocationManager
-  @EnvironmentObject private var router: Router
 
   private var distance: String {
     guard let userLocation = locationManager.currentLocation else {

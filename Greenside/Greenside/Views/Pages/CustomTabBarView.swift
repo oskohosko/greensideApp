@@ -11,6 +11,7 @@ struct CustomTabBarView: View {
   @StateObject private var router = Router()
   @EnvironmentObject var authViewModel: AuthViewModel
   @EnvironmentObject var globalViewModel: CoursesViewModel
+  @EnvironmentObject var roundsViewModel: RoundsViewModel
 
   var body: some View {
     GeometryReader { geometry in
@@ -26,6 +27,7 @@ struct CustomTabBarView: View {
               .environmentObject(router)
               .environmentObject(globalViewModel)
               .environmentObject(authViewModel)
+              .environmentObject(roundsViewModel)
           case .play:
             PlayGolfView()
           case .courses:
@@ -138,7 +140,8 @@ struct TabBarButton: View {
 }
 
 #Preview {
-  CustomTabBarView().environmentObject(AuthViewModel()).environmentObject(
-    CoursesViewModel()
-  )
+  CustomTabBarView()
+    .environmentObject(AuthViewModel())
+    .environmentObject(CoursesViewModel())
+    .environmentObject(RoundsViewModel())
 }

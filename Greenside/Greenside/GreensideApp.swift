@@ -1,9 +1,27 @@
+import FirebaseCore
 import SwiftUI
+
+// Firebase initialisation
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication
+      .LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    FirebaseApp.configure()
+
+    return true
+  }
+}
 
 @main
 struct GreensideApp: App {
-
+  // Registering Firebase App Delegate
+  @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+  
   init() {
+
+    // This is all to change the back navigation button
     let appearance = UINavigationBarAppearance()
     appearance.configureWithOpaqueBackground()
     appearance.backgroundColor = .base200
@@ -13,11 +31,14 @@ struct GreensideApp: App {
       weight: .bold,
       scale: .large
     )
-    let backImage = UIImage(systemName: "arrow.left", withConfiguration: config)!
-      .withTintColor(
-        UIColor(Color.content),
-        renderingMode: .alwaysOriginal
-      )
+    let backImage = UIImage(
+      systemName: "arrow.left",
+      withConfiguration: config
+    )!
+    .withTintColor(
+      UIColor(Color.content),
+      renderingMode: .alwaysOriginal
+    )
 
     appearance.setBackIndicatorImage(
       backImage,

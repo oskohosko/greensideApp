@@ -10,6 +10,7 @@ import SwiftUI
 struct RootView: View {
   @EnvironmentObject var authViewModel: AuthViewModel
   @StateObject var globalViewModel = CoursesViewModel()
+  @StateObject var roundsViewModel = RoundsViewModel()
   var body: some View {
 //    Group {
 //      switch authViewModel.phase {
@@ -26,6 +27,7 @@ struct RootView: View {
     CustomTabBarView()
       .environmentObject(authViewModel)
       .environmentObject(globalViewModel)
+      .environmentObject(roundsViewModel)
   }
 }
 

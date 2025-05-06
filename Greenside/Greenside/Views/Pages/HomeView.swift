@@ -12,8 +12,9 @@ struct HomeView: View {
   @State private var searchText: String = ""
 
   @EnvironmentObject private var router: Router
-  @EnvironmentObject private var viewModel: CoursesViewModel
+  @EnvironmentObject private var coursesViewModel: CoursesViewModel
   @EnvironmentObject private var authViewModel: AuthViewModel
+  @EnvironmentObject private var roundsViewModel: RoundsViewModel
   //  @State private var courses: [Course] = []
 
   var body: some View {
@@ -62,6 +63,8 @@ struct HomeView: View {
 
               // Now a horizontal scroll view with cards
               RoundsList()
+                .environmentObject(roundsViewModel)
+                .environmentObject(router)
 
               // Play again badge
               Badge(
@@ -82,10 +85,10 @@ struct HomeView: View {
               HStack {
                 SearchBar(text: $searchText)
                   .onChange(of: searchText) {
-                    viewModel.filterCourses(by: searchText)
+                    coursesViewModel.filterCourses(by: searchText)
                   }
                 Button {
-                  viewModel.sortCoursesByLocation()
+                  coursesViewModel.sortCoursesByLocation()
                 } label: {
                   Image(systemName: "location.magnifyingglass")
                     .foregroundStyle(Color(.accentGreen))
@@ -96,7 +99,7 @@ struct HomeView: View {
               }.padding(.horizontal, 16)
 
               CourseCardList()
-                .environmentObject(viewModel)
+                .environmentObject(coursesViewModel)
                 .environmentObject(router)
 
             }
@@ -111,14 +114,17 @@ struct HomeView: View {
         .onAppear {
           Task {
             do {
-              _ = await viewModel.loadCourses()
+              // Loading courses and rounds data
+              _ = await coursesViewModel.loadCourses()
+              await roundsViewModel.loadRounds()
             }
           }
         }
       }
       .onAppear {
-        viewModel.filterCourses(by: "")
-        viewModel.sortCoursesByLocation()
+        // Resetting search and sorting by closest courses
+        coursesViewModel.filterCourses(by: "")
+        coursesViewModel.sortCoursesByLocation()
       }
     }
   }

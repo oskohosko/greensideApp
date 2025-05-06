@@ -11,7 +11,6 @@ import SwiftUI
 struct CourseCardList: View {
 
   @EnvironmentObject private var viewModel: CoursesViewModel
-  @EnvironmentObject private var router: Router
 
   var body: some View {
     ScrollView(.horizontal, showsIndicators: false) {
@@ -29,5 +28,4 @@ struct CourseCardList: View {
 
 #Preview {
   CourseCardList().environmentObject(CoursesViewModel())
-    .environmentObject(Router())
 }

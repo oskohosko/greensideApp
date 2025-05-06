@@ -74,5 +74,5 @@ struct HoleDetailFullScreen: View {
     num: 6,
     par: 4
   )
-  HoleDetailFullScreen(hole: testHole)
+  HoleDetailFullScreen(hole: testHole).environmentObject(CoursesViewModel())
 }

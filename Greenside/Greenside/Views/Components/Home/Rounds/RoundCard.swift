@@ -6,18 +6,17 @@
 //
 
 import SwiftUI
-
-let sampleRound: [String: Any] = [
-  "name": "Rosebud North Tuesday",
-  "score": "77",
-  "date": "Mar 21",
-]
+import FirebaseCore
 
 struct RoundCard: View {
+
+  // The round we are displaying
+  let round: Round
+
   var body: some View {
     HStack {
       VStack {
-        Text(sampleRound["name"] as? String ?? "")
+        Text(round.title ?? "")
           .font(.headline)
           .lineLimit(2)
           .foregroundColor(.content)
@@ -28,12 +27,12 @@ struct RoundCard: View {
             .foregroundColor(.accentGreen)
             .fontWeight(.bold)
             .font(.subheadline)
-          Text(sampleRound["date"] as? String ?? "")
+          Text(round.shortDate ?? "")
             .font(.subheadline)
             .frame(maxWidth: .infinity, alignment: .leading)
             .foregroundStyle(.content)
         }
-        
+
       }
       Divider()
         .frame(width: 1)
@@ -43,13 +42,12 @@ struct RoundCard: View {
             .foregroundColor(Color.base200)
             .cornerRadius(10)
         )
-      Text(sampleRound["score"] as? String ?? "")
+      Text("\(round.score ?? 72)")
         .font(.largeTitle)
         .fontWeight(.bold)
         .foregroundColor(.content)
         .padding(.leading, 10)
-      
-        
+
     }.padding()
       .frame(width: 200, height: 110)
       .fixedSize(horizontal: false, vertical: true)
@@ -60,5 +58,13 @@ struct RoundCard: View {
 }
 
 #Preview {
-  RoundCard()
+  let testRound = Round(
+    courseId: 1017,
+    courseName: "Rosebud Country Club South",
+    createdAt: Timestamp(date: Date(timeIntervalSince1970: 1_731_227_571)),
+    score: 77,
+    title: "Rosebud South Tuesday"
+  )
+
+  RoundCard(round: testRound)
 }

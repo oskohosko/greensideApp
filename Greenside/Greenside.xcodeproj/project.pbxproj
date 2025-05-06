@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		75AB890C2DC9908C00455452 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 75AB890B2DC9908C00455452 /* FirebaseCore */; };
+		75AB890E2DC9908C00455452 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 75AB890D2DC9908C00455452 /* FirebaseFirestore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		75F6C2B52DA8F10C00D0658B /* Greenside.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Greenside.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				75AB890C2DC9908C00455452 /* FirebaseCore in Frameworks */,
+				75AB890E2DC9908C00455452 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = Greenside;
 			packageProductDependencies = (
+				75AB890B2DC9908C00455452 /* FirebaseCore */,
+				75AB890D2DC9908C00455452 /* FirebaseFirestore */,
 			);
 			productName = Greenside;
 			productReference = 75F6C2B52DA8F10C00D0658B /* Greenside.app */;
@@ -107,6 +116,9 @@
 			);
 			mainGroup = 75F6C2AC2DA8F10C00D0658B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				75AB890A2DC9908C00455452 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 75F6C2B62DA8F10C00D0658B /* Products */;
 			projectDirPath = "";
@@ -287,7 +299,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "Oskar-Hosken.Greenside";
+				PRODUCT_BUNDLE_IDENTIFIER = com.oskarhosken.greenside;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -319,7 +331,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "Oskar-Hosken.Greenside";
+				PRODUCT_BUNDLE_IDENTIFIER = com.oskarhosken.greenside;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -349,6 +361,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		75AB890A2DC9908C00455452 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.12.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		75AB890B2DC9908C00455452 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 75AB890A2DC9908C00455452 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		75AB890D2DC9908C00455452 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 75AB890A2DC9908C00455452 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 75F6C2AD2DA8F10C00D0658B /* Project object */;
 }

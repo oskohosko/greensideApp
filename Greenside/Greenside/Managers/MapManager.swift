@@ -62,7 +62,7 @@ class MapManager {
     // Returning the camera
     return MKMapCamera(
       lookingAtCenter: center,
-      fromDistance: min(1100, holeDistance * 2.5),
+      fromDistance: min(1100, holeDistance * 2.7),
       pitch: 0,
       heading: bearing
     )
