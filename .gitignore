@@ -65,5 +65,8 @@ Config.xcconfig
 **/*.xcconfig
 Info.plist
 *.pbxproj
+*.plist
+GoogleService-Info.plist
+xcshareddata
 
 
