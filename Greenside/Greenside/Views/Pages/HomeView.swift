@@ -22,6 +22,8 @@ struct HomeView: View {
       ZStack {
         Color.base200.ignoresSafeArea()
         VStack {
+          
+          // MARK: Navbar
           HStack {
             HStack(spacing: 8) {
               Image("Greenside")
@@ -34,37 +36,37 @@ struct HomeView: View {
             }
             Spacer()
             Button(action: {
-              // Handle user icon tap
+              // User icon tap will take us to the account page
               print("Logging out")
+              // Currently testing logout
               Task {
                 await authViewModel.handleLogout()
               }
-
             }) {
               Image(systemName: "person.crop.circle")
                 .font(
                   .system(size: 32)
                 )
                 .foregroundStyle(Color.accentGreen)
-
             }
           }
           .padding()
           .background(Color.base100)
-
+          
+          // MARK: Main Content
           ScrollView {
-            VStack(spacing: 8) {
+            VStack(spacing: 4) {
               Text("Play")
                 .font(.system(size: 36, weight: .bold))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .foregroundStyle(.content)
                 .padding(.leading, 16)
-                .padding(.top, 8)
+                .padding(.top, 4)
 
               // Now a horizontal scroll view with cards
               RoundsList()
                 .environmentObject(roundsViewModel)
-                .environmentObject(router)
+                .environmentObject(coursesViewModel)
 
               // Play again badge
               Badge(
@@ -80,7 +82,7 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .foregroundStyle(.content)
                 .padding(.leading, 16)
-                .padding(.top, 10)
+                .padding(.top, 6)
 
               HStack {
                 SearchBar(text: $searchText)
@@ -97,11 +99,18 @@ struct HomeView: View {
                 }
 
               }.padding(.horizontal, 16)
-
               CourseCardList()
                 .environmentObject(coursesViewModel)
                 .environmentObject(router)
-
+              
+              Text("Recent Rounds")
+                .font(.system(size: 36, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundStyle(.content)
+                .padding(.leading, 16)
+              RoundsList()
+                .environmentObject(roundsViewModel)
+                .environmentObject(coursesViewModel)
             }
           }
 
@@ -131,5 +140,8 @@ struct HomeView: View {
 }
 
 #Preview {
-  HomeView().environmentObject(CoursesViewModel()).environmentObject(Router())
+  HomeView()
+    .environmentObject(CoursesViewModel())
+    .environmentObject(Router())
+    .environmentObject(RoundsViewModel())
 }

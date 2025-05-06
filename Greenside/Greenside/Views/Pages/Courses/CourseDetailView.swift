@@ -77,7 +77,7 @@ struct CourseDetailView: View {
     .onAppear {
       Task {
         do {
-          _ = await viewModel.loadHoles(for: course)
+          _ = await viewModel.loadHoles(for: course.id)
         }
       }
     }

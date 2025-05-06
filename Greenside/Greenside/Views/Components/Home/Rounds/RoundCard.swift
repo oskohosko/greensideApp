@@ -5,8 +5,8 @@
 //  Created by Oskar Hosken on 18/4/2025.
 //
 
-import SwiftUI
 import FirebaseCore
+import SwiftUI
 
 struct RoundCard: View {
 
@@ -14,47 +14,51 @@ struct RoundCard: View {
   let round: Round
 
   var body: some View {
-    HStack {
-      VStack {
-        Text(round.title ?? "")
-          .font(.headline)
-          .lineLimit(2)
-          .foregroundColor(.content)
-          .frame(maxWidth: .infinity, alignment: .leading)
-        Spacer()
-        HStack(spacing: 6) {
-          Image(systemName: "clock")
-            .foregroundColor(.accentGreen)
-            .fontWeight(.bold)
-            .font(.subheadline)
-          Text(round.shortDate ?? "")
-            .font(.subheadline)
+    NavigationLink {
+      RoundDetailView(round: round)
+    } label: {
+      HStack {
+        VStack {
+          Text(round.title ?? "")
+            .font(.headline)
+            .foregroundColor(.content)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundStyle(.content)
+          Spacer()
+          HStack(spacing: 6) {
+            Image(systemName: "clock")
+              .foregroundColor(.accentGreen)
+              .fontWeight(.bold)
+              .font(.subheadline)
+            Text(round.shortDate ?? "")
+              .font(.subheadline)
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .foregroundStyle(.content)
+          }
+
         }
+        Divider()
+          .frame(width: 1)
+          .overlay(
+            Rectangle()
+              .frame(width: 3)
+              .foregroundColor(Color.base200)
+              .cornerRadius(10)
+          )
+        Text("\(round.score ?? 72)")
+          .font(.largeTitle)
+          .fontWeight(.bold)
+          .foregroundColor(.content)
+          .padding(.leading, 10)
 
-      }
-      Divider()
-        .frame(width: 1)
-        .overlay(
-          Rectangle()
-            .frame(width: 3)
-            .foregroundColor(Color.base200)
-            .cornerRadius(10)
-        )
-      Text("\(round.score ?? 72)")
-        .font(.largeTitle)
-        .fontWeight(.bold)
-        .foregroundColor(.content)
-        .padding(.leading, 10)
-
-    }.padding()
-      .frame(width: 200, height: 110)
-      .fixedSize(horizontal: false, vertical: true)
-      .background(Color.base100)
-      .cornerRadius(20)
-      .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+      }.padding()
+        .frame(width: 200, height: 110)
+        .fixedSize(horizontal: false, vertical: true)
+        .background(Color.base100)
+        .cornerRadius(20)
+        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+    }
   }
+
 }
 
 #Preview {

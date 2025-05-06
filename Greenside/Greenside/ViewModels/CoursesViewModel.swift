@@ -46,10 +46,10 @@ class CoursesViewModel: ObservableObject {
     isLoading = false
   }
 
-  func loadHoles(for course: Course) async {
+  func loadHoles(for courseId: Int) async {
     isLoading = true
     do {
-      let courseData = try await repo.loadHoles(for: course.id)
+      let courseData = try await repo.loadHoles(for: courseId)
       selectedCourse = courseData
       courseHoles = courseData.holes
       filteredHoles = courseHoles
