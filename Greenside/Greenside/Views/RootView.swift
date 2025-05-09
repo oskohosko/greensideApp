@@ -12,18 +12,19 @@ struct RootView: View {
   @StateObject var globalViewModel = CoursesViewModel()
   @StateObject var roundsViewModel = RoundsViewModel()
   var body: some View {
-//    Group {
-//      switch authViewModel.phase {
-//      case .checking:
-//        LoadingView()
-//      case .authenticated:
-//        CustomTabBarView()
-//          .environmentObject(authViewModel)
-//          .environmentObject(globalViewModel)
-//      default:
-//        WelcomeView()
-//      }
-//    }
+    //    Group {
+    //      switch authViewModel.phase {
+    //        case .checking:
+    //          LoadingView()
+    //        case .authenticated:
+    //          CustomTabBarView()
+    //            .environmentObject(authViewModel)
+    //            .environmentObject(globalViewModel)
+    //            .environmentObject(roundsViewModel)
+    //        default:
+    //          WelcomeView()
+    //      }
+    //    }
     CustomTabBarView()
       .environmentObject(authViewModel)
       .environmentObject(globalViewModel)

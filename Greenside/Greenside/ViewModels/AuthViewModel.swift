@@ -16,7 +16,7 @@ enum AuthPhase: Equatable {
 
 @MainActor
 class AuthViewModel: ObservableObject {
-  @Published var user: UserDTO?
+  @Published var user: User? = nil
 
   @Published var firstName: String = ""
   @Published var lastName: String = ""
@@ -42,6 +42,7 @@ class AuthViewModel: ObservableObject {
       )
       if let user = await repo.currentUser {
         phase = .authenticated(user)
+        self.user = user
       }
     } catch {
       phase = .error(error.localizedDescription)
@@ -54,6 +55,7 @@ class AuthViewModel: ObservableObject {
       try await repo.login(email: email, pw: password)
       if let user = await repo.currentUser {
         phase = .authenticated(user)
+        self.user = user
       }
     } catch {
       phase = .error(error.localizedDescription)
@@ -62,15 +64,14 @@ class AuthViewModel: ObservableObject {
   }
 
   func handleLogout() {
+    self.user = nil
     Task {
       await repo.logout()
       await MainActor.run { phase = .unauthenticated }
     }
 
   }
-}
-
-extension AuthViewModel {
+  
   func bootstrap() async {
     phase = .checking
     if await repo.verify() {
@@ -80,3 +81,4 @@ extension AuthViewModel {
     }
   }
 }
+

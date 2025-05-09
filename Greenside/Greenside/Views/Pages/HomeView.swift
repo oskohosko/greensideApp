@@ -35,14 +35,11 @@ struct HomeView: View {
                 .foregroundStyle(Color.content)
             }
             Spacer()
-            Button(action: {
-              // User icon tap will take us to the account page
-              print("Logging out")
-              // Currently testing logout
-              Task {
-                await authViewModel.handleLogout()
-              }
-            }) {
+            NavigationLink {
+              AccountView()
+                .modelContainer(for: Club.self)
+                .environmentObject(authViewModel)
+            } label: {
               Image(systemName: "person.crop.circle")
                 .font(
                   .system(size: 32)
