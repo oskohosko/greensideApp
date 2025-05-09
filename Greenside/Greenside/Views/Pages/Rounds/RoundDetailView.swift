@@ -57,7 +57,7 @@ struct RoundDetailView: View {
           VStack(spacing: 0) {
             ScoreTable(round: round)
               .padding(.horizontal)
-              .padding(.bottom, 8)
+              .padding(.bottom, 12)
 
             Text("Holes")
               .font(.system(size: 24, weight: .bold))
@@ -65,6 +65,7 @@ struct RoundDetailView: View {
               .foregroundStyle(.content)
               .padding(.leading, 16)
 
+            // MARK: UPDATE THIS SO WE CAN USE ANNOTATIONS
             HoleCardList(mapType: mapType).environmentObject(coursesViewModel)
           }
 

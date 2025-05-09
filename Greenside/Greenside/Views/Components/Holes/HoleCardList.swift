@@ -9,6 +9,8 @@ import SwiftUI
 
 struct HoleCardList: View {
   @EnvironmentObject private var viewModel: CoursesViewModel
+  
+  let scores: [Int]? = []
 
   let mapType: MapType
 

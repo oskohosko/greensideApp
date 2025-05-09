@@ -31,6 +31,15 @@ class CoursesViewModel: ObservableObject {
 
   private let repo = CourseRepository.shared
 
+  // Requests location
+  func requestLocation() {
+    locationManager.requestCurrentLocation { [weak self] location in
+      guard self != nil else {
+        return
+      }
+    }
+  }
+
   // This function loads courses from our API
   func loadCourses() async {
     guard allCourses.isEmpty else {
@@ -97,7 +106,7 @@ class CoursesViewModel: ObservableObject {
       return distance1 < distance2
     }
   }
-  
+
   func previousHole(current: Hole) -> Hole? {
     guard let idx = courseHoles.firstIndex(where: { $0.id == current.id }),
       idx > 0
@@ -112,4 +121,3 @@ class CoursesViewModel: ObservableObject {
     return courseHoles[idx + 1]
   }
 }
-

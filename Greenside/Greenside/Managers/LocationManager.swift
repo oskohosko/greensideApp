@@ -15,6 +15,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate,
   let manager = CLLocationManager()
   @Published var currentLocation: CLLocation?
   @Published var isRequestingLocation = false
+  @Published var isTrackingLocation = false
 
   private var locationRequestCompletion: ((CLLocation?) -> Void)?
 
@@ -22,7 +23,6 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate,
     super.init()
 
     manager.delegate = self
-    print("Requesting location permission...")
     manager.requestWhenInUseAuthorization()
     manager.desiredAccuracy = kCLLocationAccuracyBest
 
@@ -31,6 +31,18 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate,
       guard let self = self else { return }
       self.isRequestingLocation = true
     }
+  }
+  
+  func startTrackingLocation() {
+    guard !isTrackingLocation else { return }
+    isTrackingLocation = true
+    manager.startUpdatingLocation()
+  }
+  
+  func stopTrackingLocation() {
+    guard isTrackingLocation else { return }
+    isTrackingLocation = false
+    manager.stopUpdatingLocation()
   }
 
   func requestCurrentLocation(completion: @escaping (CLLocation?) -> Void) {

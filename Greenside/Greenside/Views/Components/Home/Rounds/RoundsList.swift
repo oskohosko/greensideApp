@@ -8,15 +8,17 @@
 import SwiftUI
 
 struct RoundsList: View {
-  
+
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
-  
+
   var body: some View {
     ScrollView(.horizontal, showsIndicators: false) {
       HStack(spacing: 12) {
+        AddRoundCard()
         ForEach(roundsViewModel.allRounds) { round in
           RoundCard(round: round)
         }
+
       }
       .padding(.horizontal)
     }

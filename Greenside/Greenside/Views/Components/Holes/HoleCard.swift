@@ -7,14 +7,18 @@
 
 import CoreLocation
 import SwiftUI
+import MapKit
 
 struct HoleCard: View {
   @EnvironmentObject private var viewModel: CoursesViewModel
   private let mapManager = MapManager()
+  
+  @State private var isHolePresented = false
+  @State private var annotations: [MKPointAnnotation] = []
 
   let hole: Hole
   let mapType: MapType
-
+  
   private var distance: String {
 
     return String(
@@ -31,8 +35,31 @@ struct HoleCard: View {
       )
     )
   }
-
-  @State private var isHolePresented = false
+  
+  let score: Int? = 0
+  
+  // Classifying score
+  func classifyScore() -> (String, Color) {
+    if let score = score, score != 0 {
+      let diff = score - hole.par
+      switch diff {
+        case ..<(-1):
+          return ("Eagle", .accentGreen)
+        case (-1):
+          return ("Birdie", .lightRed)
+        case (0):
+          return ("Par", .base200)
+        case (1):
+          return ("Bogey", .lightBlue)
+        default:
+          return ("Double Bogey+", .lightBlue)
+      }
+    } else {
+      return ("-", .base100)
+    }
+    
+  }
+  
 
   var body: some View {
     // Using our mapManager to get the region and camera
@@ -79,12 +106,24 @@ struct HoleCard: View {
         }
 
         MapView(
+          annotations: $annotations,
           region: region,
           camera: camera,
           interactive: false,
-          mapType: mapType
+          mapType: mapType,
+          isChangingHole: false
         )
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        
+        // If we have sent a score to this view, add a badge
+        if score != 0 {
+          let (text, colour) = classifyScore()
+          Badge(
+            text: text,
+            colour: colour,
+            size: 10
+          )
+        }
       }
 
     }

@@ -10,6 +10,9 @@ import SwiftUI
 
 struct HoleDetailView: View {
   @State var hole: Hole
+  @State private var annotations: [MKPointAnnotation] = []
+  @State private var isChangingHole: Bool = false
+
   @EnvironmentObject private var viewModel: CoursesViewModel
   private let mapManager = MapManager()
 
@@ -31,11 +34,14 @@ struct HoleDetailView: View {
     // Map first, everything else overlays
     ZStack {
       MapView(
+        annotations: $annotations,
         region: region,
         camera: camera,
         interactive: true,
-        mapType: .satellite
+        mapType: .satellite,
+        isChangingHole: isChangingHole
       )
+      .environmentObject(viewModel)
       .ignoresSafeArea()
 
       // Overlays
@@ -54,12 +60,24 @@ struct HoleDetailView: View {
         .padding(.vertical, 8)
         .background(.clear)
 
+        // Sidebar
+        VStack {
+          HStack {
+            Spacer()
+            sideBar
+          }
+          .padding(.horizontal, 16)
+          Spacer()
+        }
+
         Spacer()
 
+        // Bottom bar
         bottomBar
           .padding(.vertical, 8)
         Spacer().frame(height: 20)
       }
+      
     }
     .toolbar {
       ToolbarItem(placement: .principal) {
@@ -76,6 +94,33 @@ struct HoleDetailView: View {
     }
     .toolbarBackground(.hidden, for: .navigationBar)
     .toolbarColorScheme(.dark, for: .navigationBar)
+    .onChange(of: hole.num) {
+      isChangingHole = false
+    }
+
+  }
+
+  // Sidebar to go on the right of the view
+  private var sideBar: some View {
+
+    return VStack(spacing: 16) {
+      Button {
+        // Toggling location tracking
+        if viewModel.locationManager.isTrackingLocation {
+          viewModel.locationManager.stopTrackingLocation()
+        } else {
+          viewModel.locationManager.startTrackingLocation()
+        }
+      } label: {
+        Image(
+          systemName: viewModel.locationManager.isTrackingLocation
+            ? "location" : "location.slash"
+        )
+        .font(.system(size: 24, weight: .medium))
+        .foregroundStyle(.white)
+      }
+    }
+    .padding(.top, 16)
   }
 
   private var bottomBar: some View {
@@ -86,8 +131,11 @@ struct HoleDetailView: View {
 
       // Previous Hole
       Button {
+
         if let prev = viewModel.previousHole(current: hole) {
+          isChangingHole = true
           hole = prev
+          annotations.removeAll()
         }
       } label: {
         VStack(spacing: 2) {
@@ -114,8 +162,11 @@ struct HoleDetailView: View {
       // Next Hole
       Button {
         if let next = viewModel.nextHole(current: hole) {
+          isChangingHole = true
           hole = next
+          annotations.removeAll()
         }
+
       } label: {
         VStack(spacing: 2) {
           Image(systemName: "arrow.right")
