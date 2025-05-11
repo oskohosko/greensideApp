@@ -17,6 +17,8 @@ struct MapView: UIViewRepresentable {
   private let mapManager = MapManager()
 
   @Binding var annotations: [MKPointAnnotation]
+  @Binding var overlays: [MKOverlay]
+
   var region: MKCoordinateRegion
   var camera: MKMapCamera
   let interactive: Bool
@@ -33,6 +35,9 @@ struct MapView: UIViewRepresentable {
     mapView.pointOfInterestFilter = .excludingAll
     mapView.overrideUserInterfaceStyle = .light
     mapView.showsCompass = false
+
+    // Overlays
+    mapView.addOverlays(overlays)
 
     mapView.delegate = context.coordinator
 
@@ -53,8 +58,6 @@ struct MapView: UIViewRepresentable {
 
   // I believe this function is called whenever something is updated on the mapView
   func updateUIView(_ mapView: MKMapView, context: Context) {
-    print("Updating Map")
-    print(isChangingHole)
     // Only change the region and camera if we are changing holes
     if isChangingHole {
       mapView.setRegion(region, animated: false)
@@ -67,7 +70,10 @@ struct MapView: UIViewRepresentable {
         prevAnnotations
       )
     }
-
+    
+    mapView.showsUserLocation = viewModel.locationManager.isTrackingLocation
+    mapView.removeOverlays(mapView.overlays)
+    mapView.addOverlays(overlays)
     mapView.mapType = mapType == .standard ? .standard : .satellite
   }
 
@@ -119,6 +125,29 @@ struct MapView: UIViewRepresentable {
 
       // Immediately set it to .ended so we can quickly add others.
       gr.state = .ended
+    }
+
+    // Adds overlays
+    func mapView(
+      _ mapView: MKMapView,
+      rendererFor overlay: MKOverlay
+    ) -> MKOverlayRenderer {
+      switch overlay {
+      case is MKPolyline:
+        let renderer = MKPolylineRenderer(overlay: overlay)
+        renderer.strokeColor = .white
+        renderer.lineWidth = 4
+        return renderer
+      case is MKCircle:
+        let renderer = MKCircleRenderer(overlay: overlay)
+        renderer.strokeColor = .white
+        renderer.lineWidth = 4
+        return renderer
+      default:
+        return MKOverlayRenderer()
+
+      }
+
     }
 
     // Removes annotations on tap

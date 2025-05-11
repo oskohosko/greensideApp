@@ -15,6 +15,7 @@ struct HoleCard: View {
   
   @State private var isHolePresented = false
   @State private var annotations: [MKPointAnnotation] = []
+  @State private var overlays: [MKOverlay] = []
 
   let hole: Hole
   let mapType: MapType
@@ -107,6 +108,7 @@ struct HoleCard: View {
 
         MapView(
           annotations: $annotations,
+          overlays: $overlays,
           region: region,
           camera: camera,
           interactive: false,

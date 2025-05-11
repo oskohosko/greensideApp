@@ -88,7 +88,7 @@ struct AccountView: View {
               isClubsExpanded.toggle()
             }
           } label: {
-            Image(systemName: isClubsExpanded ? "chevron.down" : "chevron.up")
+            Image(systemName: isClubsExpanded ? "chevron.up" : "chevron.down")
               .font(.system(size: 28, weight: .medium))
               .foregroundStyle(.content)
           }
@@ -113,11 +113,13 @@ struct AccountView: View {
       AddClubSheet()
         .presentationDetents([.fraction(0.33)])
         .presentationDragIndicator(.visible)
+        .presentationBackground(.base200.opacity(0.9))
     }
     .sheet(item: $clubToEdit) { club in
       EditClubSheet(club: club)
         .presentationDetents([.fraction(0.33)])
         .presentationDragIndicator(.visible)
+        .presentationBackground(.base200.opacity(0.9))
     }
   }
 }

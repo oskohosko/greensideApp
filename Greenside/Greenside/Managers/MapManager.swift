@@ -102,4 +102,43 @@ class MapManager {
 
     return loc1.distance(from: loc2)
   }
+
+  func degreesToRadians(_ degrees: Double) -> Double {
+    return degrees * .pi / 180.0
+  }
+
+  func radiansToDegrees(_ radians: Double) -> Double {
+    return radians * 180.0 / .pi
+  }
+
+  // Function that returns an end point based on a start point, distance and bearing
+  func destinationPoint(
+    from: CLLocationCoordinate2D,
+    distance: Double,
+    bearing: Double
+  ) -> CLLocationCoordinate2D {
+    // Converting distance and bearing to radians
+    let currentLatitude = degreesToRadians(from.latitude)
+    let currentLongitude = degreesToRadians(from.longitude)
+    let bearingRadians = degreesToRadians(bearing)
+    
+    // Earth's radius in meters
+    let radius = 6371e3
+    let newLatitude = asin(
+      sin(currentLatitude) * cos(distance / radius) +
+        cos(currentLatitude) * sin(distance / radius) * cos(bearingRadians)
+    )
+    let newLongitude = currentLongitude + atan2(
+      sin(bearingRadians) * sin(distance / radius) * cos(currentLatitude),
+      cos(distance / radius) - sin(currentLatitude) * sin(newLatitude)
+    )
+    // Converting back to degrees
+    let finalLatitude = radiansToDegrees(newLatitude)
+    let finalLongitude = radiansToDegrees(newLongitude)
+    return CLLocationCoordinate2D(
+      latitude: finalLatitude,
+      longitude: finalLongitude
+    )
+  }
+
 }

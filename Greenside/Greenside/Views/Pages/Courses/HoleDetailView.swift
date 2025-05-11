@@ -6,15 +6,26 @@
 //
 
 import MapKit
+import SwiftData
 import SwiftUI
 
 struct HoleDetailView: View {
   @State var hole: Hole
+  @State private var overlays: [MKOverlay] = []
   @State private var annotations: [MKPointAnnotation] = []
   @State private var isChangingHole: Bool = false
 
   @EnvironmentObject private var viewModel: CoursesViewModel
   private let mapManager = MapManager()
+
+  // Clubs in the bag
+  @Query(sort: \Club.distance, order: .reverse) private var clubs: [Club]
+
+  @State private var selectedClub: Club? = nil
+  @State private var clubSheetPresented: Bool = false
+
+  // Might need this check without it
+  //  @Environment(\.modelContext) private var context
 
   // MARK: – Computed map region
   private var region: MKCoordinateRegion {
@@ -35,6 +46,7 @@ struct HoleDetailView: View {
     ZStack {
       MapView(
         annotations: $annotations,
+        overlays: $overlays,
         region: region,
         camera: camera,
         interactive: true,
@@ -77,7 +89,7 @@ struct HoleDetailView: View {
           .padding(.vertical, 8)
         Spacer().frame(height: 20)
       }
-      
+
     }
     .toolbar {
       ToolbarItem(placement: .principal) {
@@ -97,7 +109,44 @@ struct HoleDetailView: View {
     .onChange(of: hole.num) {
       isChangingHole = false
     }
-
+    .sheet(isPresented: $clubSheetPresented) {
+      AddShotSheet(selectedClub: $selectedClub)
+        .presentationDetents([.fraction(0.25)])
+        .presentationDragIndicator(.visible)
+        .presentationBackground(.base200.opacity(0.9))
+    }
+    // Shot projection logic
+    .onChange(of: selectedClub) {
+      if let club = selectedClub {
+        // Getting the starting point
+        let startPoint = viewModel.locationManager.isTrackingLocation ?  viewModel.locationManager.currentLocation!.coordinate : hole.teeLocation
+        // End point is distance in direction of green
+        // Getting bearing
+        let bearing = mapManager.bearingBetweenPoints(
+          from: startPoint,
+          to: hole.greenLocation
+        )
+        // Getting the end point
+        let endPoint = mapManager.destinationPoint(
+          from: startPoint,
+          distance: Double(club.distance),
+          bearing: bearing
+        )
+        // And now creating the overlays
+        let shotLine = MKPolyline(
+          coordinates: [startPoint, endPoint],
+          count: 2
+        )
+        let shotDispersion = MKCircle(
+          center: endPoint,
+          radius: CLLocationDistance(club.distance) * 0.1
+          )
+        // Adding the overlay
+        overlays = [shotLine, shotDispersion]
+      }
+      
+    }
+      
   }
 
   // Sidebar to go on the right of the view
@@ -105,6 +154,8 @@ struct HoleDetailView: View {
 
     return VStack(spacing: 16) {
       Button {
+        // Removing overlays
+        overlays.removeAll()
         // Toggling location tracking
         if viewModel.locationManager.isTrackingLocation {
           viewModel.locationManager.stopTrackingLocation()
@@ -151,10 +202,11 @@ struct HoleDetailView: View {
 
       // Add shot button
       Button {
-        // Action goes here
+        // Toggling club projection sheet
+        clubSheetPresented.toggle()
       } label: {
         Image(systemName: "plus.circle.fill")
-          .font(.system(size: 44, weight: .bold))
+          .font(.system(size: 44, weight: .medium))
           .foregroundColor(.white)
       }
       .frame(maxWidth: .infinity)
@@ -179,20 +231,6 @@ struct HoleDetailView: View {
       .disabled(!hasNext)
       .frame(maxWidth: .infinity)
     }
-  }
-}
-
-struct CustomCorners: Shape {
-  var radius: CGFloat = .infinity
-  var corners: UIRectCorner = .allCorners
-
-  func path(in rect: CGRect) -> Path {
-    let path = UIBezierPath(
-      roundedRect: rect,
-      byRoundingCorners: corners,
-      cornerRadii: CGSize(width: radius, height: radius)
-    )
-    return Path(path.cgPath)
   }
 }
 
