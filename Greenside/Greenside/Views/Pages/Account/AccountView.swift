@@ -7,31 +7,21 @@
 
 import SwiftUI
 
-// Model for a Golf Club
-struct GolfClub: Identifiable {
-  let id = UUID()
-  var name: String
-  var distance: Int
-}
-
 struct AccountView: View {
-
-  @State private var golfClubs: [GolfClub] = [
-    GolfClub(name: "Driver", distance: 230),
-    GolfClub(name: "3 Wood", distance: 215),
-    GolfClub(name: "5 Iron", distance: 180),
-    GolfClub(name: "7 Iron", distance: 160),
-    GolfClub(name: "Putter", distance: 10),
-  ]
-  
   // Flag to display add club sheet
   @State private var showingAddClub = false
-  
+
+  // Club editing
+  @State private var clubToEdit: Club?
+
+  // Collapsing list
+  @State private var isClubsExpanded: Bool = false
+
   @EnvironmentObject var authViewModel: AuthViewModel
 
   var body: some View {
     ZStack {
-      Color.base100.ignoresSafeArea()
+      Color.base200.ignoresSafeArea()
       VStack {
         VStack(alignment: .leading) {
           HStack {
@@ -44,7 +34,7 @@ struct AccountView: View {
             VStack(alignment: .leading, spacing: 0) {
               // User's name
               Text(
-                "\(authViewModel.user?.firstName ?? "John") \(authViewModel.user?.lastName ?? "Doe")"
+                "\(authViewModel.user?.firstName ?? "Oskar") \(authViewModel.user?.lastName ?? "Hosken")"
               )
               .font(.system(size: 20, weight: .bold))
               .foregroundStyle(.content)
@@ -74,8 +64,17 @@ struct AccountView: View {
           )
         }
         .padding(.horizontal)
-        .padding(.bottom)
-        .background(.base200)
+        .padding(.bottom, 8)
+
+        Divider()
+          .overlay(
+            Rectangle()
+              .frame(height: 3)
+              .foregroundColor(Color.base300)
+              .cornerRadius(10)
+          )
+          .padding(.horizontal)
+          .padding(.bottom, 8)
 
         // Golf bag list
         HStack {
@@ -83,6 +82,17 @@ struct AccountView: View {
             .font(.system(size: 28, weight: .bold))
             .foregroundStyle(.content)
           Spacer()
+          // Expands and minimises list
+          Button {
+            withAnimation(.easeInOut) {
+              isClubsExpanded.toggle()
+            }
+          } label: {
+            Image(systemName: isClubsExpanded ? "chevron.down" : "chevron.up")
+              .font(.system(size: 28, weight: .medium))
+              .foregroundStyle(.content)
+          }
+          // Adds a club
           Button {
             showingAddClub = true
           } label: {
@@ -90,16 +100,22 @@ struct AccountView: View {
               .font(.system(size: 28, weight: .medium))
               .foregroundStyle(.accentGreen)
           }
-          
+
         }
         .padding(.horizontal)
-        ClubListView()
+
+        ClubListView(clubToEdit: $clubToEdit, isExpanded: $isClubsExpanded)
 
         Spacer()
       }
     }
-    .sheet(isPresented: $showingAddClub, ) {
+    .sheet(isPresented: $showingAddClub) {
       AddClubSheet()
+        .presentationDetents([.fraction(0.33)])
+        .presentationDragIndicator(.visible)
+    }
+    .sheet(item: $clubToEdit) { club in
+      EditClubSheet(club: club)
         .presentationDetents([.fraction(0.33)])
         .presentationDragIndicator(.visible)
     }

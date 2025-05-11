@@ -37,7 +37,6 @@ struct HomeView: View {
             Spacer()
             NavigationLink {
               AccountView()
-                .modelContainer(for: Club.self)
                 .environmentObject(authViewModel)
             } label: {
               Image(systemName: "person.crop.circle")

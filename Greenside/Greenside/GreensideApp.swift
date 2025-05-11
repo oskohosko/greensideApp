@@ -64,6 +64,7 @@ struct GreensideApp: App {
   var body: some Scene {
     WindowGroup {
       RootView()
+        .modelContainer(for: Club.self)
         .environmentObject(authViewModel)
         .task {
           await authViewModel.bootstrap()

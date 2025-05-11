@@ -1,18 +1,18 @@
 //
-//  AddClubSheet.swift
+//  EditClubSheet.swift
 //  Greenside
 //
-//  Created by Oskar Hosken on 9/5/2025.
+//  Created by Oskar Hosken on 11/5/2025.
 //
 
 import SwiftUI
 
-struct AddClubSheet: View {
+struct EditClubSheet: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.modelContext) private var context
 
-  @State private var name = ""
-  @State private var distance = ""
+  // Club we are editing
+  @Bindable var club: Club
 
   var body: some View {
     ZStack {
@@ -25,17 +25,16 @@ struct AddClubSheet: View {
             .foregroundStyle(.content)
             .frame(width: 70)
           Spacer()
-          Text("Add Club")
+          Text("Edit Club")
             .font(.system(size: 26, weight: .bold))
             .foregroundStyle(.content)
           Spacer()
           Button {
-            guard let metres = Int(distance),
-              metres > 0,
-              !name.trimmingCharacters(in: .whitespaces).isEmpty
+            guard club.distance > 0,
+              !club.name.trimmingCharacters(in: .whitespaces).isEmpty
             else { return }
 
-            context.insert(Club(name: name, distance: metres))
+            try? context.save()
             dismiss()
           } label: {
             Text("Save")
@@ -49,8 +48,8 @@ struct AddClubSheet: View {
 
         VStack {
           TextField(
-            "",
-            text: $name,
+            club.name,
+            text: $club.name,
             prompt: Text("Club Name").foregroundStyle(.base500)
           )
           .foregroundStyle(.content)
@@ -60,7 +59,8 @@ struct AddClubSheet: View {
 
           TextField(
             "",
-            text: $distance,
+            value: $club.distance,
+            format: .number,
             prompt: Text("Distance").foregroundStyle(.base500)
           )
           .keyboardType(.numberPad)
@@ -69,7 +69,24 @@ struct AddClubSheet: View {
           .background(.base100)
           .cornerRadius(14)
 
-        }.padding(.horizontal)
+        }
+        .padding(.horizontal)
+        .padding(.bottom)
+
+        // Delete club button
+        Button {
+          // Deleting club from list
+          context.delete(club)
+          dismiss()
+        } label: {
+          Text("Delete Club")
+            .font(.system(size: 18, weight: .medium))
+            .foregroundStyle(.content)
+            .padding(12)
+            .background(.lightRed)
+            .cornerRadius(20)
+        }
+
         Spacer()
 
       }
@@ -79,5 +96,10 @@ struct AddClubSheet: View {
 }
 
 #Preview {
-  AddClubSheet()
+  let testClub = Club(
+    name: "7 iron",
+    distance: 160
+  )
+
+  EditClubSheet(club: testClub)
 }
