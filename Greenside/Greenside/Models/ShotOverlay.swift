@@ -34,26 +34,10 @@ class ShotOverlay: NSObject, MKOverlay {
     return midCoordinate
   }
 
+  // This is required from MKOverlay
   var boundingMapRect: MKMapRect {
-    let startPoint = MKMapPoint(startCoordinate)
-    let endPoint = MKMapPoint(endCoordinate)
 
-    // Calculating bounding box with extra padding for the dispersion circle
-    let minX = min(startPoint.x, endPoint.x)
-    let minY = min(startPoint.y, endPoint.y)
-    let maxX = max(startPoint.x, endPoint.x)
-    let maxY = max(startPoint.y, endPoint.y)
-
-    // Add padding for the circle
-    let circlePadding =
-      MKMapPointsPerMeterAtLatitude(endCoordinate.latitude) * dispersionRadius
-
-    return MKMapRect(
-      x: minX - circlePadding,
-      y: minY - circlePadding,
-      width: (maxX - minX) + (circlePadding * 2),
-      height: (maxY - minY) + (circlePadding * 2)
-    )
+    MKMapRect.world
   }
 
   init(

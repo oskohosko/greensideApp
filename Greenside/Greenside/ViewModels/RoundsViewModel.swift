@@ -11,8 +11,11 @@ class RoundsViewModel: ObservableObject {
   @Published var allRounds: [Round] = []
   @Published var currentRound: Round?
   @Published var roundHoles: [RoundHole] = []
+  @Published var currentHole: RoundHole?
   
   @Published var courseHoles: [Hole] = []
+  
+  @Published var roundShots: [Int: [Shot]] = [:]
   
   
   // using our course repository to fetch course data for us
@@ -53,6 +56,19 @@ class RoundsViewModel: ObservableObject {
       courseHoles = courseData.holes
     } catch {
       print("Holes loading failed:", error)
+    }
+  }
+  // Loads the shots made on a hole in a round
+  func loadHoleShots(roundId: String, hole: RoundHole, holeNum: Int) async {
+    do {
+      if let holeId = hole.id {
+        let shots = try await FirebaseManager.shared.getShots(roundId: roundId, holeId: holeId)
+        print(shots)
+        // Updating our cache of shots in a round
+        roundShots[holeNum] = shots
+      }
+    } catch {
+      print("Error loading shots for round \(roundId) and hole \(hole): \(error)")
     }
   }
   

@@ -141,7 +141,7 @@ struct HoleDetailView: View {
           endCoordinate: endPoint,
           shotDistance: Double(club.distance)
         )
-        
+
         // Adding the overlay
         shotOverlay = newShotOverlay
       }
@@ -207,65 +207,65 @@ struct HoleDetailView: View {
     let hasPrev = viewModel.previousHole(current: hole) != nil
     let hasNext = viewModel.nextHole(current: hole) != nil
 
-    return HStack {
+    return
+      HStack {
+        // Previous Hole
+        Button {
 
-      // Previous Hole
-      Button {
+          if let prev = viewModel.previousHole(current: hole) {
+            isChangingHole = true
+            hole = prev
+            viewModel.selectedHole = prev
+            annotations.removeAll()
+            shotOverlay = nil
+            selectedClub = nil
+          }
+        } label: {
+          VStack(spacing: 2) {
+            Image(systemName: "arrow.left")
+              .font(.system(size: 36, weight: .medium))
+            Text("Previous Hole")
+              .font(.system(size: 12))
+          }
+          .foregroundColor(hasPrev ? .white : .base200)
+        }
+        .disabled(!hasPrev)
+        .frame(maxWidth: .infinity)
 
-        if let prev = viewModel.previousHole(current: hole) {
-          isChangingHole = true
-          hole = prev
-          viewModel.selectedHole = prev
-          annotations.removeAll()
-          shotOverlay = nil
-          selectedClub = nil
+        // Add shot button
+        Button {
+          // Toggling club projection sheet
+          clubSheetPresented.toggle()
+        } label: {
+          Image(systemName: "plus.circle.fill")
+            .font(.system(size: 44, weight: .medium))
+            .foregroundColor(.white)
         }
-      } label: {
-        VStack(spacing: 2) {
-          Image(systemName: "arrow.left")
-            .font(.system(size: 36, weight: .medium))
-          Text("Previous Hole")
-            .font(.system(size: 12))
+        .frame(maxWidth: .infinity)
+
+        // Next Hole
+        Button {
+          if let next = viewModel.nextHole(current: hole) {
+            isChangingHole = true
+            hole = next
+            viewModel.selectedHole = next
+            annotations.removeAll()
+            shotOverlay = nil
+            selectedClub = nil
+          }
+
+        } label: {
+          VStack(spacing: 2) {
+            Image(systemName: "arrow.right")
+              .font(.system(size: 36, weight: .medium))
+            Text("Next Hole")
+              .font(.system(size: 12))
+          }
+          .foregroundColor(hasNext ? .white : .base400)
         }
-        .foregroundColor(hasPrev ? .white : .base200)
+        .disabled(!hasNext)
+        .frame(maxWidth: .infinity)
       }
-      .disabled(!hasPrev)
-      .frame(maxWidth: .infinity)
-
-      // Add shot button
-      Button {
-        // Toggling club projection sheet
-        clubSheetPresented.toggle()
-      } label: {
-        Image(systemName: "plus.circle.fill")
-          .font(.system(size: 44, weight: .medium))
-          .foregroundColor(.white)
-      }
-      .frame(maxWidth: .infinity)
-
-      // Next Hole
-      Button {
-        if let next = viewModel.nextHole(current: hole) {
-          isChangingHole = true
-          hole = next
-          viewModel.selectedHole = next
-          annotations.removeAll()
-          shotOverlay = nil
-          selectedClub = nil
-        }
-
-      } label: {
-        VStack(spacing: 2) {
-          Image(systemName: "arrow.right")
-            .font(.system(size: 36, weight: .medium))
-          Text("Next Hole")
-            .font(.system(size: 12))
-        }
-        .foregroundColor(hasNext ? .white : .base400)
-      }
-      .disabled(!hasNext)
-      .frame(maxWidth: .infinity)
-    }
   }
 }
 

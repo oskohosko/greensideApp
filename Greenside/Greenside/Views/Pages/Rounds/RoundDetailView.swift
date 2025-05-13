@@ -66,13 +66,20 @@ struct RoundDetailView: View {
               .padding(.leading, 16)
 
             // MARK: UPDATE THIS SO WE CAN USE ANNOTATIONS
-            HoleCardList(mapType: mapType).environmentObject(coursesViewModel)
+            HoleCardList(
+              round: round,
+              mapType: mapType
+            )
+            .environmentObject(coursesViewModel)
+            .environmentObject(roundsViewModel)
           }
 
         }
       }
     }
     .onAppear {
+      // Updating the current round
+      roundsViewModel.currentRound = round
       Task {
         do {
           // Fetching hole data for the course of the round

@@ -9,8 +9,9 @@ import SwiftUI
 
 struct HoleCardList: View {
   @EnvironmentObject private var viewModel: CoursesViewModel
+  @EnvironmentObject private var roundsViewModel: RoundsViewModel
   
-  let scores: [Int]? = []
+  let round: Round?
 
   let mapType: MapType
 
@@ -27,8 +28,10 @@ struct HoleCardList: View {
               LazyHStack(spacing: 8) {
                 ForEach(viewModel.courseHoles[index * 9..<(index + 1) * 9]) {
                   hole in
+                  
                   HoleCard(
                     hole: hole,
+                    round: round ?? nil,
                     mapType: mapType
                   ).environmentObject(viewModel)
                 }
@@ -38,16 +41,30 @@ struct HoleCardList: View {
           }
         }
       } else {
-        ScrollView(.horizontal, showsIndicators: false) {
-          LazyHStack(spacing: 8) {
-            ForEach(viewModel.courseHoles) { hole in
-              HoleCard(
-                hole: hole,
-                mapType: mapType
-              ).environmentObject(viewModel)
+
+        ForEach(0..<3) { index in
+          let start = index * 3
+          let end = min(start + 3, viewModel.courseHoles.count)
+
+          if start < end {
+            VStack(alignment: .leading, spacing: 4) {
+              ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 8) {
+
+                  ForEach(viewModel.courseHoles[start..<end]) {
+                    hole in
+                    HoleCard(
+                      hole: hole,
+                      round: round ?? nil,
+                      mapType: mapType
+                    ).environmentObject(viewModel)
+                  }
+                }
+                .padding(.horizontal)
+              }
             }
           }
-          .padding(.horizontal)
+
         }
       }
     }
@@ -56,5 +73,7 @@ struct HoleCardList: View {
 }
 
 #Preview {
-  HoleCardList(mapType: .standard).environmentObject(CoursesViewModel())
+  HoleCardList(round: nil, mapType: .standard)
+    .environmentObject(CoursesViewModel())
+    .environmentObject(RoundsViewModel())
 }

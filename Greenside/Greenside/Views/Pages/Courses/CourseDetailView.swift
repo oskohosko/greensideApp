@@ -60,15 +60,21 @@ struct CourseDetailView: View {
                   mapType = .standard
                 }
               }) {
-                Image(systemName: mapType == .satellite ? "globe.americas.fill" : "globe.americas")
-                  .font(.system(size: 24, weight: .medium))
-                  .foregroundStyle(.accentGreen)
+                Image(
+                  systemName: mapType == .satellite
+                    ? "globe.americas.fill" : "globe.americas"
+                )
+                .font(.system(size: 24, weight: .medium))
+                .foregroundStyle(.accentGreen)
               }
             }
             .padding(.top, 8)
             .padding(.horizontal, 16)
 
-            HoleCardList(mapType: mapType).environmentObject(viewModel)
+            HoleCardList(
+              round: nil,
+              mapType: mapType
+            ).environmentObject(viewModel)
           }
         }
 
