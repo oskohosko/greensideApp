@@ -47,7 +47,7 @@ struct ClubListView: View {
       .background(.base100)
       .cornerRadius(10)
     } else {
-      ScrollView(.vertical, showsIndicators: true) {
+      ScrollView(.vertical, showsIndicators: false) {
         VStack(spacing: 6) {
           ForEach(clubs) { club in
             ClubListItem(club: club, clubToEdit: $clubToEdit)

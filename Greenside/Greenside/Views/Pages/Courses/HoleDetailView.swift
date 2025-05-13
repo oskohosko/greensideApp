@@ -11,9 +11,10 @@ import SwiftUI
 
 struct HoleDetailView: View {
   @State var hole: Hole
-  @State private var overlays: [MKOverlay] = []
+  @State private var shotOverlay: ShotOverlay? = nil
   @State private var annotations: [MKPointAnnotation] = []
   @State private var isChangingHole: Bool = false
+  @State private var isMapInteractive: Bool = true
 
   @EnvironmentObject private var viewModel: CoursesViewModel
   private let mapManager = MapManager()
@@ -23,9 +24,6 @@ struct HoleDetailView: View {
 
   @State private var selectedClub: Club? = nil
   @State private var clubSheetPresented: Bool = false
-
-  // Might need this check without it
-  //  @Environment(\.modelContext) private var context
 
   // MARK: – Computed map region
   private var region: MKCoordinateRegion {
@@ -46,12 +44,13 @@ struct HoleDetailView: View {
     ZStack {
       MapView(
         annotations: $annotations,
-        overlays: $overlays,
+        shotOverlay: $shotOverlay,
         region: region,
         camera: camera,
-        interactive: true,
+        isMapInteractionEnabled: true,
         mapType: .satellite,
-        isChangingHole: isChangingHole
+        isChangingHole: isChangingHole,
+        interactive: $isMapInteractive
       )
       .environmentObject(viewModel)
       .ignoresSafeArea()
@@ -108,6 +107,7 @@ struct HoleDetailView: View {
     .toolbarColorScheme(.dark, for: .navigationBar)
     .onChange(of: hole.num) {
       isChangingHole = false
+      shotOverlay = nil
     }
     .sheet(isPresented: $clubSheetPresented) {
       AddShotSheet(selectedClub: $selectedClub)
@@ -119,7 +119,10 @@ struct HoleDetailView: View {
     .onChange(of: selectedClub) {
       if let club = selectedClub {
         // Getting the starting point
-        let startPoint = viewModel.locationManager.isTrackingLocation ?  viewModel.locationManager.currentLocation!.coordinate : hole.teeLocation
+        let startPoint =
+          viewModel.locationManager.isTrackingLocation
+          ? viewModel.locationManager.currentLocation!.coordinate
+          : hole.teeLocation
         // End point is distance in direction of green
         // Getting bearing
         let bearing = mapManager.bearingBetweenPoints(
@@ -132,21 +135,19 @@ struct HoleDetailView: View {
           distance: Double(club.distance),
           bearing: bearing
         )
-        // And now creating the overlays
-        let shotLine = MKPolyline(
-          coordinates: [startPoint, endPoint],
-          count: 2
+        // And now creating the overlay
+        let newShotOverlay = ShotOverlay(
+          startCoordinate: startPoint,
+          endCoordinate: endPoint,
+          shotDistance: Double(club.distance)
         )
-        let shotDispersion = MKCircle(
-          center: endPoint,
-          radius: CLLocationDistance(club.distance) * 0.1
-          )
+        
         // Adding the overlay
-        overlays = [shotLine, shotDispersion]
+        shotOverlay = newShotOverlay
       }
-      
+
     }
-      
+
   }
 
   // Sidebar to go on the right of the view
@@ -155,7 +156,8 @@ struct HoleDetailView: View {
     return VStack(spacing: 16) {
       Button {
         // Removing overlays
-        overlays.removeAll()
+        shotOverlay = nil
+        selectedClub = nil
         // Toggling location tracking
         if viewModel.locationManager.isTrackingLocation {
           viewModel.locationManager.stopTrackingLocation()
@@ -170,7 +172,34 @@ struct HoleDetailView: View {
         .font(.system(size: 24, weight: .medium))
         .foregroundStyle(.white)
       }
+      .frame(width: 28, height: 28)
+
+      Button {
+        isMapInteractive.toggle()
+      } label: {
+        Image(
+          systemName: isMapInteractive ? "lock.open" : "lock"
+        )
+        .font(.system(size: 24, weight: .medium))
+        .foregroundStyle(.white)
+      }
+      .frame(width: 28, height: 28)
+
+      Button {
+        // Removing overlays and annotations
+        shotOverlay = nil
+        annotations.removeAll()
+        selectedClub = nil
+      } label: {
+        Image(
+          systemName: "trash"
+        )
+        .font(.system(size: 24, weight: .medium))
+        .foregroundStyle(.white)
+      }
+      .frame(width: 28, height: 28)
     }
+
     .padding(.top, 16)
   }
 
@@ -186,7 +215,10 @@ struct HoleDetailView: View {
         if let prev = viewModel.previousHole(current: hole) {
           isChangingHole = true
           hole = prev
+          viewModel.selectedHole = prev
           annotations.removeAll()
+          shotOverlay = nil
+          selectedClub = nil
         }
       } label: {
         VStack(spacing: 2) {
@@ -216,7 +248,10 @@ struct HoleDetailView: View {
         if let next = viewModel.nextHole(current: hole) {
           isChangingHole = true
           hole = next
+          viewModel.selectedHole = next
           annotations.removeAll()
+          shotOverlay = nil
+          selectedClub = nil
         }
 
       } label: {

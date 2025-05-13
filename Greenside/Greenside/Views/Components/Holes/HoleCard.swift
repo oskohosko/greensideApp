@@ -15,7 +15,8 @@ struct HoleCard: View {
   
   @State private var isHolePresented = false
   @State private var annotations: [MKPointAnnotation] = []
-  @State private var overlays: [MKOverlay] = []
+  @State private var overlay: ShotOverlay? = nil
+  @State private var isMapInteractive: Bool = false
 
   let hole: Hole
   let mapType: MapType
@@ -108,12 +109,13 @@ struct HoleCard: View {
 
         MapView(
           annotations: $annotations,
-          overlays: $overlays,
+          shotOverlay: $overlay,
           region: region,
           camera: camera,
-          interactive: false,
+          isMapInteractionEnabled: false,
           mapType: mapType,
-          isChangingHole: false
+          isChangingHole: false,
+          interactive: $isMapInteractive
         )
         .clipShape(RoundedRectangle(cornerRadius: 12))
         

@@ -15,6 +15,8 @@ struct HoleDetailFullScreen: View {
   // This is to track the drag offset when dismissing the view
   @State private var dragOffset: CGFloat = .zero
 
+  @State private var dragFromTop: Bool = false
+
   private var screenHeight: CGFloat { UIScreen.main.bounds.height }
 
   var body: some View {
@@ -36,29 +38,28 @@ struct HoleDetailFullScreen: View {
     .gesture(
       DragGesture()
         .onChanged { value in
-          // This tracks our finger
-          if value.translation.height > 0 {
-            dragOffset = value.translation.height
+          if !dragFromTop {
+            dragFromTop = value.startLocation.y < 50
           }
+          guard dragFromTop, value.translation.height > 0 else { return }
+
+          dragOffset = value.translation.height
         }
         .onEnded { value in
-          // This is our threshold
+          guard dragFromTop else { return }
+          dragFromTop = false
+
           if value.translation.height > 200 {
             withAnimation(.easeOut(duration: 0.25)) {
               dragOffset = screenHeight
             }
-            // Make sure it's off screen then dismiss
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
               dismiss()
             }
           } else {
-            // Otherwise spring back if we haven't dragged far enough
-            withAnimation(.spring) {
-              dragOffset = .zero
-            }
+            withAnimation(.spring) { dragOffset = .zero }
           }
         }
-
     )
     .interactiveDismissDisabled()
     .presentationBackground(.clear)
