@@ -42,7 +42,6 @@ class RoundsViewModel: ObservableObject {
     }
     do {
       roundHoles = try await FirebaseManager.shared.getHoles(forRound: roundId)
-      print(roundHoles)
     } catch {
       print("Error loading holes for round: \(roundId), \(error)")
     }
@@ -59,17 +58,39 @@ class RoundsViewModel: ObservableObject {
     }
   }
   // Loads the shots made on a hole in a round
-  func loadHoleShots(roundId: String, hole: RoundHole, holeNum: Int) async {
+  func loadHoleShots(roundId: String, hole: RoundHole, holeNum: Int) async -> [Shot] {
     do {
       if let holeId = hole.id {
         let shots = try await FirebaseManager.shared.getShots(roundId: roundId, holeId: holeId)
-        print(shots)
         // Updating our cache of shots in a round
         roundShots[holeNum] = shots
+        return shots
+      } else {
+        return []
       }
     } catch {
       print("Error loading shots for round \(roundId) and hole \(hole): \(error)")
     }
+    return []
+  }
+  
+  // Loads all shots made in the round
+  func loadRoundShots() async -> [Int: [Shot]]{
+    guard let round = currentRound else {
+      print("No current round")
+      return [:]
+    }
+    do {
+      if roundHoles.isEmpty {
+        return [:]
+      }
+      for (index, hole) in roundHoles.enumerated() {
+        _ = await self.loadHoleShots(roundId: round.id!, hole: hole, holeNum: index + 1)
+          
+      }
+      return roundShots
+    }
+    
   }
   
 }

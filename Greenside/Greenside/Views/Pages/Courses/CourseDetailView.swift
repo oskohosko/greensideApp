@@ -73,6 +73,7 @@ struct CourseDetailView: View {
 
             HoleCardList(
               round: nil,
+              shotsByHole: [:],
               mapType: mapType
             ).environmentObject(viewModel)
           }

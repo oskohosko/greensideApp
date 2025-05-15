@@ -24,6 +24,8 @@ struct HoleDetailView: View {
 
   @State private var selectedClub: Club? = nil
   @State private var clubSheetPresented: Bool = false
+  
+  @State private var shotAnnotations: [ShotAnnotation] = []
 
   // MARK: – Computed map region
   private var region: MKCoordinateRegion {
@@ -45,6 +47,7 @@ struct HoleDetailView: View {
       MapView(
         annotations: $annotations,
         shotOverlay: $shotOverlay,
+        holeShots: [],
         region: region,
         camera: camera,
         isMapInteractionEnabled: true,
@@ -85,8 +88,24 @@ struct HoleDetailView: View {
 
         // Bottom bar
         bottomBar
-          .padding(.vertical, 8)
-        Spacer().frame(height: 20)
+          .padding(.bottom, 8)
+        
+        // Underneath the bottom bar we have the selected club
+        HStack {
+          Spacer()
+          VStack {
+            if let club = selectedClub {
+              Text("Selected Club:")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white)
+              Text(club.name)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.white)
+            }
+          }
+          Spacer()
+        }
+        .frame(height: 20)
       }
 
     }

@@ -15,6 +15,9 @@ struct RoundDetailView: View {
   @EnvironmentObject private var coursesViewModel: CoursesViewModel
   @State private var mapType: MapType = .standard
 
+  @State private var shotsByHole: [Int: [Shot]] = [:]
+  @State private var isShotsLoading = true
+
   var body: some View {
     ZStack {
       Color.base200.ignoresSafeArea()
@@ -65,13 +68,22 @@ struct RoundDetailView: View {
               .foregroundStyle(.content)
               .padding(.leading, 16)
 
-            // MARK: UPDATE THIS SO WE CAN USE ANNOTATIONS
-            HoleCardList(
-              round: round,
-              mapType: mapType
-            )
-            .environmentObject(coursesViewModel)
-            .environmentObject(roundsViewModel)
+            if isShotsLoading {
+              ProgressView("Loading shots...")
+            } else {
+              HoleCardList(
+                round: round,
+                shotsByHole: shotsByHole,
+                mapType: mapType
+              )
+              .environmentObject(coursesViewModel)
+              .environmentObject(roundsViewModel)
+            }
+
+          }
+          .task(id: round.id) {
+            shotsByHole = await roundsViewModel.loadRoundShots()
+            isShotsLoading = false
           }
 
         }
@@ -91,6 +103,7 @@ struct RoundDetailView: View {
           }
           // Fetching hole data from the round
           await roundsViewModel.loadRoundHoles(for: round)
+
         }
       }
     }

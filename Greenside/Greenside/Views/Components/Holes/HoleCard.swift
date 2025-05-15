@@ -6,28 +6,28 @@
 //
 
 import CoreLocation
-import SwiftUI
 import MapKit
+import SwiftUI
 
 struct HoleCard: View {
   @EnvironmentObject private var coursesViewModel: CoursesViewModel
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
   private let mapManager = MapManager()
-  
+
   @State private var isHolePresented = false
   @State private var annotations: [MKPointAnnotation] = []
   @State private var overlay: ShotOverlay? = nil
   @State private var isMapInteractive: Bool = false
-  
+
   // List of shots on the hole
   @State private var holeShots: [Shot] = []
   @State private var roundHole: RoundHole? = nil
 
   let hole: Hole
   let round: Round?
-  
+
   let mapType: MapType
-  
+
   private var distance: String {
 
     return String(
@@ -44,31 +44,30 @@ struct HoleCard: View {
       )
     )
   }
-  
+
   let score: Int? = 0
-  
+
   // Classifying score
   func classifyScore() -> (String, Color) {
     if let score = score, score != 0 {
       let diff = score - hole.par
       switch diff {
-        case ..<(-1):
-          return ("Eagle", .accentGreen)
-        case (-1):
-          return ("Birdie", .lightRed)
-        case (0):
-          return ("Par", .base200)
-        case (1):
-          return ("Bogey", .lightBlue)
-        default:
-          return ("Double Bogey+", .lightBlue)
+      case ..<(-1):
+        return ("Eagle", .accentGreen)
+      case (-1):
+        return ("Birdie", .lightRed)
+      case (0):
+        return ("Par", .base200)
+      case (1):
+        return ("Bogey", .lightBlue)
+      default:
+        return ("Double Bogey+", .lightBlue)
       }
     } else {
       return ("-", .base100)
     }
-    
+
   }
-  
 
   var body: some View {
     // Using our mapManager to get the region and camera
@@ -111,13 +110,14 @@ struct HoleCard: View {
         }
         .padding(.bottom, 4)
         .fullScreenCover(isPresented: $isHolePresented) {
-          HoleDetailFullScreen(hole: hole)
+          HoleDetailFullScreen(hole: hole, holeShots: holeShots)
             .environmentObject(coursesViewModel)
         }
         // TODO: Add shot annotations from viewModel.roundShots
         MapView(
           annotations: $annotations,
           shotOverlay: $overlay,
+          holeShots: holeShots,
           region: region,
           camera: camera,
           isMapInteractionEnabled: false,
@@ -125,6 +125,7 @@ struct HoleCard: View {
           isChangingHole: false,
           interactive: $isMapInteractive
         )
+        .environmentObject(roundsViewModel)
         .clipShape(RoundedRectangle(cornerRadius: 12))
       }
 
@@ -135,35 +136,7 @@ struct HoleCard: View {
     .frame(width: 120, height: 180)
     .background(.base100)
     .cornerRadius(15)
-    
-    .onAppear {
-      
-      // When this view appears, we want to fetch the shots
-      // If they exist and send them to the map view
-      // Calculating which hole in the round we are on
-      
-      Task {
-        do {
-          if let round = round,
-             // Getting the round hole from the view model
-            let roundHole = roundsViewModel.roundHoles
-              .first(where: {
-                $0.holeNum == hole.num
-              }) {
-            // Loading each shot from the round
-             await roundsViewModel.loadHoleShots(
-              roundId: round.id!,
-              hole: roundHole,
-              holeNum: hole.num
-              
-            )
-              
-          }
-        }
-      }
-      
-    }
-    
+
   }
 }
 

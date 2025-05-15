@@ -7,16 +7,20 @@
 
 import SwiftUI
 
+// This presents a list of holes in a course
 struct HoleCardList: View {
   @EnvironmentObject private var viewModel: CoursesViewModel
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
   
   let round: Round?
+  
+  let shotsByHole: [Int: [Shot]]
 
   let mapType: MapType
 
   var body: some View {
     ScrollView(.vertical, showsIndicators: false) {
+      // If we have 18 holes I want two rows one for the front nine and one for the back
       if viewModel.selectedCourse?.holes.count == 18 {
         ForEach(0..<2) { index in
           VStack(alignment: .leading, spacing: 4) {
@@ -25,13 +29,14 @@ struct HoleCardList: View {
               .foregroundColor(.base500)
               .padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
-              LazyHStack(spacing: 8) {
+              HStack(spacing: 8) {
                 ForEach(viewModel.courseHoles[index * 9..<(index + 1) * 9]) {
                   hole in
                   
                   HoleCard(
                     hole: hole,
                     round: round ?? nil,
+                    holeShots: shotsByHole[hole.num],
                     mapType: mapType
                   ).environmentObject(viewModel)
                 }
@@ -41,7 +46,7 @@ struct HoleCardList: View {
           }
         }
       } else {
-
+        // Otherwise we show 3 rows.
         ForEach(0..<3) { index in
           let start = index * 3
           let end = min(start + 3, viewModel.courseHoles.count)
@@ -49,13 +54,14 @@ struct HoleCardList: View {
           if start < end {
             VStack(alignment: .leading, spacing: 4) {
               ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 8) {
+                HStack(spacing: 8) {
 
                   ForEach(viewModel.courseHoles[start..<end]) {
                     hole in
                     HoleCard(
                       hole: hole,
                       round: round ?? nil,
+                      holeShots: shotsByHole[hole.num],
                       mapType: mapType
                     ).environmentObject(viewModel)
                   }
@@ -73,7 +79,7 @@ struct HoleCardList: View {
 }
 
 #Preview {
-  HoleCardList(round: nil, mapType: .standard)
+  HoleCardList(round: nil, shotsByHole: [:],  mapType: .standard)
     .environmentObject(CoursesViewModel())
     .environmentObject(RoundsViewModel())
 }

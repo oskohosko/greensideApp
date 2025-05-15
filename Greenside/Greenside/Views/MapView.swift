@@ -16,15 +16,18 @@ enum MapLayerType: Int {
   case interactive = 2  // Interactive elements being manipulated
 }
 
-// Our MapView from UIKit with improved rendering
+// Our MapView from UIKit
 struct MapView: UIViewRepresentable {
   @EnvironmentObject private var viewModel: CoursesViewModel
+  @EnvironmentObject private var roundsViewModel: RoundsViewModel
   private let mapManager = MapManager()
 
   @Binding var annotations: [MKPointAnnotation]
   @Binding var shotOverlay: ShotOverlay?
+  
+  let holeShots: [Shot]?
 
-  // New property to store our custom shot overlay
+  // Property to store our custom shot overlay
   @State private var activeShotOverlay: ShotOverlay?
 
   var region: MKCoordinateRegion
@@ -62,6 +65,15 @@ struct MapView: UIViewRepresentable {
       action: #selector(Coordinator.handlePan(_:))
     )
     mapView.addGestureRecognizer(panGesture)
+
+    // Adding shot annotations for each shot
+    if let holeShots = holeShots {
+      for shot in holeShots {
+        let annotation = ShotAnnotation(
+          shot: shot)
+        mapView.addAnnotation(annotation)
+      }
+    }
 
     return mapView
   }
@@ -118,11 +130,11 @@ struct MapView: UIViewRepresentable {
       let point = gr.location(in: mapView)
       let coord = mapView.convert(point, toCoordinateFrom: mapView)
 
-      // Create and add the annotation
+      // Creating and adding annotation
       let annotation = MKPointAnnotation()
       annotation.coordinate = coord
 
-      // Calculate distance and display as title
+      // Calculating distance and displaying as title
       if parent.viewModel.locationManager.isTrackingLocation {
         if let currentLocation = parent.viewModel.locationManager
           .currentLocation
@@ -259,6 +271,33 @@ struct MapView: UIViewRepresentable {
       default:
         return MKOverlayRenderer()
       }
+    }
+
+    // Handles custom annotation views
+    func mapView(_ mapView: MKMapView, viewFor annotation: any MKAnnotation)
+      -> MKAnnotationView?
+    {
+      // Ignoring user location
+      if annotation is MKUserLocation {
+        return nil
+      }
+
+      // Checking if the annotation is a ShotAnnotation
+      if annotation is ShotAnnotation {
+        let view =
+          mapView.dequeueReusableAnnotationView(
+            withIdentifier: ShotAnnotationView.reuseID
+          ) as? ShotAnnotationView
+          ?? ShotAnnotationView(
+            annotation: annotation,
+            reuseIdentifier: ShotAnnotationView.reuseID
+          )
+
+        view.annotation = annotation
+        return view
+      }
+      return nil
+
     }
 
     // Handle annotation selection
