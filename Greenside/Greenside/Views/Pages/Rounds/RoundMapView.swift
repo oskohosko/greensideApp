@@ -14,7 +14,7 @@ struct RoundMapView: UIViewRepresentable {
   @EnvironmentObject private var viewModel: CoursesViewModel
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
   private let mapManager = MapManager()
-  
+
   // The shots that we made on this hole
   let shots: [Shot]
 
@@ -22,26 +22,32 @@ struct RoundMapView: UIViewRepresentable {
   var camera: MKMapCamera
   let mapType: MapType
 
+  // Coordinator to handle custom annotations
+  func makeCoordinator() -> Coordinator {
+    Coordinator(self)
+  }
+
   func makeUIView(context: Context) -> MKMapView {
     let mapView = MKMapView()
+    mapView.delegate = context.coordinator
     mapView.setRegion(region, animated: false)
     mapView.camera = camera
     mapView.mapType = .standard
-    mapView.isUserInteractionEnabled = false // False for now
+    mapView.isUserInteractionEnabled = false  // False for now
     mapView.pointOfInterestFilter = .excludingAll
     mapView.overrideUserInterfaceStyle = .light
     mapView.showsCompass = false
     
+    // Registering shot annotation
+    mapView.register(ShotAnnotationView.self,
+                      forAnnotationViewWithReuseIdentifier: ShotAnnotationView.reuseID)
+      
     // Adding annotations for each shot onto the map
-    mapView.addAnnotations(shots.map { shot in
-      let annotation = MKPointAnnotation()
-      annotation.coordinate = CLLocationCoordinate2D(
-        latitude: shot.userLat!,
-        longitude: shot.userLong!
-      )
-      annotation.title = "\(shot.distanceToPin ?? 0)m"
-      return annotation
-    })
+    mapView.addAnnotations(
+      shots.map { shot in
+        ShotAnnotation(shot: shot)
+      }
+    )
 
     return mapView
   }
@@ -49,8 +55,41 @@ struct RoundMapView: UIViewRepresentable {
   func updateUIView(_ mapView: MKMapView, context: Context) {
     // Updating map type
     mapView.mapType = mapType == .standard ? .standard : .satellite
-    
+
     mapView.setRegion(region, animated: false)
     mapView.camera = camera
   }
+
+  final class Coordinator: NSObject, MKMapViewDelegate {
+    var parent: RoundMapView
+
+    init(_ parent: RoundMapView) {
+      self.parent = parent
+    }
+
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation)
+      -> MKAnnotationView? {
+      // Ensuring the annotation is a ShotAnnotation
+      guard let shotAnnotation = annotation as? ShotAnnotation else {
+        return nil
+      }
+
+      var annotationView =
+        mapView.dequeueReusableAnnotationView(
+          withIdentifier: ShotAnnotationView.reuseID
+        ) as? ShotAnnotationView
+
+      if annotationView == nil {
+        annotationView = ShotAnnotationView(
+          annotation: shotAnnotation,
+          reuseIdentifier: ShotAnnotationView.reuseID
+        )
+      } else {
+        annotationView?.annotation = shotAnnotation
+      }
+
+      return annotationView
+    }
+  }
+
 }

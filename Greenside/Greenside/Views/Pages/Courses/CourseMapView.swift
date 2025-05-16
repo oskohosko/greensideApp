@@ -34,6 +34,10 @@ struct CourseMapView: UIViewRepresentable {
   var isChangingHole: Bool
 
   @Binding var interactive: Bool
+  
+  func makeCoordinator() -> Coordinator {
+    Coordinator(self)
+  }
 
   func makeUIView(context: Context) -> MKMapView {
     let mapView = MKMapView()
@@ -271,7 +275,5 @@ struct CourseMapView: UIViewRepresentable {
     }
   }
 
-  func makeCoordinator() -> Coordinator {
-    Coordinator(self)
-  }
+  
 }

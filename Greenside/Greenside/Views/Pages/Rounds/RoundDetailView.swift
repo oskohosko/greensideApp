@@ -69,7 +69,7 @@ struct RoundDetailView: View {
               .padding(.leading, 16)
 
             if isShotsLoading {
-              ProgressView("Loading shots...")
+              RoundHoleListSkeleton()
             } else {
               RoundHoleList(
                 mapType: mapType,
