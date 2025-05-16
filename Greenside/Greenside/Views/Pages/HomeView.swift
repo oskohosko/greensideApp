@@ -15,7 +15,7 @@ struct HomeView: View {
   @EnvironmentObject private var coursesViewModel: CoursesViewModel
   @EnvironmentObject private var authViewModel: AuthViewModel
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
-  //  @State private var courses: [Course] = []
+  @EnvironmentObject private var tabBarVisibility: TabBarVisibility
 
   var body: some View {
     NavigationStack {
@@ -63,6 +63,7 @@ struct HomeView: View {
               RoundsList()
                 .environmentObject(roundsViewModel)
                 .environmentObject(coursesViewModel)
+                .environmentObject(tabBarVisibility)
 
               // Play again badge
               Badge(
@@ -107,6 +108,7 @@ struct HomeView: View {
               RoundsList()
                 .environmentObject(roundsViewModel)
                 .environmentObject(coursesViewModel)
+                .environmentObject(tabBarVisibility)
             }
           }
 

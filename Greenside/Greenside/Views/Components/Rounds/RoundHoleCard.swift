@@ -12,11 +12,14 @@ import SwiftUI
 struct RoundHoleCard: View {
   @EnvironmentObject private var coursesViewModel: CoursesViewModel
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
+  
+  @EnvironmentObject private var tabBarVisibility: TabBarVisibility
+  
   private let mapManager = MapManager()
 
   let hole: Hole
   
-  let shots: [Shot]
+  @State var shots: [Shot]
 
   let mapType: MapType
 
@@ -47,9 +50,15 @@ struct RoundHoleCard: View {
       green: hole.greenLocation
     )
 
-    Button {
+    NavigationLink {
       // Navigates to the hole view
-      
+      RoundHoleDetailView(
+        hole: hole,
+        shots: shots
+        )
+      .environmentObject(coursesViewModel)
+      .environmentObject(roundsViewModel)
+      .environmentObject(tabBarVisibility)
     } label: {
       VStack(alignment: .leading, spacing: 2) {
         Text("Hole \(hole.num)")
@@ -77,7 +86,7 @@ struct RoundHoleCard: View {
         }
         .padding(.bottom, 4)
         RoundMapView(
-          shots: shots,
+          shots: $shots,
           region: region,
           camera: camera,
           mapType: mapType,
@@ -107,4 +116,5 @@ struct RoundHoleCard: View {
   RoundHoleCard(hole: testHole, shots: [],  mapType: .standard)
     .environmentObject(CoursesViewModel())
     .environmentObject(RoundsViewModel())
+    .environmentObject(TabBarVisibility())
 }

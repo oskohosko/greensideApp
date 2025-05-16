@@ -12,6 +12,7 @@ struct CustomTabBarView: View {
   @EnvironmentObject var authViewModel: AuthViewModel
   @EnvironmentObject var globalViewModel: CoursesViewModel
   @EnvironmentObject var roundsViewModel: RoundsViewModel
+  @EnvironmentObject var tabBarVisibility: TabBarVisibility
 
   var body: some View {
     GeometryReader { geometry in
@@ -28,6 +29,7 @@ struct CustomTabBarView: View {
               .environmentObject(globalViewModel)
               .environmentObject(authViewModel)
               .environmentObject(roundsViewModel)
+              .environmentObject(tabBarVisibility)
           case .play:
             PlayGolfView()
           case .courses:
@@ -43,48 +45,49 @@ struct CustomTabBarView: View {
 
         }
         // Custom Tab Bar
-
-        HStack {
-          TabBarButton(
-            icon: "house",
-            selectedIcon: "house.fill",
-            tab: .home,
-            title: "Home",
-            selectedTab: $router.tab
-          )
-          TabBarButton(
-            icon: "flag.circle",
-            selectedIcon: "flag.circle.fill",
-            tab: .play,
-            title: "Play",
-            selectedTab: $router.tab
-          )
-          TabBarButton(
-            icon: "mappin.circle",
-            selectedIcon: "mappin.circle.fill",
-            tab: .courses,
-            title: "Courses",
-            selectedTab: $router.tab
-          )
-          TabBarButton(
-            icon: "chart.pie",
-            selectedIcon: "chart.pie.fill",
-            tab: .analysis,
-            title: "Analysis",
-            selectedTab: $router.tab
-          )
-          TabBarButton(
-            icon: "text.justify",
-            selectedIcon: "text.justify",
-            tab: .menu,
-            title: "Menu",
-            selectedTab: $router.tab
-          )
+        if tabBarVisibility.isVisible {
+          HStack {
+            TabBarButton(
+              icon: "house",
+              selectedIcon: "house.fill",
+              tab: .home,
+              title: "Home",
+              selectedTab: $router.tab
+            )
+            TabBarButton(
+              icon: "flag.circle",
+              selectedIcon: "flag.circle.fill",
+              tab: .play,
+              title: "Play",
+              selectedTab: $router.tab
+            )
+            TabBarButton(
+              icon: "mappin.circle",
+              selectedIcon: "mappin.circle.fill",
+              tab: .courses,
+              title: "Courses",
+              selectedTab: $router.tab
+            )
+            TabBarButton(
+              icon: "chart.pie",
+              selectedIcon: "chart.pie.fill",
+              tab: .analysis,
+              title: "Analysis",
+              selectedTab: $router.tab
+            )
+            TabBarButton(
+              icon: "text.justify",
+              selectedIcon: "text.justify",
+              tab: .menu,
+              title: "Menu",
+              selectedTab: $router.tab
+            )
+          }
+          .padding(.horizontal, 10)
+          .padding(.top, 20)
+          .padding(.bottom, 10)
+          .background(Color.base100)
         }
-        .padding(.horizontal, 10)
-        .padding(.top, 20)
-        .padding(.bottom, 10)
-        .background(Color.base100)
       }
     }
     .onAppear {
@@ -144,4 +147,5 @@ struct TabBarButton: View {
     .environmentObject(AuthViewModel())
     .environmentObject(CoursesViewModel())
     .environmentObject(RoundsViewModel())
+    .environmentObject(TabBarVisibility())
 }

@@ -16,7 +16,7 @@ struct RoundMapView: UIViewRepresentable {
   private let mapManager = MapManager()
 
   // The shots that we made on this hole
-  let shots: [Shot]
+  @Binding var shots: [Shot]
 
   var region: MKCoordinateRegion
   var camera: MKMapCamera
@@ -53,6 +53,17 @@ struct RoundMapView: UIViewRepresentable {
   }
 
   func updateUIView(_ mapView: MKMapView, context: Context) {
+    
+    // Removing previouse annotations
+    mapView.removeAnnotations(mapView.annotations)
+    
+    // Adding new ones
+    mapView.addAnnotations(
+      shots.map { shot in
+        ShotAnnotation(shot: shot)
+      }
+    )
+    
     // Updating map type
     mapView.mapType = mapType == .standard ? .standard : .satellite
 

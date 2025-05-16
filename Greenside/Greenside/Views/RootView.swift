@@ -11,6 +11,7 @@ struct RootView: View {
   @EnvironmentObject var authViewModel: AuthViewModel
   @StateObject var globalViewModel = CoursesViewModel()
   @StateObject var roundsViewModel = RoundsViewModel()
+  @StateObject var tabBarVisbility = TabBarVisibility()
   var body: some View {
     //    Group {
     //      switch authViewModel.phase {
@@ -29,6 +30,7 @@ struct RootView: View {
       .environmentObject(authViewModel)
       .environmentObject(globalViewModel)
       .environmentObject(roundsViewModel)
+      .environmentObject(tabBarVisbility)
   }
 }
 

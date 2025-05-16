@@ -10,6 +10,8 @@ import SwiftUI
 struct RoundsList: View {
 
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
+  
+  @EnvironmentObject private var tabBarVisibility: TabBarVisibility
 
   var body: some View {
     ScrollView(.horizontal, showsIndicators: false) {
@@ -17,6 +19,7 @@ struct RoundsList: View {
         AddRoundCard()
         ForEach(roundsViewModel.allRounds) { round in
           RoundCard(round: round)
+            .environmentObject(tabBarVisibility)
         }
 
       }

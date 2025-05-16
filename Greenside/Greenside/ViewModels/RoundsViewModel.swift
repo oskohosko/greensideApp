@@ -144,4 +144,18 @@ class RoundsViewModel: ObservableObject {
     return tempShots
   }
   
+  func previousHole(current: Int) -> Hole? {
+    guard let idx = courseHoles.firstIndex(where: { $0.num == current }),
+      idx > 0
+    else { return nil }
+    return courseHoles[idx - 1]
+  }
+
+  func nextHole(current: Int) -> Hole? {
+    guard let idx = courseHoles.firstIndex(where: { $0.num == current }),
+      idx < courseHoles.count - 1
+    else { return nil }
+    return courseHoles[idx + 1]
+  }
+  
 }

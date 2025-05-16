@@ -12,6 +12,8 @@ struct RoundHoleList: View {
   @EnvironmentObject private var coursesViewModel: CoursesViewModel
 
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
+  
+  @EnvironmentObject private var tabBarVisibility: TabBarVisibility
 
   let mapType: MapType
   
@@ -42,6 +44,7 @@ struct RoundHoleList: View {
                   )
                   .environmentObject(coursesViewModel)
                   .environmentObject(roundsViewModel)
+                  .environmentObject(tabBarVisibility)
                 }
               }
               .padding(.horizontal)
@@ -68,6 +71,7 @@ struct RoundHoleList: View {
                     )
                     .environmentObject(coursesViewModel)
                     .environmentObject(roundsViewModel)
+                    .environmentObject(tabBarVisibility)
                   }
                 }
                 .padding(.horizontal)
@@ -86,4 +90,6 @@ struct RoundHoleList: View {
   RoundHoleList(mapType: .standard, shotsByHole: [:])
     .environmentObject(CoursesViewModel())
     .environmentObject(RoundsViewModel())
+    .environmentObject(TabBarVisibility())
+    
 }

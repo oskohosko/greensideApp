@@ -9,6 +9,8 @@ import FirebaseCore
 import SwiftUI
 
 struct RoundCard: View {
+  
+  @EnvironmentObject private var tabBarVisibility: TabBarVisibility
 
   // The round we are displaying
   let round: Round
@@ -18,6 +20,7 @@ struct RoundCard: View {
   var body: some View {
     NavigationLink {
       RoundDetailView(round: round)
+        .environmentObject(tabBarVisibility)
     } label: {
       HStack {
         VStack {

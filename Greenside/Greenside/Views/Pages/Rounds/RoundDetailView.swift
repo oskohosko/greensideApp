@@ -11,8 +11,11 @@ import SwiftUI
 struct RoundDetailView: View {
 
   let round: Round
+  
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
   @EnvironmentObject private var coursesViewModel: CoursesViewModel
+  @EnvironmentObject private var tabBarVisibility: TabBarVisibility
+  
   @State private var mapType: MapType = .standard
 
   @State private var shotsByHole: [Int: [Shot]] = [:]
@@ -77,6 +80,7 @@ struct RoundDetailView: View {
               )
               .environmentObject(coursesViewModel)
               .environmentObject(roundsViewModel)
+              .environmentObject(tabBarVisibility)
             }
 
           }
@@ -122,4 +126,5 @@ struct RoundDetailView: View {
   RoundDetailView(round: testRound)
     .environmentObject(RoundsViewModel())
     .environmentObject(CoursesViewModel())
+    .environmentObject(TabBarVisibility())
 }

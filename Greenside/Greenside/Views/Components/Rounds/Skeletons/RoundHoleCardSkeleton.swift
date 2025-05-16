@@ -13,7 +13,7 @@ struct RoundHoleCardSkeleton: View {
   
   var body: some View {
     VStack(alignment: .leading, spacing: 2) {
-      // “Hole x” line
+      // Hole line
       RoundedRectangle(cornerRadius: 4)
         .fill(placeholder)
         .frame(width: 48, height: 14)
