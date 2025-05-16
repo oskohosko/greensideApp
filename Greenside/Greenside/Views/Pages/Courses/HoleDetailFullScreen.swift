@@ -11,8 +11,6 @@ struct HoleDetailFullScreen: View {
   @Environment(\.dismiss) private var dismiss
 
   let hole: Hole
-  
-  let holeShots: [Shot]?
 
   // This is to track the drag offset when dismissing the view
   @State private var dragOffset: CGFloat = .zero
@@ -77,5 +75,5 @@ struct HoleDetailFullScreen: View {
     num: 6,
     par: 4
   )
-  HoleDetailFullScreen(hole: testHole, holeShots: []).environmentObject(CoursesViewModel())
+  HoleDetailFullScreen(hole: testHole).environmentObject(CoursesViewModel())
 }

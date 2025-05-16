@@ -8,13 +8,8 @@
 import SwiftUI
 
 // This presents a list of holes in a course
-struct HoleCardList: View {
+struct CourseHoleList: View {
   @EnvironmentObject private var viewModel: CoursesViewModel
-  @EnvironmentObject private var roundsViewModel: RoundsViewModel
-  
-  let round: Round?
-  
-  let shotsByHole: [Int: [Shot]]
 
   let mapType: MapType
 
@@ -33,10 +28,8 @@ struct HoleCardList: View {
                 ForEach(viewModel.courseHoles[index * 9..<(index + 1) * 9]) {
                   hole in
                   
-                  HoleCard(
+                  CourseHoleCard(
                     hole: hole,
-                    round: round ?? nil,
-                    holeShots: shotsByHole[hole.num],
                     mapType: mapType
                   ).environmentObject(viewModel)
                 }
@@ -58,10 +51,8 @@ struct HoleCardList: View {
 
                   ForEach(viewModel.courseHoles[start..<end]) {
                     hole in
-                    HoleCard(
+                    CourseHoleCard(
                       hole: hole,
-                      round: round ?? nil,
-                      holeShots: shotsByHole[hole.num],
                       mapType: mapType
                     ).environmentObject(viewModel)
                   }
@@ -79,7 +70,6 @@ struct HoleCardList: View {
 }
 
 #Preview {
-  HoleCardList(round: nil, shotsByHole: [:],  mapType: .standard)
+  CourseHoleList(mapType: .standard)
     .environmentObject(CoursesViewModel())
-    .environmentObject(RoundsViewModel())
 }

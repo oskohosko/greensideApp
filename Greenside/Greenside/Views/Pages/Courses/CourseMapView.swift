@@ -17,15 +17,12 @@ enum MapLayerType: Int {
 }
 
 // Our MapView from UIKit
-struct MapView: UIViewRepresentable {
+struct CourseMapView: UIViewRepresentable {
   @EnvironmentObject private var viewModel: CoursesViewModel
-  @EnvironmentObject private var roundsViewModel: RoundsViewModel
   private let mapManager = MapManager()
 
   @Binding var annotations: [MKPointAnnotation]
   @Binding var shotOverlay: ShotOverlay?
-  
-  let holeShots: [Shot]?
 
   // Property to store our custom shot overlay
   @State private var activeShotOverlay: ShotOverlay?
@@ -66,15 +63,6 @@ struct MapView: UIViewRepresentable {
     )
     mapView.addGestureRecognizer(panGesture)
 
-    // Adding shot annotations for each shot
-    if let holeShots = holeShots {
-      for shot in holeShots {
-        let annotation = ShotAnnotation(
-          shot: shot)
-        mapView.addAnnotation(annotation)
-      }
-    }
-
     return mapView
   }
 
@@ -111,13 +99,13 @@ struct MapView: UIViewRepresentable {
 
   // Coordinator for gestures and annotations
   final class Coordinator: NSObject, MKMapViewDelegate {
-    var parent: MapView
+    var parent: CourseMapView
 
     // Active overlay being manipulated
     var activeOverlay: ShotOverlay?
     var isDraggingCircle: Bool = false
 
-    init(_ parent: MapView) {
+    init(_ parent: CourseMapView) {
       self.parent = parent
     }
 
@@ -271,33 +259,6 @@ struct MapView: UIViewRepresentable {
       default:
         return MKOverlayRenderer()
       }
-    }
-
-    // Handles custom annotation views
-    func mapView(_ mapView: MKMapView, viewFor annotation: any MKAnnotation)
-      -> MKAnnotationView?
-    {
-      // Ignoring user location
-      if annotation is MKUserLocation {
-        return nil
-      }
-
-      // Checking if the annotation is a ShotAnnotation
-      if annotation is ShotAnnotation {
-        let view =
-          mapView.dequeueReusableAnnotationView(
-            withIdentifier: ShotAnnotationView.reuseID
-          ) as? ShotAnnotationView
-          ?? ShotAnnotationView(
-            annotation: annotation,
-            reuseIdentifier: ShotAnnotationView.reuseID
-          )
-
-        view.annotation = annotation
-        return view
-      }
-      return nil
-
     }
 
     // Handle annotation selection

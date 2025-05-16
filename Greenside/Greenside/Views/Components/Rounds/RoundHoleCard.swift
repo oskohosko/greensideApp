@@ -1,35 +1,26 @@
 //
-//  HoleCard.swift
+//  RoundHoleCard.swift
 //  Greenside
 //
-//  Created by Oskar Hosken on 1/5/2025.
+//  Created by Oskar Hosken on 16/5/2025.
 //
 
 import CoreLocation
 import MapKit
 import SwiftUI
 
-struct HoleCard: View {
+struct RoundHoleCard: View {
   @EnvironmentObject private var coursesViewModel: CoursesViewModel
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
   private let mapManager = MapManager()
 
-  @State private var isHolePresented = false
-  @State private var annotations: [MKPointAnnotation] = []
-  @State private var overlay: ShotOverlay? = nil
-  @State private var isMapInteractive: Bool = false
-
-  // List of shots on the hole
-  @State private var holeShots: [Shot] = []
-  @State private var roundHole: RoundHole? = nil
-
   let hole: Hole
-  let round: Round?
+  
+  let shots: [Shot]
 
   let mapType: MapType
 
   private var distance: String {
-
     return String(
       format: "%.0f",
       distanceBetweenPoints(
@@ -45,30 +36,6 @@ struct HoleCard: View {
     )
   }
 
-  let score: Int? = 0
-
-  // Classifying score
-  func classifyScore() -> (String, Color) {
-    if let score = score, score != 0 {
-      let diff = score - hole.par
-      switch diff {
-      case ..<(-1):
-        return ("Eagle", .accentGreen)
-      case (-1):
-        return ("Birdie", .lightRed)
-      case (0):
-        return ("Par", .base200)
-      case (1):
-        return ("Bogey", .lightBlue)
-      default:
-        return ("Double Bogey+", .lightBlue)
-      }
-    } else {
-      return ("-", .base100)
-    }
-
-  }
-
   var body: some View {
     // Using our mapManager to get the region and camera
     let region = mapManager.fitRegion(
@@ -82,7 +49,7 @@ struct HoleCard: View {
 
     Button {
       // Navigates to the hole view
-      isHolePresented.toggle()
+      
     } label: {
       VStack(alignment: .leading, spacing: 2) {
         Text("Hole \(hole.num)")
@@ -109,26 +76,14 @@ struct HoleCard: View {
           }
         }
         .padding(.bottom, 4)
-        .fullScreenCover(isPresented: $isHolePresented) {
-          HoleDetailFullScreen(hole: hole, holeShots: holeShots)
-            .environmentObject(coursesViewModel)
-        }
-        // TODO: Add shot annotations from viewModel.roundShots
-        MapView(
-          annotations: $annotations,
-          shotOverlay: $overlay,
-          holeShots: holeShots,
+        RoundMapView(
+          shots: shots,
           region: region,
           camera: camera,
-          isMapInteractionEnabled: false,
           mapType: mapType,
-          isChangingHole: false,
-          interactive: $isMapInteractive
         )
-        .environmentObject(roundsViewModel)
         .clipShape(RoundedRectangle(cornerRadius: 12))
       }
-
     }
     .padding(.horizontal, 6)
     .padding(.vertical, 4)
@@ -149,7 +104,7 @@ struct HoleCard: View {
     num: 6,
     par: 4
   )
-  HoleCard(hole: testHole, round: nil, mapType: .standard).environmentObject(
-    CoursesViewModel()
-  )
+  RoundHoleCard(hole: testHole, shots: [],  mapType: .standard)
+    .environmentObject(CoursesViewModel())
+    .environmentObject(RoundsViewModel())
 }

@@ -71,19 +71,14 @@ struct RoundDetailView: View {
             if isShotsLoading {
               ProgressView("Loading shots...")
             } else {
-              HoleCardList(
-                round: round,
-                shotsByHole: shotsByHole,
-                mapType: mapType
+              RoundHoleList(
+                mapType: mapType,
+                shotsByHole: shotsByHole
               )
               .environmentObject(coursesViewModel)
               .environmentObject(roundsViewModel)
             }
 
-          }
-          .task(id: round.id) {
-            shotsByHole = await roundsViewModel.loadRoundShots()
-            isShotsLoading = false
           }
 
         }
@@ -103,8 +98,12 @@ struct RoundDetailView: View {
           }
           // Fetching hole data from the round
           await roundsViewModel.loadRoundHoles(for: round)
+          
+          // Fetching shot data for the round
+          shotsByHole = await roundsViewModel.loadRoundShots()
 
         }
+        isShotsLoading = false
       }
     }
   }

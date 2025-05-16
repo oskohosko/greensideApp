@@ -71,9 +71,7 @@ struct CourseDetailView: View {
             .padding(.top, 8)
             .padding(.horizontal, 16)
 
-            HoleCardList(
-              round: nil,
-              shotsByHole: [:],
+            CourseHoleList(
               mapType: mapType
             ).environmentObject(viewModel)
           }

@@ -24,8 +24,6 @@ struct HoleDetailView: View {
 
   @State private var selectedClub: Club? = nil
   @State private var clubSheetPresented: Bool = false
-  
-  @State private var shotAnnotations: [ShotAnnotation] = []
 
   // MARK: – Computed map region
   private var region: MKCoordinateRegion {
@@ -44,10 +42,9 @@ struct HoleDetailView: View {
   var body: some View {
     // Map first, everything else overlays
     ZStack {
-      MapView(
+      CourseMapView(
         annotations: $annotations,
         shotOverlay: $shotOverlay,
-        holeShots: [],
         region: region,
         camera: camera,
         isMapInteractionEnabled: true,
