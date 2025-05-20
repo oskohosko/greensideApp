@@ -7,15 +7,34 @@
 
 import SwiftUI
 
+enum SheetPosition: CGFloat {
+  case bottom = 1.0
+  case third = 0.67
+  case full = 0.0
+}
+
+class SheetPositionHandler: ObservableObject {
+  @Published var position: SheetPosition = .bottom
+}
+
 struct RoundHoleDetailView: View {
   @EnvironmentObject private var coursesViewModel: CoursesViewModel
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
   @EnvironmentObject private var tabBarVisibility: TabBarVisibility
 
+  @StateObject private var sheetPosition = SheetPositionHandler()
+
   private let mapManager = MapManager()
+
+  @State private var selectedShot: Shot?
 
   @State var hole: Hole
   @State var shots: [Shot]
+
+  // For testing sheet behaviour
+  @State private var isSheetPresented: Bool = false
+
+  @GestureState private var dragOffset: CGFloat = 0
 
   var body: some View {
     let region = mapManager.fitRegion(
@@ -31,49 +50,91 @@ struct RoundHoleDetailView: View {
 
     ZStack {
       Color.base200.ignoresSafeArea()
-      ZStack {
-        VStack(alignment: .leading) {
-          HStack {
-            VStack(alignment: .leading) {
+      VStack(alignment: .leading) {
+        HStack {
+          VStack(alignment: .leading) {
 
-              Text("Hole \(hole.num)")
-                .font(.system(size: 32, weight: .bold))
-                .foregroundStyle(.content)
-              Text("Par \(hole.par) · \(distance)m")
-                .font(.system(size: 24, weight: .medium))
-                .foregroundStyle(.content)
-
+            Text("Hole \(hole.num)")
+              .font(.system(size: 32, weight: .bold))
+              .foregroundStyle(.content)
+            Text("Par \(hole.par) · \(distance)m")
+              .font(.system(size: 24, weight: .medium))
+              .foregroundStyle(.content)
+            Button {
+              isSheetPresented.toggle()
+            } label: {
+              Image(systemName: "figure.golf")
             }
-            Spacer()
-            let score = roundsViewModel.currentHole?.score
-            ScoreCell(score: score ?? hole.par + 2, par: hole.par)
+
           }
-          .padding(.horizontal, 16)
+          Spacer()
+          let score = roundsViewModel.currentHole?.score
+          ScoreCell(score: score ?? hole.par + 2, par: hole.par)
+        }
+        .padding(.top, 8)
+        .padding(.horizontal, 16)
+        ScrollView {
+          VStack {
+            RoundMapView(
+              shots: $shots,
+              region: region,
+              camera: camera,
+              mapType: .standard
+            )
+            .frame(height: 700)
+          }
 
-          ScrollView(.vertical, showsIndicators: false) {
-            VStack {
-              ZStack {
-                RoundMapView(
-                  shots: $shots,
-                  region: region,
-                  camera: camera,
-                  mapType: .standard
-                )
-                .frame(height: 680)
-              }
-              .overlay(alignment: .bottom) {
-                ShotsBottomSheet(shots: shots)
-              }
+        }
+      }
+      GeometryReader { geo in
+        let totalHeight = geo.size.height
+        let peekHeight: CGFloat = 20
 
-            }
+        let snapPoints: [(SheetPosition, CGFloat)] = [
+          (.bottom, totalHeight - peekHeight),
+          (.third, totalHeight * 0.67 - peekHeight),
+          (.full, 100),
+        ]
+        let snappedOffset =
+          snapPoints.first(where: { $0.0 == sheetPosition.position })?.1
+          ?? (totalHeight - peekHeight)
+
+        VStack {
+          Spacer()
+          ShotsSheet(shots: shots)
+            .environmentObject(sheetPosition)
+            .frame(height: totalHeight)
+            .offset(y: max(snappedOffset + dragOffset, 0))
+            .gesture(
+              DragGesture()
+                .updating($dragOffset) { value, state, _ in
+                  state = value.translation.height
+                }
+                .onEnded { value in
+                  let endOffset = snappedOffset + value.translation.height
+                  let nearest =
+                    snapPoints.min(by: {
+                      abs($0.1 - endOffset) < abs($1.1 - endOffset)
+                    })?.0 ?? .bottom
+                  sheetPosition.position = nearest
+                }
+            )
+        }
+        .onChange(of: isSheetPresented) { newValue in
+          withAnimation(.easeInOut(duration: 0.2)) {
+            sheetPosition.position = newValue ? .third : .bottom
           }
         }
-        bottomBar
-          .environmentObject(roundsViewModel)
-          .padding(.bottom, 24)
-
+        .onChange(of: sheetPosition.position) { newValue in
+          withAnimation(.easeInOut(duration: 0.2)) {
+            sheetPosition.position = newValue
+          }
+        }
       }
+      bottomBar
+
     }
+
     .toolbar {
       ToolbarItem(placement: .principal) {
         Text(roundsViewModel.currentRound?.title ?? "")
@@ -81,6 +142,7 @@ struct RoundHoleDetailView: View {
           .font(.system(size: 16, weight: .bold))
       }
     }
+
     .onAppear {
       // Disabling the tab bar
       tabBarVisibility.isVisible = false
@@ -88,20 +150,20 @@ struct RoundHoleDetailView: View {
       if roundsViewModel.currentRound != nil {
         roundsViewModel.currentHole = roundsViewModel.roundHoles[hole.num - 1]
       }
-      
+
     }
     .onDisappear {
       tabBarVisibility.isVisible = true
     }
-
   }
 
+  // Bottom bar for controlling navigation between holes
   private var bottomBar: some View {
 
     let hasPrev =
-    roundsViewModel.previousHole(current: hole.num) != nil
+      roundsViewModel.previousHole(current: hole.num) != nil
     let hasNext =
-    roundsViewModel.nextHole(current: hole.num) != nil
+      roundsViewModel.nextHole(current: hole.num) != nil
 
     return
       VStack {
@@ -110,7 +172,8 @@ struct RoundHoleDetailView: View {
           Button {
             if let prevHole = roundsViewModel.previousHole(current: hole.num) {
               hole = prevHole
-              roundsViewModel.currentHole = roundsViewModel.roundHoles[prevHole.num - 1]
+              roundsViewModel.currentHole =
+                roundsViewModel.roundHoles[prevHole.num - 1]
               print(roundsViewModel.roundShots[prevHole.num]!)
               shots = roundsViewModel.roundShots[prevHole.num] ?? []
             }
@@ -124,7 +187,8 @@ struct RoundHoleDetailView: View {
           Button {
             if let nextHole = roundsViewModel.nextHole(current: hole.num) {
               hole = nextHole
-              roundsViewModel.currentHole = roundsViewModel.roundHoles[nextHole.num - 1]
+              roundsViewModel.currentHole =
+                roundsViewModel.roundHoles[nextHole.num - 1]
               print(roundsViewModel.roundShots[nextHole.num]!)
               shots = roundsViewModel.roundShots[nextHole.num] ?? []
             }
@@ -140,39 +204,49 @@ struct RoundHoleDetailView: View {
   }
 }
 
-struct ShotsBottomSheet: View {
+private struct ShotsSheet: View {
   let shots: [Shot]
 
-  private let peekHeight: CGFloat = 60
-  private let sheetHeight: CGFloat = 400
+  @EnvironmentObject private var sheetPosition: SheetPositionHandler
 
   var body: some View {
-    VStack(spacing: 0) {
-      // grab-handle
-      Capsule()
-        .frame(width: 40, height: 5)
-        .foregroundStyle(.base300)
-        .padding(.top, 8)
+    VStack {
+      HStack {
+        Spacer().frame(width: 30)
+        Spacer()
+        VStack(spacing: 0) {
+          Capsule()
+            .fill(.base300)
+            .frame(width: 40, height: 6)
+          Text("Shots")
+            .font(.system(size: 28, weight: .bold))
+            .foregroundStyle(.content)
+            .padding(.top, 4)
+        }
+        Spacer()
+        if sheetPosition.position != .bottom {
+          Button {
+            sheetPosition.position = .bottom
+          } label: {
+            Image(systemName: "x.circle")
+              .font(.system(size: 24, weight: .medium))
+              .foregroundStyle(.base400)
+              .frame(width: 30)
+          }
 
-      // heading
-      Text("Shots")
-        .font(.system(size: 24, weight: .bold))
-        .foregroundStyle(.content)
-        .padding(.top, 4)
+        } else {
+          Spacer().frame(width: 30)
+        }
 
+      }
+      .padding(.horizontal)
+      Spacer()
     }
-    .frame(
-      maxWidth: .infinity,
-      maxHeight: sheetHeight,
-      alignment: .top
-    )
-    .background(
-      .base200
-    )
-    .cornerRadius(20)
-    .offset(y: sheetHeight - peekHeight)
-  }
+    .padding(.top, 12)
+    .background(.base100)
+    .cornerRadius(12)
 
+  }
 }
 
 private struct ScoreCell: View {

@@ -104,7 +104,7 @@ class ShotOverlayRenderer: MKOverlayRenderer {
     let endMapPoint = MKMapPoint(shot.endCoordinate)
     let circlePoint = point(for: endMapPoint)
 
-    // Convert meters to points based on the zoom scale and latitude
+    // Converting meters to points based on the zoom scale and latitude
     let radiusInPoints =
       MKMapPointsPerMeterAtLatitude(shot.endCoordinate.latitude)
       * shot.dispersionRadius
