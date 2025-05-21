@@ -121,23 +121,51 @@ class MapManager {
     let currentLatitude = degreesToRadians(from.latitude)
     let currentLongitude = degreesToRadians(from.longitude)
     let bearingRadians = degreesToRadians(bearing)
-    
+
     // Earth's radius in meters
     let radius = 6371e3
     let newLatitude = asin(
-      sin(currentLatitude) * cos(distance / radius) +
-        cos(currentLatitude) * sin(distance / radius) * cos(bearingRadians)
+      sin(currentLatitude) * cos(distance / radius) + cos(currentLatitude)
+        * sin(distance / radius) * cos(bearingRadians)
     )
-    let newLongitude = currentLongitude + atan2(
-      sin(bearingRadians) * sin(distance / radius) * cos(currentLatitude),
-      cos(distance / radius) - sin(currentLatitude) * sin(newLatitude)
-    )
+    let newLongitude =
+      currentLongitude
+      + atan2(
+        sin(bearingRadians) * sin(distance / radius) * cos(currentLatitude),
+        cos(distance / radius) - sin(currentLatitude) * sin(newLatitude)
+      )
     // Converting back to degrees
     let finalLatitude = radiansToDegrees(newLatitude)
     let finalLongitude = radiansToDegrees(newLongitude)
     return CLLocationCoordinate2D(
       latitude: finalLatitude,
       longitude: finalLongitude
+    )
+  }
+
+  func controlPoint(
+    from start: CLLocationCoordinate2D,
+    to end: CLLocationCoordinate2D,
+    initialBearing: Double,
+    curveOffsetMeters: CLLocationDistance = 20
+  ) -> CLLocationCoordinate2D {
+    let midLat = (start.latitude + end.latitude) / 2
+    let midLon = (start.longitude + end.longitude) / 2
+    let mid = CLLocationCoordinate2D(latitude: midLat, longitude: midLon)
+
+    let bearingToEnd = bearingBetweenPoints(from: start, to: end)
+
+    let angle =
+      (bearingToEnd - initialBearing + 540).truncatingRemainder(dividingBy: 360)
+      - 180
+
+    let sideOffset = angle > 0 ? -90.0 : 90.0
+    let perpendicularBearing = (initialBearing + sideOffset)
+      .truncatingRemainder(dividingBy: 360)
+    return destinationPoint(
+      from: mid,
+      distance: curveOffsetMeters,
+      bearing: perpendicularBearing
     )
   }
 

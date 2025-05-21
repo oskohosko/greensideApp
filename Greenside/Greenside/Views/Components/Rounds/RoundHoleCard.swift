@@ -86,10 +86,14 @@ struct RoundHoleCard: View {
         }
         .padding(.bottom, 4)
         RoundMapView(
+          hole: hole,
           shots: $shots,
           region: region,
           camera: camera,
           mapType: mapType,
+          annotationSize: 10,
+          interactive: false,
+          isChangingHole: false
         )
         .clipShape(RoundedRectangle(cornerRadius: 12))
       }

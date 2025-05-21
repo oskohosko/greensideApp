@@ -7,6 +7,7 @@
 
 import FirebaseFirestore
 import Foundation
+import CoreLocation
 
 // Data models
 
@@ -17,6 +18,12 @@ struct Shot: Identifiable, Codable {
   var time: Double?
   var userLat: Double?
   var userLong: Double?
+}
+
+extension Shot {
+  var location: CLLocationCoordinate2D {
+    CLLocationCoordinate2D(latitude: userLat!, longitude: userLong!)
+  }
 }
 
 // A hole that belongs to a round
