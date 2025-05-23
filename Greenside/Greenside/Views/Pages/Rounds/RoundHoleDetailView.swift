@@ -33,10 +33,11 @@ struct RoundHoleDetailView: View {
   @State var hole: Hole
   @State var shots: [Shot]
   @State private var isChangingHole: Bool = false
-
   @State private var isSheetPresented: Bool = false
-
   @GestureState private var dragOffset: CGFloat = 0
+
+  // Map state
+  @State private var mapType: MapType = .standard
 
   var body: some View {
     ZStack {
@@ -55,7 +56,8 @@ struct RoundHoleDetailView: View {
         RoundMapViewContainer(
           hole: hole,
           shots: $shots,
-          isChangingHole: $isChangingHole
+          isChangingHole: $isChangingHole,
+          mapType: $mapType
         )
       }
       // The overlay of the sheet
@@ -73,6 +75,22 @@ struct RoundHoleDetailView: View {
         Text(roundsViewModel.currentRound?.title ?? "")
           .foregroundColor(.content)
           .font(.system(size: 16, weight: .bold))
+      }
+      ToolbarItem(placement: .topBarTrailing) {
+        Button {
+          // Toggling the map type
+          if mapType == .standard {
+            mapType = .satellite
+          } else {
+            mapType = .standard
+          }
+        } label: {
+          Image(
+            systemName: mapType == .standard ? "map.circle" : "map.circle.fill"
+          )
+          .font(.system(size: 24, weight: .medium))
+          .foregroundStyle(.accentGreen)
+        }
       }
     }
     .onAppear {
@@ -133,6 +151,7 @@ private struct RoundMapViewContainer: View {
   let hole: Hole
   @Binding var shots: [Shot]
   @Binding var isChangingHole: Bool
+  @Binding var mapType: MapType
 
   private let mapManager = MapManager()
 
@@ -153,7 +172,7 @@ private struct RoundMapViewContainer: View {
         shots: $shots,
         region: region,
         camera: camera,
-        mapType: .standard,
+        mapType: $mapType,
         annotationSize: 16,
         interactive: true,
         isChangingHole: isChangingHole
@@ -200,7 +219,7 @@ private struct SheetView: View {
                 state = value.translation.height
               }
               .onEnded { value in
-                
+
                 // When sheet dragging has ended, we need to find where to snap to
                 let endOffset = snappedOffset + value.translation.height
                 // Velocity is used for the quick swipe
@@ -237,7 +256,7 @@ private struct SheetView: View {
                 }
 
                 sheetPosition.position = snapPoints[targetIdx].0
-                
+
               }
           )
       }

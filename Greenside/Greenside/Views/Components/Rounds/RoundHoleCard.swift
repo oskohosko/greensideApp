@@ -21,7 +21,7 @@ struct RoundHoleCard: View {
   
   @State var shots: [Shot]
 
-  let mapType: MapType
+  @State var mapType: MapType
 
   private var distance: String {
     return String(
@@ -90,7 +90,7 @@ struct RoundHoleCard: View {
           shots: $shots,
           region: region,
           camera: camera,
-          mapType: mapType,
+          mapType: $mapType,
           annotationSize: 10,
           interactive: false,
           isChangingHole: false

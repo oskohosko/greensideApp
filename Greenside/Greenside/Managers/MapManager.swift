@@ -169,4 +169,24 @@ class MapManager {
     )
   }
 
+  func pointOnQuadratic(
+    start: CLLocationCoordinate2D,
+    control: CLLocationCoordinate2D,
+    end: CLLocationCoordinate2D,
+    t: Double = 0.5
+  ) -> CLLocationCoordinate2D {
+
+    let p0 = MKMapPoint(start)
+    let p1 = MKMapPoint(control)
+    let p2 = MKMapPoint(end)
+
+    let oneMinusT = 1.0 - t
+    let x =
+      oneMinusT * oneMinusT * p0.x + 2 * oneMinusT * t * p1.x + t * t * p2.x
+    let y =
+      oneMinusT * oneMinusT * p0.y + 2 * oneMinusT * t * p1.y + t * t * p2.y
+
+    return MKMapPoint(x: x, y: y).coordinate
+  }
+
 }

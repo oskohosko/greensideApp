@@ -21,7 +21,7 @@ struct RoundMapView: UIViewRepresentable {
 
   var region: MKCoordinateRegion
   var camera: MKMapCamera
-  let mapType: MapType
+  @Binding var mapType: MapType
   let annotationSize: Int
   let interactive: Bool
   var isChangingHole: Bool
@@ -55,61 +55,9 @@ struct RoundMapView: UIViewRepresentable {
       }
     )
 
-    // Adding curved overlays between each consecutive shot
-    if shots.count > 1 && interactive {
-
-      for idx in 0..<(shots.count - 1) {
-        let bearing = mapManager.bearingBetweenPoints(
-          from: shots[idx].location,
-          to: hole.greenLocation
-        )
-
-        let start = shots[idx].location
-        let end = shots[idx + 1].location
-        let distance = mapManager.distanceBetweenPoints(
-          from: start,
-          to: end
-        )
-        let controlPoint = mapManager.controlPoint(
-          from: start,
-          to: end,
-          initialBearing: bearing,
-          curveOffsetMeters: distance * 0.15
-        )
-        let overlay = CurvedShotOverlay(
-          start: start,
-          end: end,
-          control: controlPoint
-        )
-        mapView.addOverlay(overlay)
-      }
-      // And finally adding the last shot
-      if let lastShot = shots.last {
-        let start = lastShot.location
-        let end = hole.greenLocation
-        let bearing = mapManager.bearingBetweenPoints(
-          from: start,
-          to: end
-        )
-        let distance = mapManager.distanceBetweenPoints(
-          from: start,
-          to: end
-        )
-        let controlPoint = mapManager.controlPoint(
-          from: start,
-          to: end,
-          initialBearing: bearing,
-          curveOffsetMeters: distance * 0.15
-        )
-
-        let overlay = CurvedShotOverlay(
-          start: start,
-          end: end,
-          control: controlPoint
-        )
-        mapView.addOverlay(overlay)
-      }
-    }
+    let (newOverlays, distanceLabels) = addCurvedShotAnnotations(shots)
+    mapView.addOverlays(newOverlays)
+    mapView.addAnnotations(distanceLabels)
 
     return mapView
   }
@@ -129,68 +77,79 @@ struct RoundMapView: UIViewRepresentable {
       // Also removing existing overlays
       mapView.removeOverlays(mapView.overlays)
 
-      // And adding new ones
-      if shots.count > 1 && interactive {
+      let (newOverlays, distanceLabels) = addCurvedShotAnnotations(shots)
+      mapView.addOverlays(newOverlays)
+      mapView.addAnnotations(distanceLabels)
 
-        for idx in 0..<(shots.count - 1) {
-          
-          let bearing = mapManager.bearingBetweenPoints(
-            from: shots[idx].location,
-            to: hole.greenLocation
-          )
-
-          let start = shots[idx].location
-          let end = shots[idx + 1].location
-          let distance = mapManager.distanceBetweenPoints(
-            from: start,
-            to: end
-          )
-          let controlPoint = mapManager.controlPoint(
-            from: start,
-            to: end,
-            initialBearing: bearing,
-            curveOffsetMeters: distance * 0.15
-          )
-          let overlay = CurvedShotOverlay(
-            start: start,
-            end: end,
-            control: controlPoint
-          )
-          mapView.addOverlay(overlay)
-        }
-        // And finally adding the last shot
-        if let lastShot = shots.last {
-          let start = lastShot.location
-          let end = hole.greenLocation
-          let bearing = mapManager.bearingBetweenPoints(
-            from: start,
-            to: end
-          )
-          let distance = mapManager.distanceBetweenPoints(
-            from: start,
-            to: end
-          )
-          let controlPoint = mapManager.controlPoint(
-            from: start,
-            to: end,
-            initialBearing: bearing,
-            curveOffsetMeters: distance * 0.15
-          )
-          let overlay = CurvedShotOverlay(
-            start: start,
-            end: end,
-            control: controlPoint
-          )
-          mapView.addOverlay(overlay)
-        }
-      }
       mapView.setRegion(region, animated: false)
       mapView.camera = camera
-      
     }
-    
+
     // Updating map type
     mapView.mapType = mapType == .standard ? .standard : .satellite
+  }
+
+  // Function that creates a list of the curved shot annotations for each shot
+  // It also adds the distance labels
+  private func addCurvedShotAnnotations(_ shots: [Shot]) -> (
+    overlays: [CurvedShotOverlay], labels: [DistanceLabelAnnotation]
+  ) {
+    // List of overlays to return
+    var overlays: [CurvedShotOverlay] = []
+    // List of labels
+    var labels: [DistanceLabelAnnotation] = []
+
+    guard shots.count > 0, interactive else {
+      return ([], [])
+    }
+
+    func createCurve(
+      from start: CLLocationCoordinate2D,
+      to end: CLLocationCoordinate2D
+    ) {
+      let bearing = mapManager.bearingBetweenPoints(
+        from: start,
+        to: hole.greenLocation
+      )
+      let distance = mapManager.distanceBetweenPoints(
+        from: start,
+        to: end
+      )
+      let controlPoint = mapManager.controlPoint(
+        from: start,
+        to: end,
+        initialBearing: bearing,
+        curveOffsetMeters: distance * 0.15
+      )
+      let labelPoint = mapManager.pointOnQuadratic(
+        start: start,
+        control: controlPoint,
+        end: end,
+        t: 0.5
+      )
+      let overlay = CurvedShotOverlay(
+        start: start,
+        end: end,
+        control: controlPoint
+      )
+      overlays.append(overlay)
+
+      // Labels
+      labels.append(
+        DistanceLabelAnnotation(at: labelPoint, distance: distance)
+      )
+    }
+
+    // Adding the curves to each shot
+    for idx in 0..<(shots.count - 1) {
+      createCurve(from: shots[idx].location, to: shots[idx + 1].location)
+    }
+    // And final shot
+    if let last = shots.last {
+      createCurve(from: last.location, to: hole.greenLocation)
+    }
+
+    return (overlays, labels)
   }
 
   final class Coordinator: NSObject, MKMapViewDelegate {
@@ -216,39 +175,78 @@ struct RoundMapView: UIViewRepresentable {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation)
       -> MKAnnotationView?
     {
-      // Ensuring the annotation is a ShotAnnotation
-      guard let shotAnnotation = annotation as? ShotAnnotation else {
-        return nil
+      if let shot = annotation as? ShotAnnotation {
+        let view =
+          (mapView.dequeueReusableAnnotationView(
+            withIdentifier: ShotAnnotationView.reuseID
+          )
+            as? ShotAnnotationView)
+          ?? ShotAnnotationView(
+            annotation: shot,
+            reuseIdentifier: ShotAnnotationView.reuseID
+          )
+        view.size = parent.annotationSize
+        return view
       }
 
-      var annotationView =
-        mapView.dequeueReusableAnnotationView(
-          withIdentifier: ShotAnnotationView.reuseID
-        ) as? ShotAnnotationView
+      if let label = annotation as? DistanceLabelAnnotation {
+        let view =
+          (mapView.dequeueReusableAnnotationView(
+            withIdentifier: DistanceAnnotationView.reuseID
+          )
+            as? DistanceAnnotationView)
+          ?? DistanceAnnotationView(
+            annotation: label,
+            reuseIdentifier: DistanceAnnotationView.reuseID
+          )
 
-      if annotationView == nil {
-        annotationView = ShotAnnotationView(
-          annotation: shotAnnotation,
-          reuseIdentifier: ShotAnnotationView.reuseID,
-        )
-
-      } else {
-        annotationView?.annotation = shotAnnotation
+        return view
       }
+      return nil
+    }
 
-      annotationView?.size = parent.annotationSize
+    // Helper for annotations
+    private func metersPerPixel(_ mapView: MKMapView) -> Double {
+      let rect = mapView.visibleMapRect
+      return rect.size.width / Double(mapView.bounds.width)
+    }
 
-      return annotationView
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+      let metersPerPixel = metersPerPixel(mapView)
+      let hideThreshold = 4.0
+
+      for case let label as DistanceLabelAnnotation in mapView.annotations {
+        guard label.hidesWhenZoomedOut,
+          let view = mapView.view(for: label) as? DistanceAnnotationView
+        else { continue }
+        let showView = metersPerPixel <= hideThreshold
+        view.setVisibility(showView)
+      }
+    }
+
+    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
+      let mPerPx = metersPerPixel(mapView)
+      let hideThreshold = 4.0
+
+      for case let v as DistanceAnnotationView in views {
+        guard let label = v.annotation as? DistanceLabelAnnotation else {
+          continue
+        }
+        let show = !(label.hidesWhenZoomedOut && mPerPx > hideThreshold)
+        v.setVisibility(show)
+      }
     }
   }
 }
 
+// This is our curved line
 class CurvedShotOverlay: NSObject, MKOverlay {
   let coordinate: CLLocationCoordinate2D
   let boundingMapRect: MKMapRect
   let start: CLLocationCoordinate2D
   let end: CLLocationCoordinate2D
   let controlPoint: CLLocationCoordinate2D
+  let distance: Double
 
   init(
     start: CLLocationCoordinate2D,
@@ -274,6 +272,12 @@ class CurvedShotOverlay: NSObject, MKOverlay {
       width: abs(point1.x - point2.x),
       height: abs(point1.y - point2.y)
     )
+
+    // Calculating distance of the shot
+    let loc1 = CLLocation(latitude: start.latitude, longitude: start.longitude)
+    let loc2 = CLLocation(latitude: end.latitude, longitude: end.longitude)
+    self.distance = loc1.distance(from: loc2)
+
   }
 }
 
@@ -289,5 +293,70 @@ class CurvedLineRenderer: MKOverlayPathRenderer {
     path.move(to: startPoint)
     path.addQuadCurve(to: endPoint, controlPoint: controlPoint)
     self.path = path.cgPath
+  }
+}
+
+class DistanceLabelAnnotation: NSObject, MKAnnotation {
+  let coordinate: CLLocationCoordinate2D
+  let title: String?
+  let hidesWhenZoomedOut: Bool
+
+  init(at point: CLLocationCoordinate2D, distance: Double) {
+    self.coordinate = point
+    self.title = String(format: "%.0fm", distance)
+    self.hidesWhenZoomedOut = distance < 30
+  }
+}
+
+class DistanceAnnotationView: MKAnnotationView {
+
+  static let reuseID = "DistanceAnnotationView"
+  private let label = UILabel()
+
+  override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+    super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+    configure()
+  }
+
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  private func configure() {
+    canShowCallout = false
+    isOpaque = false
+
+    label.font = .systemFont(ofSize: 12, weight: .medium)
+    label.textColor = .black
+    label.backgroundColor = .white
+    label.textAlignment = .center
+    label.layer.cornerRadius = 12
+    label.clipsToBounds = true
+    addSubview(label)
+  }
+
+  override var annotation: MKAnnotation? {
+    didSet {
+      label.text = annotation?.title ?? ""
+      setNeedsLayout()
+    }
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    label.sizeToFit()
+
+    let hPad: CGFloat = 8
+    let vPad: CGFloat = 4
+    let paddedSize = CGSize(
+      width: label.bounds.width + 2 * hPad,
+      height: label.bounds.height + 2 * vPad
+    )
+    label.frame = CGRect(origin: .zero, size: paddedSize)
+    frame = label.bounds
+  }
+
+  func setVisibility(_ show: Bool) {
+    alpha = show ? 1 : 0
   }
 }
