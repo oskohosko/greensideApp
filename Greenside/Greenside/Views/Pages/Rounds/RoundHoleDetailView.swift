@@ -48,8 +48,7 @@ struct RoundHoleDetailView: View {
         HeaderView(
           hole: hole,
           score: roundsViewModel.currentHole?.score ?? 0,
-          distance: holeDistance,
-          isSheetPresented: $isSheetPresented
+          distance: holeDistance
         )
         .padding(.top, 32)
         // Map View section
@@ -59,16 +58,20 @@ struct RoundHoleDetailView: View {
           isChangingHole: $isChangingHole,
           mapType: $mapType
         )
+        .environmentObject(sheetPosition)
       }
-      // The overlay of the sheet
-      SheetView(
-        sheetPosition: sheetPosition,
-        isSheetPresented: $isSheetPresented,
-        totalHeight: UIScreen.main.bounds.height
-      )
       // Bottom section for hole navigation
       bottomBar
-        .padding(.bottom, 76)
+        .padding(.bottom, 86)
+      // The overlay of the sheet
+      SheetView(
+        hole: hole,
+        shots: shots,
+        score: roundsViewModel.currentHole?.score ?? 0,
+        sheetPosition: sheetPosition,
+        totalHeight: UIScreen.main.bounds.height
+      )
+      
     }
     .toolbar {
       ToolbarItem(placement: .principal) {
@@ -125,7 +128,6 @@ private struct HeaderView: View {
   let hole: Hole
   let score: Int
   let distance: String
-  @Binding var isSheetPresented: Bool
 
   var body: some View {
     HStack {
@@ -148,6 +150,7 @@ private struct HeaderView: View {
 
 // View for our map view section
 private struct RoundMapViewContainer: View {
+  @EnvironmentObject private var sheetPosition: SheetPositionHandler
   let hole: Hole
   @Binding var shots: [Shot]
   @Binding var isChangingHole: Bool
@@ -177,6 +180,7 @@ private struct RoundMapViewContainer: View {
         interactive: true,
         isChangingHole: isChangingHole
       )
+      .environmentObject(sheetPosition)
       .frame(height: 668)
     }
   }
@@ -184,87 +188,83 @@ private struct RoundMapViewContainer: View {
 
 // Sheet view
 private struct SheetView: View {
+  let hole: Hole
+  let shots: [Shot]
+  let score: Int
   @ObservedObject var sheetPosition: SheetPositionHandler
-  @Binding var isSheetPresented: Bool
   let totalHeight: CGFloat
   // Offset for dragging gesture
   @GestureState private var dragOffset: CGFloat = 0
-
+  
   var body: some View {
-    GeometryReader { geo in
-      let totalHeight = geo.size.height
-      let peekHeight: CGFloat = 80
+    let totalHeight = UIScreen.main.bounds.height - 60
+    let peekHeight: CGFloat = 80
 
-      // Points to snap the sheet to when dragging
-      let snapPoints: [(SheetPosition, CGFloat)] = [
-        (.bottom, totalHeight - peekHeight),
-        (.third, totalHeight * 0.67 - peekHeight),
-        (.full, 120),
-      ]
-      // getting offset from the enum
-      let snappedOffset =
-        snapPoints.first(where: { $0.0 == sheetPosition.position })?.1
-        ?? (totalHeight - peekHeight)
+    // Points to snap the sheet to when dragging
+    let snapPoints: [(SheetPosition, CGFloat)] = [
+      (.bottom, totalHeight - peekHeight),
+      (.third, totalHeight * 0.67 - peekHeight),
+      (.full, 120),
+    ]
+    // getting offset from the enum
+    let snappedOffset =
+      snapPoints.first(where: { $0.0 == sheetPosition.position })?.1
+      ?? (totalHeight - peekHeight)
 
-      VStack {
-        Spacer()
-        ShotsSheetView(shots: [])
-          .environmentObject(sheetPosition)
-          .frame(height: totalHeight)
-          .offset(y: max(snappedOffset + dragOffset, 0))
-          .gesture(
-            DragGesture()
-              .updating($dragOffset) { value, state, _ in
-                // While dragging, update the position of the sheet
-                state = value.translation.height
+    VStack {
+      Spacer()
+      ShotsSheetView(shots: shots, hole: hole, score: score)
+        .environmentObject(sheetPosition)
+        .frame(height: totalHeight)
+        .offset(y: max(snappedOffset + dragOffset, 0))
+        .gesture(
+          DragGesture()
+            .updating($dragOffset) { value, state, _ in
+              // While dragging, update the position of the sheet
+              state = value.translation.height
+            }
+            .onEnded { value in
+
+              // When sheet dragging has ended, we need to find where to snap to
+              let endOffset = snappedOffset + value.translation.height
+              // Velocity is used for the quick swipe
+              let velocity = value.velocity.height
+              let swipeThreshold: CGFloat = 800
+
+              // Getting the current index of where we are swiping from
+              guard
+                let currentIdx = snapPoints.firstIndex(where: {
+                  $0.0 == sheetPosition.position
+                })
+              else {
+                return
               }
-              .onEnded { value in
 
-                // When sheet dragging has ended, we need to find where to snap to
-                let endOffset = snappedOffset + value.translation.height
-                // Velocity is used for the quick swipe
-                let velocity = value.velocity.height
-                let swipeThreshold: CGFloat = 800
+              // Setting target index to current one for now
+              var targetIdx = currentIdx
 
-                // Getting the current index of where we are swiping from
-                guard
-                  let currentIdx = snapPoints.firstIndex(where: {
-                    $0.0 == sheetPosition.position
-                  })
-                else {
-                  return
-                }
-
-                // Setting target index to current one for now
-                var targetIdx = currentIdx
-
-                // If we have swiped down, snap to next one down
-                if velocity < -swipeThreshold
-                  && currentIdx < snapPoints.count - 1
-                {
-                  targetIdx = currentIdx + 1
-                  // Otherwise snap up
-                } else if velocity > swipeThreshold && currentIdx > 0 {
-                  targetIdx = currentIdx - 1
-                  // Otherwise find the nearest one
-                } else {
-                  targetIdx =
-                    snapPoints.enumerated().min(by: {
-                      abs($0.element.1 - endOffset)
-                        < abs($1.element.1 - endOffset)
-                    })?.offset ?? currentIdx
-                }
-
-                sheetPosition.position = snapPoints[targetIdx].0
-
+              // If we have swiped down, snap to next one down
+              if velocity < -swipeThreshold
+                && currentIdx < snapPoints.count - 1
+              {
+                targetIdx = currentIdx + 1
+                // Otherwise snap up
+              } else if velocity > swipeThreshold && currentIdx > 0 {
+                targetIdx = currentIdx - 1
+                // Otherwise find the nearest one
+              } else {
+                targetIdx =
+                  snapPoints.enumerated().min(by: {
+                    abs($0.element.1 - endOffset)
+                      < abs($1.element.1 - endOffset)
+                  })?.offset ?? currentIdx
               }
-          )
-      }
-      .onChange(of: isSheetPresented) { newValue in
-        withAnimation(.easeInOut(duration: 0.2)) {
-          sheetPosition.position = newValue ? .third : .bottom
-        }
-      }
+
+              sheetPosition.position = snapPoints[targetIdx].0
+
+            }
+        )
+
     }
   }
 }

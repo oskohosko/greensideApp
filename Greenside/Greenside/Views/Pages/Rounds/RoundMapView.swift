@@ -13,6 +13,8 @@ import SwiftUI
 struct RoundMapView: UIViewRepresentable {
   @EnvironmentObject private var viewModel: CoursesViewModel
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
+  @EnvironmentObject private var sheetPosition: SheetPositionHandler
+
   private let mapManager = MapManager()
 
   let hole: Hole
@@ -186,6 +188,17 @@ struct RoundMapView: UIViewRepresentable {
             reuseIdentifier: ShotAnnotationView.reuseID
           )
         view.size = parent.annotationSize
+
+        view.onTap = { [weak self] in
+          guard let self else {
+            return
+          }
+          withAnimation(.easeInOut(duration: 0.16)) {
+            self.parent.sheetPosition.position = .third
+          }
+
+        }
+
         return view
       }
 
@@ -199,7 +212,16 @@ struct RoundMapView: UIViewRepresentable {
             annotation: label,
             reuseIdentifier: DistanceAnnotationView.reuseID
           )
+        
+        view.onTap = { [weak self] in
+          guard let self else {
+            return
+          }
+          withAnimation(.easeInOut(duration: 0.16)) {
+            self.parent.sheetPosition.position = .third
+          }
 
+        }
         return view
       }
       return nil
@@ -212,30 +234,44 @@ struct RoundMapView: UIViewRepresentable {
     }
 
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+      updateDistanceLabelsVisibility(mapView)
+    }
+
+    private func updateDistanceLabelsVisibility(_ mapView: MKMapView) {
       let metersPerPixel = metersPerPixel(mapView)
       let hideThreshold = 4.0
 
-      for case let label as DistanceLabelAnnotation in mapView.annotations {
-        guard label.hidesWhenZoomedOut,
-          let view = mapView.view(for: label) as? DistanceAnnotationView
-        else { continue }
-        let showView = metersPerPixel <= hideThreshold
-        view.setVisibility(showView)
-      }
-    }
+      // Simply iterating through all current annotations and show/hide them
+      for annotation in mapView.annotations {
+        if let distanceLabel = annotation as? DistanceLabelAnnotation,
+          let annotationView = mapView.view(for: distanceLabel)
+        {
 
-    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
-      let mPerPx = metersPerPixel(mapView)
-      let hideThreshold = 4.0
-
-      for case let v as DistanceAnnotationView in views {
-        guard let label = v.annotation as? DistanceLabelAnnotation else {
-          continue
+          let shouldShow =
+            !distanceLabel.hidesWhenZoomedOut || metersPerPixel <= hideThreshold
+          annotationView.isHidden = !shouldShow
         }
-        let show = !(label.hidesWhenZoomedOut && mPerPx > hideThreshold)
-        v.setVisibility(show)
       }
     }
+
+    // For when a user selects our annotation
+    //        func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+    //
+    //          switch view.annotation {
+    //          case is ShotAnnotation, is DistanceLabelAnnotation:
+    //
+    //            DispatchQueue.main.async {
+    //              withAnimation(.easeInOut(duration: 0.18)) {
+    //                self.parent.sheetPosition.position = .third
+    //              }
+    //    //          self.parent.isSheetPresented = true
+    //            }
+    //
+    //          default: break
+    //          }
+    //
+    //          mapView.deselectAnnotation(view.annotation, animated: false)
+    //        }
   }
 }
 
@@ -303,7 +339,7 @@ class DistanceLabelAnnotation: NSObject, MKAnnotation {
 
   init(at point: CLLocationCoordinate2D, distance: Double) {
     self.coordinate = point
-    self.title = String(format: "%.0fm", distance)
+    self.title = "\(Int(distance))m"
     self.hidesWhenZoomedOut = distance < 30
   }
 }
@@ -312,6 +348,7 @@ class DistanceAnnotationView: MKAnnotationView {
 
   static let reuseID = "DistanceAnnotationView"
   private let label = UILabel()
+  var onTap: (() -> Void)?
 
   override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
     super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
@@ -324,7 +361,7 @@ class DistanceAnnotationView: MKAnnotationView {
 
   private func configure() {
     canShowCallout = false
-    isOpaque = false
+    backgroundColor = UIColor.clear
 
     label.font = .systemFont(ofSize: 12, weight: .medium)
     label.textColor = .black
@@ -332,31 +369,60 @@ class DistanceAnnotationView: MKAnnotationView {
     label.textAlignment = .center
     label.layer.cornerRadius = 12
     label.clipsToBounds = true
+
     addSubview(label)
   }
 
   override var annotation: MKAnnotation? {
     didSet {
-      label.text = annotation?.title ?? ""
+      guard let distanceAnnotation = annotation as? DistanceLabelAnnotation
+      else { return }
+      label.text = distanceAnnotation.title
       setNeedsLayout()
     }
   }
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    label.sizeToFit()
+
+    guard let text = label.text, !text.isEmpty else { return }
 
     let hPad: CGFloat = 8
     let vPad: CGFloat = 4
-    let paddedSize = CGSize(
-      width: label.bounds.width + 2 * hPad,
-      height: label.bounds.height + 2 * vPad
+
+    // Calculate the required size for the text
+    let textSize = text.size(withAttributes: [.font: label.font!])
+    let labelSize = CGSize(
+      width: textSize.width + 2 * hPad,
+      height: textSize.height + 2 * vPad
     )
-    label.frame = CGRect(origin: .zero, size: paddedSize)
-    frame = label.bounds
+
+    // Center the label within the annotation view
+    label.frame = CGRect(
+      x: -labelSize.width / 2,
+      y: -labelSize.height / 2,
+      width: labelSize.width,
+      height: labelSize.height
+    )
+
+    // Set the bounds of the annotation view
+    bounds = CGRect(
+      x: -labelSize.width / 2,
+      y: -labelSize.height / 2,
+      width: labelSize.width,
+      height: labelSize.height
+    )
   }
 
-  func setVisibility(_ show: Bool) {
-    alpha = show ? 1 : 0
+  override func prepareForReuse() {
+    super.prepareForReuse()
+    label.text = nil
+    isHidden = false
+  }
+  
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    onTap?()
+    
+    super.touchesBegan(touches, with: event)
   }
 }

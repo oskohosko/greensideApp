@@ -9,6 +9,7 @@ import MapKit
 
 class ShotAnnotationView: MKAnnotationView {
   static let reuseID = "ShotAnnotationView"
+  var onTap: (() -> Void)?
   
   var size: Int = 10 {
     didSet {
@@ -56,5 +57,11 @@ class ShotAnnotationView: MKAnnotationView {
 
     // centering the view
     self.center = CGPoint(x: 0, y: -(size / 2))
+  }
+  
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    onTap?()
+    
+    super.touchesBegan(touches, with: event)
   }
 }
