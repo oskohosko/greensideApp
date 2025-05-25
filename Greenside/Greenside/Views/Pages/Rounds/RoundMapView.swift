@@ -107,7 +107,8 @@ struct RoundMapView: UIViewRepresentable {
 
     func createCurve(
       from start: CLLocationCoordinate2D,
-      to end: CLLocationCoordinate2D
+      to end: CLLocationCoordinate2D,
+      _ currentShot: Shot
     ) {
       let bearing = mapManager.bearingBetweenPoints(
         from: start,
@@ -138,17 +139,17 @@ struct RoundMapView: UIViewRepresentable {
 
       // Labels
       labels.append(
-        DistanceLabelAnnotation(at: labelPoint, distance: distance)
+        DistanceLabelAnnotation(at: labelPoint, distance: distance, shot: currentShot)
       )
     }
 
     // Adding the curves to each shot
     for idx in 0..<(shots.count - 1) {
-      createCurve(from: shots[idx].location, to: shots[idx + 1].location)
+      createCurve(from: shots[idx].location, to: shots[idx + 1].location, shots[idx])
     }
     // And final shot
     if let last = shots.last {
-      createCurve(from: last.location, to: hole.greenLocation)
+      createCurve(from: last.location, to: hole.greenLocation, last)
     }
 
     return (overlays, labels)
@@ -193,6 +194,8 @@ struct RoundMapView: UIViewRepresentable {
           guard let self else {
             return
           }
+          // Setting selected shot
+          self.parent.roundsViewModel.selectedShot = shot.shot
           withAnimation(.easeInOut(duration: 0.16)) {
             self.parent.sheetPosition.position = .third
           }
@@ -217,6 +220,8 @@ struct RoundMapView: UIViewRepresentable {
           guard let self else {
             return
           }
+          // Setting selected shot when tapped
+          self.parent.roundsViewModel.selectedShot = label.shot
           withAnimation(.easeInOut(duration: 0.16)) {
             self.parent.sheetPosition.position = .third
           }
@@ -253,25 +258,6 @@ struct RoundMapView: UIViewRepresentable {
         }
       }
     }
-
-    // For when a user selects our annotation
-    //        func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-    //
-    //          switch view.annotation {
-    //          case is ShotAnnotation, is DistanceLabelAnnotation:
-    //
-    //            DispatchQueue.main.async {
-    //              withAnimation(.easeInOut(duration: 0.18)) {
-    //                self.parent.sheetPosition.position = .third
-    //              }
-    //    //          self.parent.isSheetPresented = true
-    //            }
-    //
-    //          default: break
-    //          }
-    //
-    //          mapView.deselectAnnotation(view.annotation, animated: false)
-    //        }
   }
 }
 
@@ -333,11 +319,13 @@ class CurvedLineRenderer: MKOverlayPathRenderer {
 }
 
 class DistanceLabelAnnotation: NSObject, MKAnnotation {
+  let shot: Shot
   let coordinate: CLLocationCoordinate2D
   let title: String?
   let hidesWhenZoomedOut: Bool
 
-  init(at point: CLLocationCoordinate2D, distance: Double) {
+  init(at point: CLLocationCoordinate2D, distance: Double, shot: Shot) {
+    self.shot = shot
     self.coordinate = point
     self.title = "\(Int(distance))m"
     self.hidesWhenZoomedOut = distance < 30

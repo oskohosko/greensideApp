@@ -19,6 +19,7 @@ struct ShotsSheetView: View {
   let score: Int
 
   @EnvironmentObject private var sheetPosition: SheetPositionHandler
+  @EnvironmentObject private var roundsViewModel: RoundsViewModel
 
   var body: some View {
     VStack(spacing: 0) {
@@ -42,6 +43,7 @@ struct ShotsSheetView: View {
             Button {
               withAnimation(.easeInOut(duration: 0.1)) {
                 sheetPosition.position = .bottom
+                roundsViewModel.selectedShot = nil
               }
             } label: {
               Image(systemName: "xmark")
@@ -62,73 +64,127 @@ struct ShotsSheetView: View {
       .background(.base100)
 
       // Shots list goes here
-      ShotsList(shots: shots, hole: hole, score: score)
-        .environmentObject(sheetPosition)
+      if sheetPosition.position == .full {
+        ScrollView(.vertical, showsIndicators: true) {
+          VStack(alignment: .leading, spacing: 0) {
+            ShotsList(shots: shots, hole: hole, score: score)
+              .environmentObject(sheetPosition)
+              .environmentObject(roundsViewModel)
+          }
+          .padding(.trailing, 12)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+      } else {
+        ScrollView(.horizontal, showsIndicators: true) {
+          HStack(alignment: .top, spacing: 8) {
+            ShotsList(shots: shots, hole: hole, score: score)
+              .environmentObject(sheetPosition)
+              .environmentObject(roundsViewModel)
+          }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+
+      }
     }
     .background(.base100)
     .cornerRadius(20)
     .frame(maxHeight: .infinity)
 
   }
-}
 
-// List of shots
-struct ShotsList: View {
-  let shots: [Shot]
-  let hole: Hole
-  let score: Int
-  @EnvironmentObject private var sheetPosition: SheetPositionHandler
-  private let mapManager = MapManager()
+  // List of shots
+  struct ShotsList: View {
+    let shots: [Shot]
+    let hole: Hole
+    let score: Int
+    @EnvironmentObject private var sheetPosition: SheetPositionHandler
+    @EnvironmentObject private var roundsViewModel: RoundsViewModel
 
-  // We want to map every shot to a shot card
-  var body: some View {
-    ScrollView(.vertical, showsIndicators: true) {
-      VStack(alignment: .leading, spacing: 0) {
-        // Calculating data
-        ForEach(Array(shots.enumerated()), id: \.offset) { index, shot in
-          // Checking if there is a previous or next shot
-          let isPrev = index > 0
-          let isNext = index < shots.count - 1
-          // Distance of last shot
-          let distanceFromPrevious =
-            isPrev
-            ? mapManager.distanceBetweenPoints(
-              from: shots[index - 1].location,
-              to: shot.location
-            ) : nil
+    private let mapManager = MapManager()
 
-          // Distance of current shot
-          let distanceOfCurrent =
-            isNext
-            ? mapManager.distanceBetweenPoints(
-              from: shot.location,
-              to: shots[index + 1].location
-            )
-            : mapManager.distanceBetweenPoints(
-              from: shot.location,
-              to: hole.greenLocation
-            )
-          // Now getting categories of the shot
-          let isTeeShot = index == 0
-          let distanceToPin = shot.distanceToPin ?? 0
-          let shotType =
-            isTeeShot
-            ? "🏌️ Tee Shot"
-            : distanceToPin > 100
-              ? "🎯 Approach"
-              : distanceToPin > 30
-                ? "🪁 Pitch"
-                : distanceToPin > 10
-                  ? "⛳ Chip"
-                  : "🥅 Putt"
-          // And now adding flairs for the shot
-          let flairs = getFlairs(
-            currShot: shot,
-            nextShot: isNext ? shots[index + 1] : nil,
-            currDistance: Int(distanceOfCurrent),
-            index: index
+    // We want to map every shot to a shot card
+    var body: some View {
+      ScrollViewReader { proxy in
+        Group {
+          if sheetPosition.position == .full {
+            VStack(alignment: .leading, spacing: 0) {
+              shotViews
+              Color.clear.frame(height: 180)
+            }
+          } else {
+            HStack(alignment: .top, spacing: 8) {
+              shotViews
+              Color.clear.frame(width: 20)
+            }
+          }
+        }
+        .onChange(of: roundsViewModel.selectedShot) { selectedShot in
+          guard
+            let selectedShot,
+            let idx = shots.firstIndex(where: { $0.time == selectedShot.time })
+          else { return }
+
+          withAnimation(.easeInOut(duration: 0.3)) {
+            if sheetPosition.position != .full {
+              proxy.scrollTo("shot-\(idx)", anchor: .leading)
+            }
+          }
+        }
+        .onChange(of: roundsViewModel.currentHole) {
+          proxy.scrollTo("shot-0", anchor: .leading)
+        }
+      }
+    }
+
+    @ViewBuilder
+    private var shotViews: some View {
+      ForEach(Array(shots.enumerated()), id: \.offset) { index, shot in
+        // Checking if there is a previous or next shot
+        let isPrev = index > 0
+        let isNext = index < shots.count - 1
+        // Distance of last shot
+        let distanceFromPrevious =
+          isPrev
+          ? mapManager.distanceBetweenPoints(
+            from: shots[index - 1].location,
+            to: shot.location
+          ) : nil
+
+        // Distance of current shot
+        let distanceOfCurrent =
+          isNext
+          ? mapManager.distanceBetweenPoints(
+            from: shot.location,
+            to: shots[index + 1].location
           )
+          : mapManager.distanceBetweenPoints(
+            from: shot.location,
+            to: hole.greenLocation
+          )
+        // Now getting categories of the shot
+        let isTeeShot = index == 0
+        let distanceToPin = shot.distanceToPin ?? 0
+        let shotType =
+          isTeeShot
+          ? "🏌️ Tee Shot"
+          : distanceToPin > 100
+            ? "🎯 Approach"
+            : distanceToPin > 30
+              ? "🪁 Pitch"
+              : distanceToPin > 10
+                ? "⛳ Chip"
+                : "🥅 Putt"
+        // And now adding flairs for the shot
+        let flairs = getFlairs(
+          currShot: shot,
+          nextShot: isNext ? shots[index + 1] : nil,
+          currDistance: Int(distanceOfCurrent),
+          index: index,
+          hole: hole,
+          score: score
+        )
 
+        VStack(alignment: .leading, spacing: 2) {
           Text("Shot \(index + 1)")
             .font(.system(size: 26, weight: .bold))
             .foregroundStyle(.content)
@@ -142,65 +198,10 @@ struct ShotsList: View {
           )
           .padding(.bottom, 12)
         }
-
-        Color.clear.frame(height: 180)
-
-      }
-
-      .padding(.horizontal)
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .clipped()
-  }
-
-  // Helper function to get flairs for the shot
-  func getFlairs(currShot: Shot, nextShot: Shot?, currDistance: Int, index: Int)
-    -> [Flair]
-  {
-    var flairs: [Flair] = []
-    if nextShot != nil {
-      // Big shot flair
-      if currDistance > 200 {
-        flairs.append(
-          Flair(label: "⚡ Big move", colour: .yellow200)
-        )
-      }
-      // Hitting a close shot
-      if currDistance > 50 && nextShot!.distanceToPin! < currDistance / 10 {
-        flairs.append(
-          Flair(label: "🎯 Solid shot", colour: .green200)
-        )
-      }
-      // Short shot
-      if currDistance < 30 {
-        flairs.append(
-          Flair(label: "🪶 Touch shot", colour: .blue200)
-        )
-      }
-      // Bad shot
-      if ((currDistance < nextShot!.distanceToPin!)
-        || (nextShot!.distanceToPin! > currShot.distanceToPin! / 2))
-        && !(hole.par == 5)
-      {
-        flairs.append(
-          Flair(label: "💥 Mishit", colour: .red200)
-        )
-      }
-    } else {
-      // Pick up - if no next shot and it doesn't equal the score on the hole
-      if (index + 1) != score {
-        flairs.append(
-          Flair(label: "📦 Packed it in", colour: .brown200)
-        )
-      }
-      // Hole out or big putt
-      else if currShot.distanceToPin! > 10 {
-        flairs.append(
-          Flair(label: "💣 Dropped a bomb!", colour: .orange200)
-        )
+        .padding(.leading, 12)
+        .id("shot-\(index)")
       }
     }
-    return flairs
   }
 }
 
@@ -272,12 +273,74 @@ struct ShotsCard: View {
       )
 
     }
-    .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
+    .frame(
+      minWidth: UIScreen.main.bounds.width - 60,
+      maxWidth: .infinity,
+      minHeight: 80,
+      maxHeight: 80
+    )
     .padding(8)
     .background(.base200)
     .cornerRadius(12)
 
   }
+}
+
+// Helper function to get flairs for the shot
+func getFlairs(
+  currShot: Shot,
+  nextShot: Shot?,
+  currDistance: Int,
+  index: Int,
+  hole: Hole,
+  score: Int
+)
+  -> [Flair]
+{
+  var flairs: [Flair] = []
+  if nextShot != nil {
+    // Big shot flair
+    if currDistance > 200 {
+      flairs.append(
+        Flair(label: "⚡ Big move", colour: .yellow200)
+      )
+    }
+    // Hitting a close shot
+    if currDistance > 50 && nextShot!.distanceToPin! < currDistance / 10 {
+      flairs.append(
+        Flair(label: "🎯 Solid shot", colour: .green200)
+      )
+    }
+    // Short shot
+    if currDistance < 30 {
+      flairs.append(
+        Flair(label: "🪶 Touch shot", colour: .blue200)
+      )
+    }
+    // Bad shot
+    if ((currDistance < nextShot!.distanceToPin!)
+      || (nextShot!.distanceToPin! > currShot.distanceToPin! / 2))
+      && !(hole.par == 5)
+    {
+      flairs.append(
+        Flair(label: "💥 Mishit", colour: .red200)
+      )
+    }
+  } else {
+    // Pick up - if no next shot and it doesn't equal the score on the hole
+    if (index + 1) != score {
+      flairs.append(
+        Flair(label: "📦 Packed it in", colour: .brown200)
+      )
+    }
+    // Hole out or big putt
+    else if currShot.distanceToPin! > 10 {
+      flairs.append(
+        Flair(label: "💣 Dropped a bomb!", colour: .orange200)
+      )
+    }
+  }
+  return flairs
 }
 
 #Preview {
@@ -313,7 +376,9 @@ struct ShotsCard: View {
       userLong: 144.89626798274705
     ),
   ]
-  ShotsSheetView(shots: testShots, hole: testHole, score: 3).environmentObject(
-    SheetPositionHandler()
-  )
+  ShotsSheetView(shots: testShots, hole: testHole, score: 3)
+    .environmentObject(
+      SheetPositionHandler()
+    )
+    .environmentObject(RoundsViewModel())
 }

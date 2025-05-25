@@ -16,6 +16,7 @@ class RoundsViewModel: ObservableObject {
   @Published var currentHole: RoundHole?
   @Published var courseHoles: [Hole] = []
   @Published var roundShots: [Int: [Shot]] = [:]
+  @Published var selectedShot: Shot?
   
   // Private caches
   private var holesCache: [String: [RoundHole]] = [:]

@@ -70,8 +70,8 @@ struct RoundHoleDetailView: View {
         score: roundsViewModel.currentHole?.score ?? 0,
         sheetPosition: sheetPosition,
         totalHeight: UIScreen.main.bounds.height
-      )
-      
+      ).environmentObject(roundsViewModel)
+
     }
     .toolbar {
       ToolbarItem(placement: .principal) {
@@ -195,15 +195,17 @@ private struct SheetView: View {
   let totalHeight: CGFloat
   // Offset for dragging gesture
   @GestureState private var dragOffset: CGFloat = 0
-  
+
+  @EnvironmentObject private var roundsViewModel: RoundsViewModel
+
   var body: some View {
     let totalHeight = UIScreen.main.bounds.height - 60
-    let peekHeight: CGFloat = 80
+    let peekHeight: CGFloat = 85
 
     // Points to snap the sheet to when dragging
     let snapPoints: [(SheetPosition, CGFloat)] = [
       (.bottom, totalHeight - peekHeight),
-      (.third, totalHeight * 0.67 - peekHeight),
+      (.third, totalHeight * 0.8 - peekHeight),
       (.full, 120),
     ]
     // getting offset from the enum
@@ -214,6 +216,7 @@ private struct SheetView: View {
     VStack {
       Spacer()
       ShotsSheetView(shots: shots, hole: hole, score: score)
+        .environmentObject(roundsViewModel)
         .environmentObject(sheetPosition)
         .frame(height: totalHeight)
         .offset(y: max(snappedOffset + dragOffset, 0))
@@ -264,6 +267,16 @@ private struct SheetView: View {
 
             }
         )
+        .gesture(
+          TapGesture()
+            .onEnded { _ in
+              if sheetPosition.position == .bottom {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                  sheetPosition.position = .third
+                }
+              }
+            }
+        )
 
     }
   }
@@ -291,11 +304,16 @@ private struct BottomBarView: View {
             roundsViewModel.currentHole =
               roundsViewModel.roundHoles[prevHole.num - 1]
             shots = roundsViewModel.roundShots[prevHole.num] ?? []
+            roundsViewModel.selectedShot = nil
           }
         } label: {
-          Image(systemName: "arrowshape.left.circle.fill")
-            .font(.system(size: 36))
-            .foregroundStyle(.white)
+          VStack(spacing: 0) {
+            Image(systemName: "arrowshape.left.circle.fill")
+              .font(.system(size: 42))
+            Text("Previous")
+              .font(.system(size: 12))
+          }
+          .foregroundStyle(.white)
         }
         .disabled(!hasPrev)
         Spacer()
@@ -307,16 +325,21 @@ private struct BottomBarView: View {
             roundsViewModel.currentHole =
               roundsViewModel.roundHoles[nextHole.num - 1]
             shots = roundsViewModel.roundShots[nextHole.num] ?? []
+            roundsViewModel.selectedShot = nil
           }
         } label: {
-          Image(systemName: "arrowshape.right.circle.fill")
-            .font(.system(size: 36))
-            .foregroundStyle(.white)
+          VStack(spacing: 0) {
+            Image(systemName: "arrowshape.right.circle.fill")
+              .font(.system(size: 42))
+            Text("Next")
+              .font(.system(size: 12))
+          }
+          .foregroundStyle(.white)
         }
         .disabled(!hasNext)
       }
-      .padding(.horizontal, 16)
     }
+    .padding(.horizontal, 8)
   }
 }
 

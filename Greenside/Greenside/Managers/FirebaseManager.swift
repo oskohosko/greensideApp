@@ -12,7 +12,7 @@ import CoreLocation
 // Data models
 
 // A shot that belongs to a hole in a round
-struct Shot: Identifiable, Codable {
+struct Shot: Identifiable, Codable, Equatable {
   @DocumentID var id: String?
   var distanceToPin: Int?
   var time: Double?
@@ -27,7 +27,7 @@ extension Shot {
 }
 
 // A hole that belongs to a round
-struct RoundHole: Identifiable, Codable {
+struct RoundHole: Identifiable, Codable, Equatable {
   @DocumentID var id: String?
   var greenLat: Double?
   var greenLong: Double?
