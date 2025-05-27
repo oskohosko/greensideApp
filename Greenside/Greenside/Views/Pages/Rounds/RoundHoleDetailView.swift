@@ -39,6 +39,9 @@ struct RoundHoleDetailView: View {
   // Map state
   @State private var mapType: MapType = .standard
 
+  // Badges
+  //  @State private var holeBadges: [Flair] = []
+
   var body: some View {
     ZStack {
       // Background colour
@@ -50,7 +53,8 @@ struct RoundHoleDetailView: View {
           score: roundsViewModel.currentHole?.score ?? 0,
           distance: holeDistance
         )
-        .padding(.top, 32)
+        .environmentObject(roundsViewModel)
+        .padding(.top, 56)
         // Map View section
         RoundMapViewContainer(
           hole: hole,
@@ -62,7 +66,7 @@ struct RoundHoleDetailView: View {
       }
       // Bottom section for hole navigation
       bottomBar
-        .padding(.bottom, 86)
+        .padding(.bottom, 106)
       // The overlay of the sheet
       SheetView(
         hole: hole,
@@ -70,7 +74,8 @@ struct RoundHoleDetailView: View {
         score: roundsViewModel.currentHole?.score ?? 0,
         sheetPosition: sheetPosition,
         totalHeight: UIScreen.main.bounds.height
-      ).environmentObject(roundsViewModel)
+      )
+      .environmentObject(roundsViewModel)
 
     }
     .toolbar {
@@ -103,10 +108,22 @@ struct RoundHoleDetailView: View {
       if roundsViewModel.currentRound != nil {
         roundsViewModel.currentHole = roundsViewModel.roundHoles[hole.num - 1]
       }
+
+      // And getting the hole badges
+      print("getting badges for hole \(hole.num)")
+      _ = roundsViewModel.generateHoleBadges(
+        shots: shots,
+        hole: hole,
+        score: roundsViewModel.currentHole?.score ?? 0
+      )
+      print(roundsViewModel.holeBadges)
+
     }
     // Adding tab bar back
     .onDisappear {
       tabBarVisibility.isVisible = true
+      roundsViewModel.clearBadges()
+      
     }
     .onChange(of: hole.num) {
       isChangingHole = false
@@ -128,23 +145,42 @@ private struct HeaderView: View {
   let hole: Hole
   let score: Int
   let distance: String
+  
+  @EnvironmentObject private var roundsViewModel: RoundsViewModel
 
   var body: some View {
-    HStack {
-      VStack(alignment: .leading) {
-        Text("Hole \(hole.num)")
-          .font(.system(size: 32, weight: .bold))
-          .foregroundStyle(.content)
-        Text("Par \(hole.par) · \(distance)m")
-          .font(.system(size: 24, weight: .medium))
-          .foregroundStyle(.content)
+    VStack(spacing: 4) {
+      // Top part, score hole info
+      HStack {
+        VStack(alignment: .leading) {
+          Text("Hole \(hole.num)")
+            .font(.system(size: 32, weight: .bold))
+            .foregroundStyle(.content)
+          Text("Par \(hole.par) · \(distance)m")
+            .font(.system(size: 24, weight: .medium))
+            .foregroundStyle(.content)
 
+        }
+        Spacer()
+        ScoreCell(score: score, par: hole.par)
       }
-      Spacer()
-      ScoreCell(score: score, par: hole.par)
+      .padding(.top, 8)
+      .padding(.horizontal, 16)
+      // Bottom part - badges
+      ScrollView(.horizontal, showsIndicators: false) {
+        HStack(spacing: 2) {
+          ForEach(roundsViewModel.holeBadges) { flair in
+            Badge(
+              text: flair.label,
+              colour: flair.colour,
+              size: 12
+            )
+            .padding(.horizontal, 4)
+          }
+        }
+        .padding(.leading, 12)
+      }
     }
-    .padding(.top, 8)
-    .padding(.horizontal, 16)
   }
 }
 
@@ -199,8 +235,8 @@ private struct SheetView: View {
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
 
   var body: some View {
-    let totalHeight = UIScreen.main.bounds.height - 60
-    let peekHeight: CGFloat = 85
+    let totalHeight = UIScreen.main.bounds.height - 70
+    let peekHeight: CGFloat = 105
 
     // Points to snap the sheet to when dragging
     let snapPoints: [(SheetPosition, CGFloat)] = [
@@ -299,12 +335,19 @@ private struct BottomBarView: View {
         Button {
           // Navigate to the previous hole
           if let prevHole = roundsViewModel.previousHole(current: hole.num) {
+            roundsViewModel.clearBadges()
+            
             isChangingHole = true
             hole = prevHole
             roundsViewModel.currentHole =
               roundsViewModel.roundHoles[prevHole.num - 1]
             shots = roundsViewModel.roundShots[prevHole.num] ?? []
             roundsViewModel.selectedShot = nil
+            _ = roundsViewModel.generateHoleBadges(
+              shots: shots,
+              hole: hole,
+              score: roundsViewModel.currentHole?.score ?? 0
+            )
           }
         } label: {
           VStack(spacing: 0) {
@@ -320,12 +363,18 @@ private struct BottomBarView: View {
         Button {
           // Navigate to the next hole
           if let nextHole = roundsViewModel.nextHole(current: hole.num) {
+            roundsViewModel.clearBadges()
             isChangingHole = true
             hole = nextHole
             roundsViewModel.currentHole =
               roundsViewModel.roundHoles[nextHole.num - 1]
             shots = roundsViewModel.roundShots[nextHole.num] ?? []
             roundsViewModel.selectedShot = nil
+            _ = roundsViewModel.generateHoleBadges(
+              shots: shots,
+              hole: hole,
+              score: roundsViewModel.currentHole?.score ?? 0
+            )
           }
         } label: {
           VStack(spacing: 0) {
