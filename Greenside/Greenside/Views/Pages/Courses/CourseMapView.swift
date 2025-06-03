@@ -274,6 +274,4 @@ struct CourseMapView: UIViewRepresentable {
       parent.annotations.removeAll { $0 == annotation }
     }
   }
-
-  
 }

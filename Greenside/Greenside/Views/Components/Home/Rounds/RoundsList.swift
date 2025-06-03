@@ -17,6 +17,9 @@ struct RoundsList: View {
     ScrollView(.horizontal, showsIndicators: false) {
       HStack(spacing: 12) {
         AddRoundCard()
+          .environmentObject(tabBarVisibility)
+          
+          
         ForEach(roundsViewModel.allRounds) { round in
           RoundCard(round: round)
             .environmentObject(tabBarVisibility)

@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct AddRoundCard: View {
+  @EnvironmentObject private var tabBarVisibility: TabBarVisibility
+  
   var body: some View {
     NavigationLink {
       AddRoundView()
+        .environmentObject(tabBarVisibility)
     } label: {
       VStack {
         Text("Add Round")
