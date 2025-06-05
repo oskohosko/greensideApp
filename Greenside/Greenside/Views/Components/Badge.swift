@@ -29,7 +29,7 @@ struct Badge: View {
           .font(.system(size: (size + 2), weight: .medium))
       }
     }
-    .padding(6)
+    .padding(size / 3)
     .padding(.horizontal, 8)
     .background(colour)
     .opacity(0.8)

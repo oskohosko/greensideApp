@@ -132,10 +132,66 @@ struct AddRoundView: View {
                 AddRoundHoleList(mapType: $mapType)
                   .environmentObject(vm)
                   .environmentObject(tabBarVisibility)
+
+                RoundScoreTable()
+                  .environmentObject(vm)
+                  .padding(.top, 16)
+
+                HStack {
+                  // Save button to save shots
+                  Button {
+                    Task {
+                      var holeScores: [Int: Int] = [:]
+                      // Calculating score for each hole
+                      for hole in vm.allHoles {
+                        let scoreForHole = vm.scores[hole.num] ?? vm.roundShots[hole.num]?.count ?? 0
+                        holeScores[hole.num] = scoreForHole
+                      }
+                      // Doing final score
+                      let final: Int = {
+                        if let manualScore = Int(vm.finalScore),
+                           !vm.finalScore.isEmpty
+                        {
+                          return manualScore
+                        }
+                        return holeScores.values.reduce(0, +)
+                      }()
+                      
+                      // Saving to firebase
+                      await vm.saveRound(scores: holeScores, finalScore: final)
+                    }
+                    
+                  } label: {
+                    Text(vm.isSaving ? "Saving..." : "Save Round")
+                      .font(.system(size: 20, weight: .medium))
+                      .foregroundStyle(.white)
+                      .padding(.vertical, 8)
+                      .padding(.horizontal, 16)
+                      .background(.accentGreen)
+                      .cornerRadius(8)
+                  }
+                  .disabled(vm.isSaving || !vm.canAdvance)
+                  Spacer()
+                  // Reset round
+                  Button {
+                    vm.resetData()
+                  } label: {
+                    Text("Reset Round")
+                      .font(.system(size: 20, weight: .medium))
+                      .foregroundStyle(.white)
+                      .padding(.vertical, 8)
+                      .padding(.horizontal, 16)
+                      .background(.lightRed)
+                      .cornerRadius(8)
+                  }
+                }
+                .padding(.horizontal)
+
               }
             }
-            Spacer()
+            Spacer().frame(height: 100)
           }
+
         }
 
       }

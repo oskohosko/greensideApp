@@ -153,6 +153,15 @@ struct AddShotsView: View {
     .onChange(of: shots) {
       score = shots.count
     }
+    .alert("Save Error", isPresented: .constant(vm.saveError != nil)) {
+      Button("OK") {
+        vm.saveError = nil
+      }
+    } message: {
+      if let error = vm.saveError {
+        Text(error)
+      }
+    }
     .popup($popup)
   }
 }

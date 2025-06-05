@@ -66,7 +66,6 @@ struct AddRoundHoleList: View {
         }
       }
     }
-    Spacer().frame(height: 200)
   }
 }
 
