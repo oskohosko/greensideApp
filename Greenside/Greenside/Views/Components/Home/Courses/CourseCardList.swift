@@ -9,6 +9,7 @@ import CoreLocation
 import SwiftUI
 
 struct CourseCardList: View {
+  @EnvironmentObject private var router: Router
 
   @EnvironmentObject private var viewModel: CoursesViewModel
 
@@ -17,8 +18,10 @@ struct CourseCardList: View {
       LazyHStack(spacing: 12) {
         ForEach(viewModel.filteredCourses) { course in
           CourseCard(
-            course: course
-          ).environmentObject(viewModel.locationManager)
+            course: course,
+            locationManager: viewModel.locationManager
+          )
+          .environmentObject(router)
         }
       }
       .padding(.horizontal)
@@ -27,5 +30,7 @@ struct CourseCardList: View {
 }
 
 #Preview {
-  CourseCardList().environmentObject(CoursesViewModel())
+  CourseCardList()
+    .environmentObject(CoursesViewModel())
+    .environmentObject(Router())
 }

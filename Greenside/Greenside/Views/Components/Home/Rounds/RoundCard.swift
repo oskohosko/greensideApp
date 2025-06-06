@@ -11,6 +11,7 @@ import SwiftUI
 struct RoundCard: View {
   
   @EnvironmentObject private var tabBarVisibility: TabBarVisibility
+  @EnvironmentObject private var router: Router
 
   // The round we are displaying
   let round: Round
@@ -18,9 +19,8 @@ struct RoundCard: View {
   @State private var isDragging = false
 
   var body: some View {
-    NavigationLink {
-      RoundDetailView(round: round)
-        .environmentObject(tabBarVisibility)
+    Button {
+      router.navigateToRound(round)
     } label: {
       HStack {
         VStack {
@@ -85,4 +85,6 @@ struct RoundCard: View {
   )
 
   RoundCard(round: testRound)
+    .environmentObject(TabBarVisibility())
+    .environmentObject(Router())
 }

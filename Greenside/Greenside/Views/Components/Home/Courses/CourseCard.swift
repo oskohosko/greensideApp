@@ -11,7 +11,8 @@ import SwiftUI
 struct CourseCard: View {
 
   let course: Course
-  @EnvironmentObject var locationManager: LocationManager
+  @ObservedObject var locationManager: LocationManager
+  @EnvironmentObject private var router: Router
 
   private var distance: String {
     guard let userLocation = locationManager.currentLocation else {
@@ -30,8 +31,8 @@ struct CourseCard: View {
   }
 
   var body: some View {
-    NavigationLink {
-      CourseDetailView(course: course)
+    Button {
+      router.navigateToCourse(course)
     } label: {
       VStack {
         Text(course.name)
@@ -100,5 +101,7 @@ let testLocation = CLLocation(
 #Preview {
   CourseCard(
     course: testCourse,
-  ).environmentObject(CoursesViewModel().locationManager)
+    locationManager: CoursesViewModel().locationManager
+  )
+  .environmentObject(Router())
 }

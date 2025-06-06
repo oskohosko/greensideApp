@@ -32,14 +32,17 @@ struct CustomTabBarView: View {
               .environmentObject(tabBarVisibility)
           case .play:
             PlayGolfView()
+                .environmentObject(router)
           case .courses:
             CoursesView()
               .environmentObject(router)
               .environmentObject(globalViewModel)
           case .analysis:
             AnalysisView()
+                .environmentObject(router)
           case .menu:
             MenuView()
+                .environmentObject(router)
 
           }
 
@@ -52,35 +55,40 @@ struct CustomTabBarView: View {
               selectedIcon: "house.fill",
               tab: .home,
               title: "Home",
-              selectedTab: $router.tab
+              selectedTab: $router.tab,
+              router: router
             )
             TabBarButton(
               icon: "flag.circle",
               selectedIcon: "flag.circle.fill",
               tab: .play,
               title: "Play",
-              selectedTab: $router.tab
+              selectedTab: $router.tab,
+              router: router
             )
             TabBarButton(
               icon: "mappin.circle",
               selectedIcon: "mappin.circle.fill",
               tab: .courses,
               title: "Courses",
-              selectedTab: $router.tab
+              selectedTab: $router.tab,
+              router: router
             )
             TabBarButton(
               icon: "chart.pie",
               selectedIcon: "chart.pie.fill",
               tab: .analysis,
               title: "Analysis",
-              selectedTab: $router.tab
+              selectedTab: $router.tab,
+              router: router
             )
             TabBarButton(
               icon: "text.justify",
               selectedIcon: "text.justify",
               tab: .menu,
               title: "Menu",
-              selectedTab: $router.tab
+              selectedTab: $router.tab,
+              router: router
             )
           }
           .padding(.horizontal, 10)
@@ -108,10 +116,11 @@ struct TabBarButton: View {
   let tab: Tab
   let title: String
   @Binding var selectedTab: Tab
+  let router: Router
 
   var body: some View {
     Button(action: {
-      selectedTab = tab
+      router.selectTab(tab)
     }) {
       VStack(spacing: 4) {
         Image(

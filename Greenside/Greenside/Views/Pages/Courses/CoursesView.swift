@@ -12,9 +12,10 @@ struct CoursesView: View {
   @State private var searchText: String = ""
 
   @EnvironmentObject private var viewModel: CoursesViewModel
+  @EnvironmentObject private var router: Router
 
   var body: some View {
-    NavigationStack {
+    NavigationStack(path: $router.coursesPath) {
       ZStack {
         Color.base200.ignoresSafeArea()
         VStack(spacing: 12) {
@@ -56,5 +57,7 @@ struct CoursesView: View {
 }
 
 #Preview {
-  CoursesView().environmentObject(CoursesViewModel())
+  CoursesView()
+    .environmentObject(CoursesViewModel())
+    .environmentObject(Router())
 }

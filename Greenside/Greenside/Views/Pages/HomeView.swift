@@ -18,7 +18,7 @@ struct HomeView: View {
   @EnvironmentObject private var tabBarVisibility: TabBarVisibility
 
   var body: some View {
-    NavigationStack {
+    NavigationStack(path: $router.homePath) {
       ZStack {
         Color.base200.ignoresSafeArea()
         VStack {
@@ -35,9 +35,8 @@ struct HomeView: View {
                 .foregroundStyle(Color.content)
             }
             Spacer()
-            NavigationLink {
-              AccountView()
-                .environmentObject(authViewModel)
+            Button {
+              router.navigate(to: "account")
             } label: {
               Image(systemName: "person.crop.circle")
                 .font(
@@ -62,8 +61,8 @@ struct HomeView: View {
               // Now a horizontal scroll view with cards
               RoundsList()
                 .environmentObject(roundsViewModel)
-                .environmentObject(coursesViewModel)
                 .environmentObject(tabBarVisibility)
+                .environmentObject(router)
 
               // Play again badge
               Badge(
@@ -107,8 +106,8 @@ struct HomeView: View {
                 .padding(.leading, 16)
               RoundsList()
                 .environmentObject(roundsViewModel)
-                .environmentObject(coursesViewModel)
                 .environmentObject(tabBarVisibility)
+                .environmentObject(router)
             }
           }
 
@@ -133,6 +132,30 @@ struct HomeView: View {
         coursesViewModel.filterCourses(by: "")
         coursesViewModel.sortCoursesByLocation()
       }
+      // MARK: - Navigation destinations
+      
+      // Destination for the round view
+      .navigationDestination(for: Round.self) { round in
+        RoundDetailView(round: round)
+          .environmentObject(roundsViewModel)
+          .environmentObject(coursesViewModel)
+          .environmentObject(tabBarVisibility)
+      }
+      // Destination for course view
+      .navigationDestination(for: Course.self) { course in
+        CourseDetailView(course: course)
+          .environmentObject(coursesViewModel)
+      }
+      // Destination for others
+      .navigationDestination(for: String.self) { destination in
+        if destination == "account" {
+          AccountView()
+            .environmentObject(authViewModel)
+        } else if destination == "addRound" {
+          AddRoundView()
+            .environmentObject(tabBarVisibility)
+        }
+      }
     }
   }
 }
@@ -142,4 +165,5 @@ struct HomeView: View {
     .environmentObject(CoursesViewModel())
     .environmentObject(Router())
     .environmentObject(RoundsViewModel())
+    .environmentObject(AuthViewModel())
 }

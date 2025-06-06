@@ -12,17 +12,20 @@ struct RoundsList: View {
   @EnvironmentObject private var roundsViewModel: RoundsViewModel
   
   @EnvironmentObject private var tabBarVisibility: TabBarVisibility
+  @EnvironmentObject private var router: Router
 
   var body: some View {
     ScrollView(.horizontal, showsIndicators: false) {
       HStack(spacing: 12) {
         AddRoundCard()
           .environmentObject(tabBarVisibility)
+          .environmentObject(router)
           
           
         ForEach(roundsViewModel.allRounds) { round in
           RoundCard(round: round)
             .environmentObject(tabBarVisibility)
+            .environmentObject(router)
         }
 
       }
@@ -34,5 +37,6 @@ struct RoundsList: View {
 #Preview {
   RoundsList()
     .environmentObject(RoundsViewModel())
+    .environmentObject(TabBarVisibility())
     .environmentObject(Router())
 }

@@ -36,7 +36,7 @@ struct RoundHole: Identifiable, Codable, Equatable {
 }
 
 // Round of golf struct
-struct Round: Identifiable, Codable {
+struct Round: Identifiable, Codable, Hashable {
   @DocumentID var id: String?
   var courseId: Int?
   var courseName: String?

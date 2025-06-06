@@ -17,7 +17,7 @@ struct AddRoundMapView: UIViewRepresentable {
   @Binding var shots: [Shot]
 
   private let mapManager = MapManager()
-  let hole: Hole
+  @Binding var hole: Hole
 
   var region: MKCoordinateRegion
   var camera: MKMapCamera
@@ -215,6 +215,8 @@ struct AddRoundMapView: UIViewRepresentable {
         from: coord,
         to: currentHole.greenLocation
       )
+      
+      print(distance)
 
       // Creating a new shot
       let shot = Shot(
@@ -373,6 +375,8 @@ struct AddRoundMapView: UIViewRepresentable {
         .compactMap { $0 as? DistanceLabelAnnotation }
         .suffix(from: i - 1)
       mapView.removeAnnotations(Array(badLabels))
+      
+      print(parent.shots)
     }
   }
 }

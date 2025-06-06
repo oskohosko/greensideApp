@@ -8,7 +8,12 @@
 import Foundation
 import CoreLocation
 
-class Course: Identifiable, Decodable {
+struct Course: Identifiable, Decodable, Hashable {
+  
+  static func == (lhs: Course, rhs: Course) -> Bool {
+    return lhs.id == rhs.id
+  }
+  
   var id: Int
   var name: String
   var lat: Double

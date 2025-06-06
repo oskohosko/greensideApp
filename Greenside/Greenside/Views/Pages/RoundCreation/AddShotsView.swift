@@ -51,7 +51,7 @@ struct AddShotsView: View {
           GeometryReader { geo in
             AddRoundMapView(
               shots: $shots,
-              hole: hole,
+              hole: $hole,
               region: mapManager.fitRegion(
                 tee: hole.teeLocation,
                 green: hole.greenLocation

@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct MenuView: View {
+  
+  @EnvironmentObject private var router: Router
   var body: some View {
-    NavigationStack {
+    NavigationStack(path: $router.menuPath) {
       ZStack {
         Color.base200.ignoresSafeArea()
         VStack(spacing: 0) {
@@ -33,4 +35,5 @@ struct MenuView: View {
 
 #Preview {
   MenuView()
+    .environmentObject(Router())
 }

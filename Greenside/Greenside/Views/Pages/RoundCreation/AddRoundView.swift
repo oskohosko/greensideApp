@@ -17,7 +17,7 @@ struct AddRoundView: View {
   var body: some View {
     ZStack {
       Color.base200.ignoresSafeArea()
-      VStack {
+      VStack(spacing: 0) {
         HStack {
           Text("Add Round")
             .font(.system(size: 26, weight: .bold))
@@ -44,6 +44,7 @@ struct AddRoundView: View {
                 .cornerRadius(12)
             }
             .padding(.horizontal)
+            .padding(.top, 8)
 
             // Date Picker section
             VStack(alignment: .leading, spacing: 2) {
@@ -144,23 +145,25 @@ struct AddRoundView: View {
                       var holeScores: [Int: Int] = [:]
                       // Calculating score for each hole
                       for hole in vm.allHoles {
-                        let scoreForHole = vm.scores[hole.num] ?? vm.roundShots[hole.num]?.count ?? 0
+                        let scoreForHole =
+                          vm.scores[hole.num] ?? vm.roundShots[hole.num]?.count
+                          ?? 0
                         holeScores[hole.num] = scoreForHole
                       }
                       // Doing final score
                       let final: Int = {
                         if let manualScore = Int(vm.finalScore),
-                           !vm.finalScore.isEmpty
+                          !vm.finalScore.isEmpty
                         {
                           return manualScore
                         }
                         return holeScores.values.reduce(0, +)
                       }()
-                      
+
                       // Saving to firebase
                       await vm.saveRound(scores: holeScores, finalScore: final)
                     }
-                    
+
                   } label: {
                     Text(vm.isSaving ? "Saving..." : "Save Round")
                       .font(.system(size: 20, weight: .medium))
@@ -191,10 +194,10 @@ struct AddRoundView: View {
             }
             Spacer().frame(height: 100)
           }
-
         }
 
       }
+      
     }
 
     .sheet(isPresented: $showCourseSheet) {
