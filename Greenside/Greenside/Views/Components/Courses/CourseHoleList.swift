@@ -11,7 +11,7 @@ import SwiftUI
 struct CourseHoleList: View {
   @EnvironmentObject private var viewModel: CoursesViewModel
 
-  let mapType: MapType
+  @Binding var  mapType: MapType
 
   var body: some View {
     ScrollView(.vertical, showsIndicators: false) {
@@ -30,7 +30,7 @@ struct CourseHoleList: View {
                   
                   CourseHoleCard(
                     hole: hole,
-                    mapType: mapType
+                    mapType: $mapType
                   ).environmentObject(viewModel)
                 }
               }
@@ -53,7 +53,7 @@ struct CourseHoleList: View {
                     hole in
                     CourseHoleCard(
                       hole: hole,
-                      mapType: mapType
+                      mapType: $mapType
                     ).environmentObject(viewModel)
                   }
                 }
@@ -70,6 +70,8 @@ struct CourseHoleList: View {
 }
 
 #Preview {
-  CourseHoleList(mapType: .standard)
+  @Previewable @State var mapType: MapType = .standard
+  
+  CourseHoleList(mapType: $mapType)
     .environmentObject(CoursesViewModel())
 }

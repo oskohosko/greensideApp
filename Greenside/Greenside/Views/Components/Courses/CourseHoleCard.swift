@@ -15,13 +15,10 @@ struct CourseHoleCard: View {
   private let mapManager = MapManager()
 
   @State private var isHolePresented = false
-  @State private var annotations: [MKPointAnnotation] = []
-  @State private var overlay: ShotOverlay? = nil
-  @State private var isMapInteractive: Bool = false
 
   let hole: Hole
 
-  let mapType: MapType
+  @Binding var mapType: MapType
 
   private var distance: String {
 
@@ -84,17 +81,8 @@ struct CourseHoleCard: View {
           HoleDetailFullScreen(hole: hole)
             .environmentObject(coursesViewModel)
         }
-        CourseMapView(
-          annotations: $annotations,
-          shotOverlay: $overlay,
-          region: region,
-          camera: camera,
-          isMapInteractionEnabled: false,
-          mapType: mapType,
-          isChangingHole: false,
-          interactive: $isMapInteractive
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        MapView(mapType: $mapType, region: region, camera: camera)
+          .clipShape(RoundedRectangle(cornerRadius: 12))
       }
 
     }
@@ -109,6 +97,7 @@ struct CourseHoleCard: View {
 }
 
 #Preview {
+  @Previewable @State var mapType: MapType = .standard
   let testHole = Hole(
     tee_lat: -37.840217196015125,
     tee_lng: 145.09999076907312,
@@ -117,7 +106,7 @@ struct CourseHoleCard: View {
     num: 6,
     par: 4
   )
-  CourseHoleCard(hole: testHole, mapType: .standard).environmentObject(
+  CourseHoleCard(hole: testHole, mapType: $mapType).environmentObject(
     CoursesViewModel()
   )
 }

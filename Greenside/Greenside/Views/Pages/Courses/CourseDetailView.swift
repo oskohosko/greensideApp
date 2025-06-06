@@ -72,7 +72,7 @@ struct CourseDetailView: View {
             .padding(.horizontal, 16)
 
             CourseHoleList(
-              mapType: mapType
+              mapType: $mapType
             ).environmentObject(viewModel)
           }
         }

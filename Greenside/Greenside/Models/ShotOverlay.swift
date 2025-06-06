@@ -12,7 +12,6 @@ class ShotOverlay: NSObject, MKOverlay {
   private(set) var startCoordinate: CLLocationCoordinate2D
   private(set) var endCoordinate: CLLocationCoordinate2D
 
-  // Store the fixed shot distance in meters
   private(set) var shotDistance: CLLocationDistance
 
   private(set) var dispersionFactor: Double = 0.1

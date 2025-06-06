@@ -12,6 +12,7 @@ import SwiftUI
 struct HoleDetailView: View {
   @State var hole: Hole
   @State private var shotOverlay: ShotOverlay? = nil
+  @State private var distanceOverlay: DistanceOverlay? = nil
   @State private var annotations: [MKPointAnnotation] = []
   @State private var isChangingHole: Bool = false
   @State private var isMapInteractive: Bool = true
@@ -45,6 +46,7 @@ struct HoleDetailView: View {
       CourseMapView(
         annotations: $annotations,
         shotOverlay: $shotOverlay,
+        distanceOverlay: $distanceOverlay,
         region: region,
         camera: camera,
         isMapInteractionEnabled: true,
@@ -174,6 +176,7 @@ struct HoleDetailView: View {
         // Removing overlays
         shotOverlay = nil
         selectedClub = nil
+        distanceOverlay = nil
         // Toggling location tracking
         if viewModel.locationManager.isTrackingLocation {
           viewModel.locationManager.stopTrackingLocation()
@@ -206,6 +209,7 @@ struct HoleDetailView: View {
         shotOverlay = nil
         annotations.removeAll()
         selectedClub = nil
+        distanceOverlay = nil
       } label: {
         Image(
           systemName: "trash"
@@ -235,6 +239,7 @@ struct HoleDetailView: View {
             annotations.removeAll()
             shotOverlay = nil
             selectedClub = nil
+            distanceOverlay = nil
           }
         } label: {
           VStack(spacing: 2) {
@@ -268,6 +273,7 @@ struct HoleDetailView: View {
             annotations.removeAll()
             shotOverlay = nil
             selectedClub = nil
+            distanceOverlay = nil
           }
 
         } label: {

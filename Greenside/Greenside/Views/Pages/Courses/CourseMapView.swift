@@ -23,7 +23,8 @@ struct CourseMapView: UIViewRepresentable {
 
   @Binding var annotations: [MKPointAnnotation]
   @Binding var shotOverlay: ShotOverlay?
-
+  @Binding var distanceOverlay: DistanceOverlay?
+  
   // Property to store our custom shot overlay
   @State private var activeShotOverlay: ShotOverlay?
 
@@ -34,7 +35,7 @@ struct CourseMapView: UIViewRepresentable {
   var isChangingHole: Bool
 
   @Binding var interactive: Bool
-  
+
   func makeCoordinator() -> Coordinator {
     Coordinator(self)
   }
@@ -67,6 +68,13 @@ struct CourseMapView: UIViewRepresentable {
     )
     mapView.addGestureRecognizer(panGesture)
 
+    // Adding a touch gesture for distance annotations
+    let tapGesture = UITapGestureRecognizer(
+      target: context.coordinator,
+      action: #selector(Coordinator.handleTap(_:))
+    )
+    mapView.addGestureRecognizer(tapGesture)
+
     return mapView
   }
 
@@ -92,11 +100,16 @@ struct CourseMapView: UIViewRepresentable {
     if let overlay = shotOverlay {
       mapView.addOverlay(overlay, level: .aboveLabels)
     }
+    // And handling distance overlay
+    if let distanceOverlay = distanceOverlay {
+      mapView.addOverlay(distanceOverlay, level: .aboveLabels)
+    }
 
     // Handling annotations
     mapView.removeAnnotations(mapView.annotations)
     mapView.addAnnotations(annotations)
-
+    
+    
     // Updating map type
     mapView.mapType = mapType == .standard ? .standard : .satellite
   }
@@ -112,6 +125,8 @@ struct CourseMapView: UIViewRepresentable {
     init(_ parent: CourseMapView) {
       self.parent = parent
     }
+
+    // MARK: - Gesture Recognizer Handlers
 
     // Long press handler for annotations
     @MainActor @objc func handleLongPress(_ gr: UILongPressGestureRecognizer) {
@@ -235,6 +250,49 @@ struct CourseMapView: UIViewRepresentable {
       }
     }
 
+    // Tap Gesture recogniser method
+    @MainActor @objc func handleTap(_ gr: UITapGestureRecognizer) {
+      guard let mapView = gr.view as? MKMapView else {
+        return
+      }
+
+      // Adding a little haptic feedback
+      let feedback = UIImpactFeedbackGenerator(style: .light)
+      feedback.prepare()
+      feedback.impactOccurred()
+
+      // Fetching the point in which the user tapped
+      let point = gr.location(in: mapView)
+      let coord = mapView.convert(point, toCoordinateFrom: mapView)
+
+      // Getting end point and start point
+      // if we are trakcing location we want to use the user's position
+      var startPoint: CLLocationCoordinate2D = .init()
+      if parent.viewModel.locationManager.isTrackingLocation {
+        if let currentLocation = parent.viewModel.locationManager
+          .currentLocation
+        {
+          // Setting start as user's location
+          startPoint = currentLocation.coordinate
+        }
+        // Otherwise we are using the tee
+      } else {
+        if let selectedHole = parent.viewModel.selectedHole {
+          
+          startPoint = selectedHole.teeLocation
+        }
+      }
+      // Now end point is the green location
+      let endPoint = parent.viewModel.selectedHole?.greenLocation ?? coord
+      
+      // Now we should have three points and we need to connect them
+      let distanceOverlay = DistanceOverlay(
+        startCoordinate: startPoint,
+        midCoordinate: coord,
+        endCoordinate: endPoint)
+      parent.distanceOverlay = distanceOverlay
+    }
+
     // MARK: - MKMapViewDelegate Methods
 
     // Render overlays based on their type
@@ -244,6 +302,11 @@ struct CourseMapView: UIViewRepresentable {
       // Handle our custom ShotOverlay
       if let shotOverlay = overlay as? ShotOverlay {
         return ShotOverlayRenderer(overlay: shotOverlay)
+      }
+      
+      // Handling custom distanceOverlay
+      if let distanceOverlay = overlay as? DistanceOverlay {
+        return DistanceOverlayRenderer(overlay: distanceOverlay)
       }
 
       // Handle standard overlays
