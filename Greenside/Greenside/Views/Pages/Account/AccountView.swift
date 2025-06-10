@@ -10,12 +10,13 @@ import SwiftUI
 struct AccountView: View {
   // Flag to display add club sheet
   @State private var showingAddClub = false
-
-  // Club editing
-  @State private var clubToEdit: Club?
-
   // Collapsing list
   @State private var isClubsExpanded: Bool = false
+  // Club editing
+  @State private var clubToEdit: Club?
+  
+  // Profile Editing
+  @State private var editProfile: Bool = false
 
   @EnvironmentObject var authViewModel: AuthViewModel
 
@@ -28,6 +29,12 @@ struct AccountView: View {
             Image(systemName: "figure.golf.circle.fill")
               .font(
                 .system(size: 44)
+              )
+              
+              .background(
+                Circle()
+                  .fill(Color.white)
+                  .frame(width: 43, height: 43)
               )
               .foregroundStyle(Color.accentGreen)
 
@@ -47,7 +54,7 @@ struct AccountView: View {
 
             Spacer()
             Button {
-              // Edit profile button
+              editProfile.toggle()
             } label: {
               Image(systemName: "square.and.pencil")
                 .font(.system(size: 26, weight: .medium))

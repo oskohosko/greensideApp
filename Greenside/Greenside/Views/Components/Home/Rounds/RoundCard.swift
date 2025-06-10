@@ -9,14 +9,12 @@ import FirebaseCore
 import SwiftUI
 
 struct RoundCard: View {
-  
+
   @EnvironmentObject private var tabBarVisibility: TabBarVisibility
   @EnvironmentObject private var router: Router
 
   // The round we are displaying
   let round: Round
-
-  @State private var isDragging = false
 
   var body: some View {
     Button {
@@ -55,21 +53,14 @@ struct RoundCard: View {
           .foregroundColor(.content)
           .padding(.leading, 10)
 
-      }.padding()
-        .frame(width: 200, height: 110)
-        .fixedSize(horizontal: false, vertical: true)
-        .background(isDragging ? Color.base101 : Color.base100)
-        .cornerRadius(20)
-        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
-        .simultaneousGesture(
-          DragGesture()
-            .onChanged { _ in
-              isDragging = true
-            }
-            .onEnded { _ in
-              isDragging = false
-            }
-        )
+      }
+
+      .padding()
+      .frame(width: 200, height: 110)
+      .fixedSize(horizontal: false, vertical: true)
+      .background(.base100)
+      .cornerRadius(20)
+      .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
   }
 

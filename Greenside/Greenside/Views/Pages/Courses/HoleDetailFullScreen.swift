@@ -11,6 +11,8 @@ struct HoleDetailFullScreen: View {
   @Environment(\.dismiss) private var dismiss
 
   let hole: Hole
+  
+  @EnvironmentObject private var viewModel: CoursesViewModel
 
   // This is to track the drag offset when dismissing the view
   @State private var dragOffset: CGFloat = .zero
@@ -22,6 +24,7 @@ struct HoleDetailFullScreen: View {
   var body: some View {
     NavigationStack {
       HoleDetailView(hole: hole)
+        .environmentObject(viewModel)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
           ToolbarItem(placement: .navigationBarLeading) {
@@ -33,6 +36,9 @@ struct HoleDetailFullScreen: View {
           }
         }
 
+    }
+    .onAppear {
+      viewModel.selectedHole = hole
     }
     .offset(y: dragOffset)
     .gesture(

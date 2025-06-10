@@ -16,6 +16,14 @@ enum MapLayerType: Int {
   case interactive = 2  // Interactive elements being manipulated
 }
 
+struct DistanceOverlay {
+  let line1: MKPolyline
+  let distance1: DistanceLabel
+  let line2: MKPolyline
+  let distance2: DistanceLabel
+  let circle: MKCircle
+}
+
 // Our MapView from UIKit
 struct CourseMapView: UIViewRepresentable {
   @EnvironmentObject private var viewModel: CoursesViewModel
@@ -24,7 +32,7 @@ struct CourseMapView: UIViewRepresentable {
   @Binding var annotations: [MKPointAnnotation]
   @Binding var shotOverlay: ShotOverlay?
   @Binding var distanceOverlay: DistanceOverlay?
-  
+
   // Property to store our custom shot overlay
   @State private var activeShotOverlay: ShotOverlay?
 
@@ -58,6 +66,7 @@ struct CourseMapView: UIViewRepresentable {
       target: context.coordinator,
       action: #selector(Coordinator.handleLongPress(_:))
     )
+    //    longPress.delegate = context.coordinator
     longPress.minimumPressDuration = 0.35
     mapView.addGestureRecognizer(longPress)
 
@@ -66,6 +75,8 @@ struct CourseMapView: UIViewRepresentable {
       target: context.coordinator,
       action: #selector(Coordinator.handlePan(_:))
     )
+    panGesture.delegate = context.coordinator
+    //    panGesture.cancelsTouchesInView = false
     mapView.addGestureRecognizer(panGesture)
 
     // Adding a touch gesture for distance annotations
@@ -73,6 +84,7 @@ struct CourseMapView: UIViewRepresentable {
       target: context.coordinator,
       action: #selector(Coordinator.handleTap(_:))
     )
+    tapGesture.delegate = context.coordinator
     mapView.addGestureRecognizer(tapGesture)
 
     return mapView
@@ -86,6 +98,10 @@ struct CourseMapView: UIViewRepresentable {
 
       // Clear active shot overlay when changing holes
       context.coordinator.activeOverlay = nil
+
+      // Clearing other annotations and overlays
+      mapView.removeAnnotations(mapView.annotations)
+
     }
 
     // Map interaction settings
@@ -97,25 +113,41 @@ struct CourseMapView: UIViewRepresentable {
 
     // Handling shot overlay
     mapView.removeOverlays(mapView.overlays)
+    // And handling distance annotations
+    mapView.removeAnnotations(
+      mapView.annotations.filter { $0 is DistanceLabel }
+    )
+
+    // And removing any annotations that are on the mapview but not in annotations
+    let annotationsToRemove = mapView.annotations.filter { annotation in
+      !annotations.contains(where: { $0 === annotation })
+    }
+    mapView.removeAnnotations(annotationsToRemove)
+
     if let overlay = shotOverlay {
       mapView.addOverlay(overlay, level: .aboveLabels)
     }
+
     // And handling distance overlay
     if let distanceOverlay = distanceOverlay {
-      mapView.addOverlay(distanceOverlay, level: .aboveLabels)
+      mapView.addOverlay(distanceOverlay.circle, level: .aboveLabels)
+      mapView.addOverlay(distanceOverlay.line1, level: .aboveLabels)
+      mapView.addOverlay(distanceOverlay.line2, level: .aboveLabels)
+      mapView.addAnnotation(distanceOverlay.distance1)
+      mapView.addAnnotation(distanceOverlay.distance2)
     }
 
     // Handling annotations
-    mapView.removeAnnotations(mapView.annotations)
     mapView.addAnnotations(annotations)
-    
-    
+
     // Updating map type
     mapView.mapType = mapType == .standard ? .standard : .satellite
   }
 
   // Coordinator for gestures and annotations
-  final class Coordinator: NSObject, MKMapViewDelegate {
+  final class Coordinator: NSObject, MKMapViewDelegate,
+    UIGestureRecognizerDelegate
+  {
     var parent: CourseMapView
 
     // Active overlay being manipulated
@@ -133,6 +165,7 @@ struct CourseMapView: UIViewRepresentable {
       guard gr.state == .began, let mapView = gr.view as? MKMapView else {
         return
       }
+      print("Long press detected")
 
       let point = gr.location(in: mapView)
       let coord = mapView.convert(point, toCoordinateFrom: mapView)
@@ -255,6 +288,20 @@ struct CourseMapView: UIViewRepresentable {
       guard let mapView = gr.view as? MKMapView else {
         return
       }
+      // Failing if we have tapped in a point annotation
+      let tappedAnnotations = mapView.annotations.compactMap {
+        annotation -> MKAnnotation? in
+        guard let annotationView = mapView.view(for: annotation) else {
+          return nil
+        }
+        return annotationView.frame.contains(gr.location(in: mapView)) ? annotation : nil
+      }
+      
+      if !tappedAnnotations.isEmpty {
+        return
+      }
+
+      // parent.distanceOverlay = nil
 
       // Adding a little haptic feedback
       let feedback = UIImpactFeedbackGenerator(style: .light)
@@ -278,19 +325,83 @@ struct CourseMapView: UIViewRepresentable {
         // Otherwise we are using the tee
       } else {
         if let selectedHole = parent.viewModel.selectedHole {
-          
+
           startPoint = selectedHole.teeLocation
         }
       }
       // Now end point is the green location
       let endPoint = parent.viewModel.selectedHole?.greenLocation ?? coord
-      
-      // Now we should have three points and we need to connect them
-      let distanceOverlay = DistanceOverlay(
-        startCoordinate: startPoint,
-        midCoordinate: coord,
-        endCoordinate: endPoint)
-      parent.distanceOverlay = distanceOverlay
+
+      // Getting distance from start to coord and coord to end
+      let startToCoord = parent.mapManager.distanceBetweenPoints(
+        from: startPoint,
+        to: coord
+      )
+      let coordToEnd = parent.mapManager.distanceBetweenPoints(
+        from: coord,
+        to: endPoint
+      )
+
+      let radius =
+        parent.mapManager.distanceBetweenPoints(from: startPoint, to: endPoint)
+        * 0.015
+
+      let circle = MKCircle(center: coord, radius: radius)
+
+      // Now I don't want the lines inside the circle, so I need them to stop on the edge of the circle
+      // Meaning we need to subtract the radius from the line
+
+      // First bearing is mid point in direction of startpoint
+      let firstBearing = parent.mapManager.bearingBetweenPoints(
+        from: coord,
+        to: startPoint
+      )
+      let secondBearing = parent.mapManager.bearingBetweenPoints(
+        from: coord,
+        to: endPoint
+      )
+
+      let firstCirclePoint = parent.mapManager.destinationPoint(
+        from: coord,
+        distance: radius,
+        bearing: firstBearing
+      )
+      let secondCirclePoint = parent.mapManager.destinationPoint(
+        from: coord,
+        distance: radius,
+        bearing: secondBearing
+      )
+
+      // Using polylines and circles for the quality
+      let line1 = MKPolyline(
+        coordinates: [startPoint, firstCirclePoint],
+        count: 2
+      )
+      let line2 = MKPolyline(
+        coordinates: [secondCirclePoint, endPoint],
+        count: 2
+      )
+
+      // Getting distance labels
+      let distToPointLabel = DistanceLabel(
+        at: line1.coordinate,
+        distance: startToCoord
+      )
+      let distToGreenLabel = DistanceLabel(
+        at: line2.coordinate,
+        distance: coordToEnd
+      )
+
+      let newDistanceOverlay = DistanceOverlay(
+        line1: line1,
+        distance1: distToPointLabel,
+        line2: line2,
+        distance2: distToGreenLabel,
+        circle: circle
+      )
+
+      parent.distanceOverlay = newDistanceOverlay
+
     }
 
     // MARK: - MKMapViewDelegate Methods
@@ -303,29 +414,41 @@ struct CourseMapView: UIViewRepresentable {
       if let shotOverlay = overlay as? ShotOverlay {
         return ShotOverlayRenderer(overlay: shotOverlay)
       }
-      
-      // Handling custom distanceOverlay
-      if let distanceOverlay = overlay as? DistanceOverlay {
-        return DistanceOverlayRenderer(overlay: distanceOverlay)
+
+      if let polyline = overlay as? MKPolyline {
+        let renderer = MKPolylineRenderer(overlay: polyline)
+        renderer.strokeColor = .white
+        renderer.lineWidth = 3.0
+        renderer.lineCap = .round
+        return renderer
       }
 
-      // Handle standard overlays
-      switch overlay {
-      case is MKPolyline:
-        let renderer = MKPolylineRenderer(overlay: overlay)
+      if let circle = overlay as? MKCircle {
+        let renderer = MKCircleRenderer(circle: circle)
         renderer.strokeColor = .white
-        renderer.lineWidth = 3
+        renderer.lineWidth = 3.0
         return renderer
-
-      case is MKCircle:
-        let renderer = MKCircleRenderer(overlay: overlay)
-        renderer.strokeColor = .white
-        renderer.lineWidth = 3
-        return renderer
-
-      default:
-        return MKOverlayRenderer()
       }
+
+      return MKOverlayRenderer()
+    }
+
+    func mapView(_ mapView: MKMapView, viewFor annotation: any MKAnnotation)
+      -> MKAnnotationView?
+    {
+      if let label = annotation as? DistanceLabel {
+        let view =
+          (mapView.dequeueReusableAnnotationView(
+            withIdentifier: DistanceLabelView.reuseID
+          )
+            as? DistanceLabelView)
+          ?? DistanceLabelView(
+            annotation: label,
+            reuseIdentifier: DistanceLabelView.reuseID
+          )
+        return view
+      }
+      return nil
     }
 
     // Handle annotation selection
@@ -336,5 +459,91 @@ struct CourseMapView: UIViewRepresentable {
       mapView.removeAnnotation(annotation)
       parent.annotations.removeAll { $0 == annotation }
     }
+  }
+}
+
+class DistanceLabel: NSObject, MKAnnotation {
+  let coordinate: CLLocationCoordinate2D
+  let title: String?
+
+  init(at point: CLLocationCoordinate2D, distance: Double) {
+    self.coordinate = point
+    self.title = "\(Int(distance))m"
+  }
+}
+
+class DistanceLabelView: MKAnnotationView {
+
+  static let reuseID = "DistanceLabelView"
+  private let label = UILabel()
+
+  override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+    super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+    configure()
+  }
+
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  private func configure() {
+    canShowCallout = false
+    backgroundColor = UIColor.clear
+
+    label.font = .systemFont(ofSize: 12, weight: .medium)
+    label.textColor = .black
+    label.backgroundColor = .white
+    label.textAlignment = .center
+    label.layer.cornerRadius = 12
+    label.clipsToBounds = true
+
+    addSubview(label)
+  }
+
+  override var annotation: MKAnnotation? {
+    didSet {
+      guard let distanceAnnotation = annotation as? DistanceLabel
+      else { return }
+      label.text = distanceAnnotation.title
+      setNeedsLayout()
+    }
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+
+    guard let text = label.text, !text.isEmpty else { return }
+
+    let hPad: CGFloat = 8
+    let vPad: CGFloat = 4
+
+    // Calculate the required size for the text
+    let textSize = text.size(withAttributes: [.font: label.font!])
+    let labelSize = CGSize(
+      width: textSize.width + 2 * hPad,
+      height: textSize.height + 2 * vPad
+    )
+
+    // Center the label within the annotation view
+    label.frame = CGRect(
+      x: -labelSize.width / 2,
+      y: -labelSize.height / 2,
+      width: labelSize.width,
+      height: labelSize.height
+    )
+
+    // Set the bounds of the annotation view
+    bounds = CGRect(
+      x: -labelSize.width / 2,
+      y: -labelSize.height / 2,
+      width: labelSize.width,
+      height: labelSize.height
+    )
+  }
+
+  override func prepareForReuse() {
+    super.prepareForReuse()
+    label.text = nil
+    isHidden = false
   }
 }

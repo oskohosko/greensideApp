@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct RootView: View {
+  
+  @AppStorage("isDarkMode") private var isDarkMode = false
+  
   @EnvironmentObject var authViewModel: AuthViewModel
   @StateObject var globalViewModel = CoursesViewModel()
   @StateObject var roundsViewModel = RoundsViewModel()
@@ -26,11 +29,12 @@ struct RootView: View {
     //          WelcomeView()
     //      }
     //    }
-    CustomTabBarView()
+    CustomTabBarView(isDarkMode: $isDarkMode)
       .environmentObject(authViewModel)
       .environmentObject(globalViewModel)
       .environmentObject(roundsViewModel)
       .environmentObject(tabBarVisbility)
+      .preferredColorScheme(isDarkMode ? .dark : .light)
   }
 }
 

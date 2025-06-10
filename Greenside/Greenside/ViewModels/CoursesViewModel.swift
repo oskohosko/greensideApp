@@ -62,7 +62,7 @@ class CoursesViewModel: ObservableObject {
       selectedCourse = courseData
       courseHoles = courseData.holes
       filteredHoles = courseHoles
-      selectedHole = courseHoles.first
+//      selectedHole = courseHoles.first
     } catch {
       print("Holes loading failed:", error)
     }

@@ -24,7 +24,12 @@ final class Router: ObservableObject {
       tab = newTab
     }
   }
-  // General navigation
+  
+  func menuNavigate(to path: String) {
+    menuPath.append(path)
+  }
+  
+  // General home navigation
   func navigate(to path: String) {
     homePath.append(path)
   }

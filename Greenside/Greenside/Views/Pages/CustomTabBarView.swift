@@ -13,6 +13,8 @@ struct CustomTabBarView: View {
   @EnvironmentObject var globalViewModel: CoursesViewModel
   @EnvironmentObject var roundsViewModel: RoundsViewModel
   @EnvironmentObject var tabBarVisibility: TabBarVisibility
+  
+  @Binding var isDarkMode: Bool
 
   var body: some View {
     GeometryReader { geometry in
@@ -41,8 +43,9 @@ struct CustomTabBarView: View {
             AnalysisView()
                 .environmentObject(router)
           case .menu:
-            MenuView()
+              MenuView(isDarkMode: $isDarkMode)
                 .environmentObject(router)
+                .environmentObject(authViewModel)
 
           }
 
@@ -152,7 +155,8 @@ struct TabBarButton: View {
 }
 
 #Preview {
-  CustomTabBarView()
+  @Previewable @State var isDarkMode = false
+  CustomTabBarView(isDarkMode: $isDarkMode)
     .environmentObject(AuthViewModel())
     .environmentObject(CoursesViewModel())
     .environmentObject(RoundsViewModel())
